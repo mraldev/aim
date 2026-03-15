@@ -10,7 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.material3.TextField
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.Navigator
@@ -35,7 +40,9 @@ class MainScreen : Screen {
             Text("Usuario")
             TextField(value = usuario, onValueChange = { usuario = it })
             Text("Contraseña")
-            TextField(value = contrasenya, onValueChange = { contrasenya = it })
+            TextField(visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                value = contrasenya, onValueChange = { contrasenya = it })
             Text(frase)
             Button(  onClick = {
                 if (usuario.isNotEmpty() && contrasenya.isNotEmpty()) {
