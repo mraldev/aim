@@ -11,14 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.material3.TextField
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 
 @Composable
 fun App() {
@@ -30,6 +30,8 @@ fun App() {
 class MainScreen : Screen {
     @Composable
     override fun Content() {
+
+        val navigator = LocalNavigator.currentOrThrow
 
         var usuario: String by remember { mutableStateOf("") }
         var frase: String by remember { mutableStateOf("") }
@@ -48,7 +50,7 @@ class MainScreen : Screen {
                 if (usuario.isNotEmpty() && contrasenya.isNotEmpty()) {
                     var usuarioValido = (verificarUsuario(usuario) && verificarContrasenya(contrasenya))
                     if (usuarioValido) {
-                        frase = "Bienvenido a AIM: $usuario"
+                        navigator.push(Home())
                     }
                     else {
                         frase = "Datos introducidos no validos."
