@@ -7,6 +7,6 @@ class HealthCheckRepository (
     )
      {
         suspend fun getHealthStatus(): String {
-            return if (api.getHealth()) "UP" else "DOWN"
+            return api.getHealth()
         }
     }

@@ -5,7 +5,7 @@ import org.dam.tfg.api.endpoints.HealthCheck
 class ApiController {
     private val healthCheck = HealthCheck()
 
-    suspend fun getHealth(): Boolean {
+    suspend fun getHealth(): String {
         return healthCheck.getHealth()
     }
 }

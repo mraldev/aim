@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    kotlin("plugin.serialization") version libs.versions.kotlin.get()
 }
 
 kotlin {
@@ -54,7 +55,7 @@ kotlin {
             //? Dependencias de navegacion (se pueden agregar mas)
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.transitions)
-            //? Dependencias de Ktor
+            //? Dependencias de Ktor (json)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
