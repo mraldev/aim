@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -59,11 +57,12 @@ class Home(private val usuario: Users): Screen {
                             text = usuario.usuario, //? usuario (correo)
                             style = MaterialTheme.typography.titleLarge
                         )
-                        if (usuario.name != null)
+                        if (usuario.name != null) {
                             Text(
                                 text = usuario.name, //? nombre (nombre de la persona, usado en eventos)
                                 style = MaterialTheme.typography.bodyMedium
                             )
+                        }
                     }
                 }
 

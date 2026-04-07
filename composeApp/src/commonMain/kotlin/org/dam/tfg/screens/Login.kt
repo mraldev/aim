@@ -29,7 +29,12 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.dam.tfg.api.ApiController
 import org.dam.tfg.model.Users
+import org.dam.tfg.repository.HealthCheckRepository
 
 
 private val usuarios = listOf(
@@ -37,12 +42,15 @@ private val usuarios = listOf(
     Users("demo", "1234", "DEMO","Usuario normal demo", false)
 )
 //* Agregados usuarios basicos (eliminar en cuanto se haya logrado la conexion a la api)
+val apiController = ApiController()
 
 class Login: Screen {
     @Composable
     override fun Content() {
 
         val navigator = LocalNavigator.currentOrThrow
+        val repository = HealthCheckRepository()
+        var status by remember { mutableStateOf("Loading...") }
 
         var usuario: String by remember { mutableStateOf("") }
         val frase = remember { mutableStateOf("") }
@@ -53,7 +61,8 @@ class Login: Screen {
             focusRequester.requestFocus()
         }
 
-        Column(modifier = Modifier.fillMaxSize(),
+        Column(
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -76,7 +85,7 @@ class Login: Screen {
                 ),
                 value = contrasenya,
                 onValueChange = { contrasenya = it },
-                )
+            )
             Text(frase.value)
             Button(onClick = {
                 if (usuario.isNotEmpty() && contrasenya.isNotEmpty()) {
@@ -87,6 +96,10 @@ class Login: Screen {
             }) {
                 Text("LOGIN")
             }
+            LaunchedEffect(Unit) {
+                status = repository.getHealthStatus()
+            }
+            Text("Server status: $status")
         }
 
     }
