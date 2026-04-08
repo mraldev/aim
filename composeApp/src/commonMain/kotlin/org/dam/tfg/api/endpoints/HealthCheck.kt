@@ -12,11 +12,7 @@ class HealthCheck {
             val response = ApiClient.client.get(
                 "${ApiConfig.BASE_URL}/health"
             )
-//            {
-//                ApiConfig.defaultHeaders.forEach { (key, value) ->
-//                    headers.append(key, value)
-//                }
-//            }
+
             val body = response.body<HealthResponse>()
             return body.status
 
