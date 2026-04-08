@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.dam.tfg.customElements.buttonBar
+import org.dam.tfg.customElements.profileBar
 import org.dam.tfg.model.Users
 
 class Home(private val usuario: Users): Screen {
@@ -37,66 +39,26 @@ class Home(private val usuario: Users): Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
-                    .padding(bottom = 80.dp) //? Padding para los botones sticky
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .clip(CircleShape)
-                            .background(Color.Gray)
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column {
-                        Text(
-                            text = usuario.usuario, //? usuario (correo)
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        if (usuario.name != null) {
-                            Text(
-                                text = usuario.name, //? nombre (nombre de la persona, usado en eventos)
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(15.dp))
-                    Box(modifier = Modifier.size(45.dp)){
-                        Button(onClick = { navigator.push(Login()) }) { Text("\uD83D\uDD27") }
-                    }
-                }
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(18.dp).fillMaxSize()){
+                profileBar(Modifier, usuario, navigator);
 
-                Spacer(modifier = Modifier.height(16.dp))
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Bio",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            repeat(100) {
                 Text(
-                    text = "Bio",
-                    style = MaterialTheme.typography.titleMedium
+                    text = usuario.descripcion //? Biografia del usuario
+                    //* Si hay mas texto que el de la pantalla, este se deberia de hacer scrolleable, por el verticalScroll
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                repeat(100) {
-                    Text(
-                        text = usuario.descripcion //? Biografia del usuario
-                        //* Si hay mas texto que el de la pantalla, este se deberia de hacer scrolleable, por el verticalScroll
-                    )
-                }
-            }
-            //? Barra de botones
-            Row(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth().size(height = 65.dp, width = 80.dp)
-                    .background(Color(255,255,255)),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                //? De momento todos llevan al login (si se quiere agregar uno mas, se agrega
-                Button(onClick = { navigator.push(Login()) }) { Text("Btn1") }
-                Button(onClick = { navigator.push(Login()) }) { Text("Btn2") }
-                Button(onClick = { navigator.push(Login()) }) { Text("Btn3") }
-                Button(onClick = { navigator.push(Login()) }) { Text("Btn4") }
             }
         }
+            Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
+                buttonBar(Modifier, navigator);
+            }
     }
+}
 }
