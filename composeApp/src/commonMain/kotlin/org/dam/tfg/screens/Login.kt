@@ -1,11 +1,12 @@
 package org.dam.tfg.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -29,10 +30,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.dam.tfg.api.ApiController
+import org.dam.tfg.api.controller.ApiHealthController
 import org.dam.tfg.model.Users
 import org.dam.tfg.repository.HealthCheckRepository
 
@@ -42,7 +40,6 @@ private val usuarios = listOf(
     Users("demo", "1234", "DEMO","Usuario normal demo", false)
 )
 //* Agregados usuarios basicos (eliminar en cuanto se haya logrado la conexion a la api)
-val apiController = ApiController()
 
 class Login: Screen {
     @Composable
@@ -51,6 +48,7 @@ class Login: Screen {
         val navigator = LocalNavigator.currentOrThrow
         val repository = HealthCheckRepository()
         var status by remember { mutableStateOf("Loading...") }
+        var login = false //? Para poder generar componentes al hacer login y cambiar la peticion en caso necesario
 
         var usuario: String by remember { mutableStateOf("") }
         val frase = remember { mutableStateOf("") }
@@ -86,7 +84,12 @@ class Login: Screen {
                 value = contrasenya,
                 onValueChange = { contrasenya = it },
             )
-            Text(frase.value)
+            Text(
+                text = "Sin cuenta?",
+                modifier = Modifier.clickable {
+                    login = !login
+                }
+            )
             Button(onClick = {
                 if (usuario.isNotEmpty() && contrasenya.isNotEmpty()) {
                     attemptLogin(usuario, contrasenya, navigator) { frase.value = it }
@@ -100,6 +103,7 @@ class Login: Screen {
                 status = repository.getHealthStatus()
             }
             Text("Server status: $status")
+            Text(frase.value)
         }
 
     }
