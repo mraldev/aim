@@ -44,7 +44,7 @@ class Home(private val usuario: Users): Screen {
                     .padding(16.dp)
                     .padding(bottom = 80.dp) //? Padding para los botones sticky
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Box(
                         modifier = Modifier
                             .size(80.dp)
@@ -63,6 +63,10 @@ class Home(private val usuario: Users): Screen {
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
+                    }
+                    Spacer(modifier = Modifier.width(15.dp))
+                    Box(modifier = Modifier.size(45.dp)){
+                        Button(onClick = { navigator.push(Login()) }) { Text("\uD83D\uDD27") }
                     }
                 }
 
@@ -83,8 +87,8 @@ class Home(private val usuario: Users): Screen {
             Row(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(8.dp),
+                    .fillMaxWidth().size(height = 65.dp, width = 80.dp)
+                    .background(Color(255,255,255)),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 //? De momento todos llevan al login (si se quiere agregar uno mas, se agrega
