@@ -19,6 +19,7 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.dam.tfg.screens.Login
 
+//Para utilizar TIENE que estar dentro de un row dentro de la pantalla al final.
 @Composable
 fun buttonBar(modifier : Modifier = Modifier
     .fillMaxWidth().size(height = 65.dp, width = 80.dp)
@@ -31,6 +32,7 @@ fun buttonBar(modifier : Modifier = Modifier
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
                 //? De momento todos llevan al login (si se quiere agregar uno mas, se agrega
+            //TODO : TERMINAR LAS DIFERENTES PANTALLAS _Y_ QUE SE PUEDA PASAR EL USUARIO ACTUAL A ELLAS
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn1") }
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn2") }
                 Button(onClick = { navigator.push(Login()) }) { Text("+") }
