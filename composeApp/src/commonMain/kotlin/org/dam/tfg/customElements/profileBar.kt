@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.dam.tfg.api.authorization.UserManager
 import org.dam.tfg.model.Users
 import org.dam.tfg.screens.Settings
 
@@ -36,7 +37,7 @@ import org.dam.tfg.screens.Settings
 //* Box(modifier = Modifier.fillMaxSize()) {
 //*           Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(18.dp).fillMaxSize()){}}'
 @Composable
-fun profileBar(usuario : Users, navigator: Navigator = LocalNavigator.currentOrThrow) {
+fun profileBar(navigator: Navigator = LocalNavigator.currentOrThrow) {
 
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         Box(
@@ -47,21 +48,25 @@ fun profileBar(usuario : Users, navigator: Navigator = LocalNavigator.currentOrT
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column {
-            Text(
-                text = usuario.usuario, //? usuario (correo)
-                style = MaterialTheme.typography.titleLarge
-            )
-            if (usuario.name != null) {
-                Text(
-                    text = usuario.name, //? nombre (nombre de la persona, usado en eventos)
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                UserManager.correo.value?.let {
+                    Text(
+                        text = it, //? usuario (correo)
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            if (UserManager.correo.value != null) {
+                UserManager.correo.value?.let { correo ->
+                    Text(
+                        text = correo, //? nombre (nombre de la persona, usado en eventos)
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+            //TODO : cambiar 'Button' por IconButton con la imagen ya pasada a Res.drawable.ajustes
+            Spacer(modifier = Modifier.width(15.dp))
+            Box(modifier = Modifier.size(45.dp)) {
+                Button(onClick = { navigator.push(Settings()) }) { Text("I") }
             }
         }
-        //TODO : cambiar 'Button' por IconButton con la imagen ya pasada a Res.drawable.ajustes
-        Spacer(modifier = Modifier.width(15.dp))
-        Box(modifier = Modifier.size(45.dp)){
-            Button(onClick = { navigator.push(Settings(usuario)) } )  {Text("I")}
     }
-}
 }

@@ -47,14 +47,15 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
+import org.dam.tfg.api.enumerados.RolesUsuario
 import org.dam.tfg.model.Users
 import org.dam.tfg.repository.HealthCheckRepository
 import org.dam.tfg.repository.LoginRepository
 
 
 private val usuarios = listOf(
-    Users("admin", "admin", null,"Usuario admin demo",true),
-    Users("demo", "1234", "DEMO","Usuario normal demo", false)
+    Users("admin", "admin", null,"Usuario admin demo", listOf(RolesUsuario.ADMIN)),
+    Users("demo", "1234", "DEMO","Usuario normal demo", listOf(RolesUsuario.ADMIN))
 )
 //* Agregados usuarios basicos (eliminar en cuanto se haya logrado la conexion a la api)
 
@@ -158,7 +159,7 @@ class Login: Screen {
 //                        } else {
 //                            createAccount(correo, contrasenya, navigator)
 //                        }
-                        navigator.push(Home(usuarios[0]))
+                        navigator.push(Home())
                         isLoading = false
                     }
             }) {
@@ -184,7 +185,7 @@ class Login: Screen {
     private suspend fun createAccount(correo: String, contrasenya: String, navigator: Navigator) {
         val logged = loginRepository.register(correo, contrasenya)
 
-        if (logged) navigator.push(Home(usuarios[0]))
+        if (logged) navigator.push(Home())
     }
 
     private fun getUser(correo: String): Users {
@@ -196,7 +197,7 @@ class Login: Screen {
         //? devuelve el usuario, con todos sus datos, se los pasa a home
         //* esta funcion se podria eliminar si isAccValid devolviese el usuario
         if (user != null) {
-            navigator.push(Home(user)) //! Decimos si el usuario es admin o no
+            navigator.push(Home()) //! Decimos si el usuario es admin o no
         } else {
             function("Faltan datos a introducir.") //? Como ponemos  { frase.value = it } esto es una funcion, al hacer esto, hacemos que dicha funcion le ponga este valor a frase
         }

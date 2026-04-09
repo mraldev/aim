@@ -6,20 +6,17 @@ import kotlinx.coroutines.flow.StateFlow
 object TokenManager {
 
     private val _token = MutableStateFlow<String?>(null)
-    val token: StateFlow<String?> = _token
+    val token: String? get() = _token.value
 
     fun setToken(jwt: String) {
         _token.value = jwt
-    }
-
-    fun getToken(): String? {
-        return _token.value
     }
 
     fun clear() {
         _token.value = null
     }
 
+    //TODO validar si la sesión está activa
     val isLoggedIn: Boolean
         get() = _token.value != null
 }
