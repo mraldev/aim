@@ -34,7 +34,7 @@ class pantallaVacia(private val usuario: Users): Screen {
 
             //MANTENER COMO LA ULTIMA LINEA DE CODIGO, DENTRO DEL BOX FUERA DE EL PRIMER COLUMN.
                 Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
-                    buttonBar(Modifier, navigator);
+                    buttonBar(Modifier, navigator, usuario);
                 }
         }
     }

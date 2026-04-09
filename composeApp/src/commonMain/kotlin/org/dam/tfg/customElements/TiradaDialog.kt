@@ -1,0 +1,56 @@
+package org.dam.tfg.customElements
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+
+@Composable
+fun TiradaDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (Int, Int) -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+
+            // Fondo con efecto glass
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.25f))
+                    .blur(20.dp)
+            )
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(0.85f),
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color.White,
+                    tonalElevation = 4.dp
+                ) {
+                    DialogContent(
+                        header = "Nueva tirada",
+                        onConfirm = onConfirm,
+                        onDismiss = onDismiss
+                    )
+                }
+            }
+        }
+    }
+}

@@ -184,7 +184,7 @@ class Login: Screen {
     private suspend fun createAccount(correo: String, contrasenya: String, navigator: Navigator) {
         val logged = loginRepository.register(correo, contrasenya)
 
-        if (logged) navigator.push(Home(user))
+        if (logged) navigator.push(Home(usuarios[0]))
     }
 
     private fun getUser(correo: String): Users {

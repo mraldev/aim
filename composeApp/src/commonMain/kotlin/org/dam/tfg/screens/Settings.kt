@@ -44,7 +44,7 @@ class Settings(private val usuario: Users): Screen {
             }
 
             Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
-                buttonBar(Modifier, navigator)
+                buttonBar(Modifier, navigator, usuario)
             }
         }
     }

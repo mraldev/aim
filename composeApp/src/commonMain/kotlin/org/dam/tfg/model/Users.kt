@@ -1,5 +1,8 @@
 package org.dam.tfg.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Users
     (
         val usuario: String,
