@@ -21,14 +21,14 @@ import org.dam.tfg.customElements.profileBar
 import org.dam.tfg.model.Users
 
 //NO LA LLAMEIS - ES PARA COPIAR Y PEGAR A DIFERENTES PÁGINAS DE FORMA RÁPIDA
-class pantallaVacia(private val usuario: Users): Screen {
+class pantallaVacia(): Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         //RECORDAR LOS MODIFIERS - LAS PANTALLAS QUEDARAN DIFERENTES SI NO SE PONEN
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(18.dp).fillMaxSize()) {
-                profileBar(usuario, navigator)
+                profileBar(navigator)
                 Spacer(modifier = Modifier.height(16.dp))
             }
 

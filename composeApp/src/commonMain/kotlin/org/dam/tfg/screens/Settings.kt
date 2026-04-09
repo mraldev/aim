@@ -22,13 +22,13 @@ import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
 import org.dam.tfg.model.Users
 
-class Settings(private val usuario: Users): Screen {
+class Settings(): Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(18.dp).fillMaxSize()) {
-            profileBar( usuario, navigator)
+            profileBar(navigator)
             Spacer(modifier = Modifier.height(16.dp))
 
                 //TODO : AÑADIR FUNCIONALIDAD DE LOS DIFERENTES BOTONES

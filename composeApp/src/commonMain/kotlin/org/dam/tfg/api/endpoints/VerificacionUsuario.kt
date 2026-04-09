@@ -8,13 +8,15 @@ import io.ktor.http.contentType
 import org.dam.tfg.api.ApiClient
 import org.dam.tfg.api.ApiConfig
 import org.dam.tfg.api.authorization.TokenManager
+import org.dam.tfg.api.authorization.UserManager
 import org.dam.tfg.api.responses.LogInResponse
 import org.dam.tfg.api.responses.RegisterResponse
 
-class LogIn {
+class VerificacionUsuario {
 
     /**
-     * Función de LogIn, simple
+     * Función de LogIn, simple. Deja almacenado en memoria (y en futuras actualizaciones, cifrado con persistencia)
+     * el correo y la contraseña
      *
      * @param correo correo del usuario
      * @param contrasenya contraseña del usuario. El día de mañana se pasará directamente encriptada,
@@ -51,6 +53,8 @@ class LogIn {
             val body = response.body<LogInResponse>()
 
             TokenManager.setToken(body.token)
+            UserManager.setCorreo(correo)
+            UserManager.setContrasenya(contrasenya)
 
             return true
 
@@ -61,7 +65,8 @@ class LogIn {
     }
 
     /**
-     * Función de registro, simple
+     * Función de registro, simple. Deja almacenado en memoria (y en futuras actualizaciones, cifrado con persistencia)
+     *      * el correo y la contraseña
      *
      * @param correo correo del usuario
      * @param contrasenya contraseña del usuario.
@@ -98,6 +103,8 @@ class LogIn {
             val body = response.body<RegisterResponse>()
 
             TokenManager.setToken(body.token)
+            UserManager.setCorreo(correo)
+            UserManager.setContrasenya(contrasenya)
 
             return true
 

@@ -1,6 +1,9 @@
 package org.dam.tfg.api
 
 import io.ktor.client.*
+import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.HttpSend
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.defaultRequest
@@ -15,13 +18,12 @@ object ApiClient {
                 json(Json { ignoreUnknownKeys = true })
             }
 
-            //?Añade el token jwt de forma automática en todas las llamadas, solo si existe
-            defaultRequest {
+            install(DefaultRequest) {
                 url(ApiConfig.BASE_URL)
-                TokenManager.getToken()?.let { token ->
-                    header("Authorization", "Bearer $token")
-                }
 
+                header("Content-Type", "application/json")
+
+                header("Authorization", "Bearer ${TokenManager.token}")
             }
         }
     }
