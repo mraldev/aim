@@ -8,4 +8,8 @@ class ApiAuthController {
     suspend fun logIn(correo: String, contrasenya: String): Boolean {
         return login.logIn(correo, contrasenya)
     }
+
+    suspend fun register(correo: String, contrasenya: String): Boolean {
+        return login.register(correo, contrasenya)
+    }
 }
