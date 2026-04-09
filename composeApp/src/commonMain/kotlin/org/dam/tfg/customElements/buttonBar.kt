@@ -33,7 +33,9 @@ fun buttonBar(modifier : Modifier = Modifier
                 //? De momento todos llevan al login (si se quiere agregar uno mas, se agrega
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn1") }
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn2") }
+                Button(onClick = { navigator.push(Login()) }) { Text("+") }
+                Button(onClick = { navigator.push(Login()) }) { Text("Btn2") }
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn3") }
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn4") }
-            }
-}
+        }
+    }
