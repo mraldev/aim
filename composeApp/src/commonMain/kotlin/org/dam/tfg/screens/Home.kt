@@ -19,10 +19,9 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import org.dam.tfg.api.authorization.UserManager
+import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
-import org.dam.tfg.model.Users
 
 class Home(): Screen {
     //? En esta ventana no vamos a usar isAdmin, pero de aqui se la podemos pasar a todas las demas ventanas
@@ -52,7 +51,7 @@ class Home(): Screen {
             }
         }
             Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
-                buttonBar(Modifier, navigator, usuario)
+                buttonBar(Modifier, navigator)
             }
         }
     }

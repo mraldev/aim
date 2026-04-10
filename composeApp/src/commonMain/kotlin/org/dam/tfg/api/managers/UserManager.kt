@@ -1,4 +1,4 @@
-package org.dam.tfg.api.authorization
+package org.dam.tfg.api.managers
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +34,6 @@ object UserManager {
     fun setContrasenya(nuevaContrasenya: String?) {
         _contrasenya.value = nuevaContrasenya
     }
-
 
     fun getFechaAlta(): LocalDate? {
         return _fechaAlta.value

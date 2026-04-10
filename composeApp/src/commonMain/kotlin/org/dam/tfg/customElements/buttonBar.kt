@@ -20,12 +20,14 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.customElements.Tirada.TiradaDialog
+import org.dam.tfg.dto.PuntuacionTiradaDTO
+import org.dam.tfg.dto.UsuarioTiradaDTO
 import org.dam.tfg.enums.TipoCircuito
-import org.dam.tfg.model.Users
 import org.dam.tfg.screens.Login
-import org.dam.tfg.model.Tirada
+import org.dam.tfg.model.Tirada.Tirada
 import org.dam.tfg.screens.TiradaScreen
-import kotlin.Int
 
 //Para utilizar TIENE que estar dentro de un row dentro de la pantalla al final.
 @Composable
@@ -33,7 +35,7 @@ fun buttonBar(modifier : Modifier = Modifier
     .fillMaxWidth().size(65.dp)
     .background(Color(255,255,255)),
               navigator: Navigator = LocalNavigator.currentOrThrow,
-              user: Users) {
+              ) {
     var showDialog by remember { mutableStateOf(false) }
     if (showDialog) {
         TiradaDialog(
@@ -41,12 +43,13 @@ fun buttonBar(modifier : Modifier = Modifier
             onConfirm = { numDianas, flechas ->
                 showDialog = false
                 val tirada = Tirada(
-                    usuario = user,
+                    usuario = UsuarioTiradaDTO(UserManager.correo.value),
                     numDianas = numDianas,
                     numMaxFlechasPorDiana = flechas,
+                    puntuaciones = MutableList<PuntuacionTiradaDTO>, //! Error
                     tipoCircuito = TipoCircuito.CUSTOM
                 )
-                TiradaScreen()
+                navigator.push(TiradaScreen(tirada))
             }
         )
     }
@@ -61,7 +64,8 @@ fun buttonBar(modifier : Modifier = Modifier
             //TODO : TERMINAR LAS DIFERENTES PANTALLAS _Y_ QUE SE PUEDA PASAR EL USUARIO ACTUAL A ELLAS
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn1") }
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn2") }
-                AnimatedButton( text = "+", onClick = { showDialog = true} )
+            //- Agreagar logica para que vea tiradaManager, si este tiene valor, que pregunte si quieres continuar la tirada que hay cacheada, al negarse, que vuelva al popup de nueva tirada, sino, procedimiento normal, nueva tirada
+            AnimatedButton( text = "+", onClick = { showDialog = true} )
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn3") }
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn4") }
         }

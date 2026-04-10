@@ -44,7 +44,7 @@ class Settings(): Screen {
             }
 
             Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
-                buttonBar(Modifier, navigator, usuario)
+                buttonBar(Modifier, navigator)
             }
         }
     }

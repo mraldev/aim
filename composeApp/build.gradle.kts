@@ -62,6 +62,8 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             //?Fechas
             implementation(libs.kotlinx.datetime)
+            //? Iconos
+            implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

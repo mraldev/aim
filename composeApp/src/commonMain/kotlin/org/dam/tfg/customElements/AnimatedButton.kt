@@ -27,7 +27,7 @@ fun AnimatedButton(
         onClick = onClick,
         interactionSource = interactionSource,
         modifier = Modifier.scale(scale),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(100.dp)
     ) {
         Text(text)
     }

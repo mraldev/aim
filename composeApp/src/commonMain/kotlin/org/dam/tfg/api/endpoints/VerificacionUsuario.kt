@@ -8,7 +8,7 @@ import io.ktor.http.contentType
 import org.dam.tfg.api.ApiClient
 import org.dam.tfg.api.ApiConfig
 import org.dam.tfg.api.authorization.TokenManager
-import org.dam.tfg.api.authorization.UserManager
+import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.api.responses.LogInResponse
 import org.dam.tfg.api.responses.RegisterResponse
 

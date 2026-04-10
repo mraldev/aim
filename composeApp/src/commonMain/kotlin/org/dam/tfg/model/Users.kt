@@ -1,7 +1,9 @@
 package org.dam.tfg.model
 
+import kotlinx.serialization.Serializable
 import org.dam.tfg.api.enumerados.RolesUsuario
 
+@Serializable
 data class Users
     (
         val correo: String,

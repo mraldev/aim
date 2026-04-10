@@ -24,8 +24,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import org.dam.tfg.api.authorization.UserManager
-import org.dam.tfg.model.Users
+import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.screens.Settings
 
 

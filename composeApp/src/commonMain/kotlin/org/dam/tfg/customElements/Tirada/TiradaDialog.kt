@@ -1,7 +1,5 @@
-package org.dam.tfg.customElements
+package org.dam.tfg.customElements.Tirada
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import org.dam.tfg.customElements.DialogContent
 
 @Composable
 fun TiradaDialog(
