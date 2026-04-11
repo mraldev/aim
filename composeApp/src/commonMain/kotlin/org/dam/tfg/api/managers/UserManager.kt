@@ -31,7 +31,7 @@ object UserManager {
     }
 
     //TODO cifrarla al setearla
-    fun setContrasenya(nuevaContrasenya: String?) {
+    fun setContrasenya(nuevaContrasenya: String) {
         _contrasenya.value = nuevaContrasenya
     }
 
