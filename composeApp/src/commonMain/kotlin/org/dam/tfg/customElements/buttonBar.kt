@@ -46,7 +46,7 @@ fun buttonBar(modifier : Modifier = Modifier
                     usuario = UsuarioTiradaDTO(UserManager.correo.value),
                     numDianas = numDianas,
                     numMaxFlechasPorDiana = flechas,
-                    puntuaciones = MutableList<PuntuacionTiradaDTO>, //! Error
+                    puntuaciones = mutableListOf(),
                     tipoCircuito = TipoCircuito.CUSTOM
                 )
                 navigator.push(TiradaScreen(tirada))
