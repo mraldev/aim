@@ -20,8 +20,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.dam.tfg.model.Tirada.formatTiempo
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
-// ─── Top bar completa ─────────────────────────────────────────────────────────
+//? Top bar completa
 @Composable
 fun TiradaTopBar(
     numDianas: Int,
@@ -31,6 +35,8 @@ fun TiradaTopBar(
     onDianaSelected: (Int) -> Unit,
     onFinalizar: () -> Unit
 ) {
+
+//? Codigo de UI
     Surface(
         tonalElevation = 4.dp,
         shadowElevation = 4.dp
@@ -43,7 +49,7 @@ fun TiradaTopBar(
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Barra scrolleable de dianas
+            //? Barra scrolleable de dianas
             DianaNavBar(
                 modifier = Modifier.weight(1f),
                 numDianas = numDianas,
@@ -54,7 +60,7 @@ fun TiradaTopBar(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Tiempo (hint pequeño)
+            //? Tiempo
             Text(
                 text = formatTiempo(tiempoSegundos),
                 style = MaterialTheme.typography.labelSmall,
@@ -63,8 +69,8 @@ fun TiradaTopBar(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Botón Finalizar (icono flecha→caja)
-            IconButton(onClick = onFinalizar) {
+            //? Botón Finalizar (icono flecha→caja)
+            IconButton(onClick = {onFinalizar()}) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                     contentDescription = "Finalizar tirada",
@@ -75,7 +81,7 @@ fun TiradaTopBar(
     }
 }
 
-// ─── Barra de chips de dianas (scrolleable horizontal) ───────────────────────
+//? Barra de chips de dianas (scrolleable horizontal)
 @Composable
 fun DianaNavBar(
     numDianas: Int,
@@ -86,9 +92,9 @@ fun DianaNavBar(
 ){
     val scrollState = rememberScrollState()
 
-    // Auto-scroll al chip activo
+    //? Auto-scroll al chip activo
     LaunchedEffect(currentDiana) {
-        val targetOffset = currentDiana * 44 // aprox px por chip
+        val targetOffset = currentDiana * 44 //? aprox px por chip
         scrollState.animateScrollTo(targetOffset)
     }
 
@@ -110,7 +116,7 @@ fun DianaNavBar(
     }
 }
 
-// ─── Chip individual de diana ─────────────────────────────────────────────────
+//? Chip individual de diana
 @Composable
 fun DianaChip(
     numero: Int,

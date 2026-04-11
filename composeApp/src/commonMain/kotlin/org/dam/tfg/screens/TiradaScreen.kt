@@ -6,11 +6,15 @@ import androidx.compose.runtime.*
 import cafe.adriel.voyager.core.screen.Screen
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
+import org.dam.tfg.api.managers.TiradaManager
 import org.dam.tfg.customElements.Tirada.FlechasSection
 import org.dam.tfg.customElements.Tirada.NavigationButtons
 import org.dam.tfg.customElements.Tirada.TiradaStatsSection
 import org.dam.tfg.customElements.Tirada.TiradaTopBar
+import org.dam.tfg.dto.PuntuacionTiradaDTO
 import org.dam.tfg.model.Tirada.StatsDiana
 import org.dam.tfg.model.Tirada.StatsTotal
 import org.dam.tfg.model.Tirada.Tirada
@@ -33,8 +37,11 @@ class TiradaScreen(
     private val onFinalizar: (puntuaciones: List<List<Int?>>) -> Unit = {}
 ) : Screen {
 
+
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+
         //? Estado
         val puntuaciones = remember {
             List(tirada.numDianas) {
@@ -70,6 +77,60 @@ class TiradaScreen(
             }
         }
 
+        fun guardarEnManager() {
+            val snapshot = puntuaciones.map { flechas ->
+                PuntuacionTiradaDTO(valores = flechas.filterNotNull().toMutableList())
+            }.toMutableList()
+            TiradaManager.setTirada(tirada.copy(puntuaciones = snapshot))
+        }
+
+        fun finalizarTirada(puntuacionesSnapshot: List<List<Int?>>) {
+            val completa = puntuacionesSnapshot.all { diana ->
+                diana.size == tirada.numMaxFlechasPorDiana && diana.all { it != null }
+            }
+
+            if (completa) {
+                // TODO: Llamar al endpoint de la API para guardar la tirada definitivamente
+                TiradaManager.clear()
+            } else {
+                guardarEnManager()  //- Guarda la tirada incompleta
+            }
+
+            onFinalizar(puntuacionesSnapshot)
+            navigator.pop()
+        }
+        var showConfirmDialog by remember { mutableStateOf(false) }
+
+        if (showConfirmDialog) {
+            AlertDialog(
+                onDismissRequest = { showConfirmDialog = false },
+                title = { Text("Finalizar tirada") },
+                text = { Text("¿Seguro que quieres finalizar? Si la tirada no está completa se guardará para continuar más tarde.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showConfirmDialog = false
+                        finalizarTirada(puntuaciones.map { it.toList() })
+                    }) { Text("Finalizar") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showConfirmDialog = false }) { Text("Cancelar") }
+                }
+            )
+        }
+
+//? Codigo de la UI
+
+        //- Rellena la tirada si esta tiene contenido
+        LaunchedEffect(Unit) {
+            tirada.puntuaciones.forEachIndexed { dianaIdx, dto ->
+                dto.valores.forEachIndexed { flechaIdx, valor ->
+                    if (dianaIdx < puntuaciones.size && flechaIdx < puntuaciones[dianaIdx].size) {
+                        puntuaciones[dianaIdx][flechaIdx] = valor
+                    }
+                }
+            }
+        }
+
         Scaffold(
             topBar = {
                 TiradaTopBar(
@@ -78,7 +139,7 @@ class TiradaScreen(
                     tiempoSegundos = tiempoSegundos,
                     puntuacionesPorDiana = puntuaciones.map { diana -> diana.toList() },
                     onDianaSelected = { index -> currentDiana = index },
-                    onFinalizar = { onFinalizar(puntuaciones.map { it.toList() })}
+                    onFinalizar = { showConfirmDialog = true }
                 )
             }
         ) { padding ->
@@ -118,7 +179,7 @@ class TiradaScreen(
                     onPrev = { if (currentDiana > 0) currentDiana-- },
                     onNext = { if (currentDiana < tirada.numDianas - 1) currentDiana++ },
                     onFinalizar = {
-                        onFinalizar(puntuaciones.map { it.toList() })
+                        showConfirmDialog = true
                     }
                 )
             }

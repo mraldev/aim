@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import org.dam.tfg.model.Tirada.StatsDiana
 import org.dam.tfg.model.Tirada.StatsTotal
 
-// ─── Sección de estadísticas dinámicas ───────────────────────────────────────
+//? Sección de estadísticas dinámicas
 @Composable
 fun TiradaStatsSection(
     statsDiana: StatsDiana,
@@ -46,7 +46,7 @@ fun TiradaStatsSection(
     }
 }
 
-// ─── Fila de stat individual ──────────────────────────────────────────────────
+//? Fila de stat individual
 @Composable
 private fun StatRow(label: String, value: String) {
     Row(
@@ -68,7 +68,7 @@ private fun StatRow(label: String, value: String) {
     }
 }
 
-// ─── Botones de navegación anterior / siguiente / finalizar ──────────────────
+//? Botones de navegación anterior / siguiente / finalizar
 @Composable
 fun NavigationButtons(
     currentDiana: Int,
@@ -86,7 +86,7 @@ fun NavigationButtons(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // ← Anterior
+        //- Anterior
         OutlinedButton(
             onClick = onPrev,
             enabled = !isFirst

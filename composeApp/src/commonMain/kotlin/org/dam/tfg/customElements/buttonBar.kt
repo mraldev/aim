@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Row
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.dam.tfg.api.managers.TiradaManager
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.Tirada.TiradaDialog
 import org.dam.tfg.dto.PuntuacionTiradaDTO
@@ -36,7 +39,13 @@ fun buttonBar(modifier : Modifier = Modifier
     .background(Color(255,255,255)),
               navigator: Navigator = LocalNavigator.currentOrThrow,
               ) {
+    var showContinueDialog by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+
+    //? Null usa los valores por defecto
+    var dialogInitialDianas by remember { mutableStateOf<Int?>(null) }
+    var dialogInitialFlechas by remember { mutableStateOf<Int?>(null) }
+
     if (showDialog) {
         TiradaDialog(
             onDismiss = { showDialog = false },
@@ -53,6 +62,37 @@ fun buttonBar(modifier : Modifier = Modifier
             }
         )
     }
+
+    if (showContinueDialog) {
+        val saved = TiradaManager.tirada.value  // snapshot, safe here
+        AlertDialog(
+            onDismissRequest = { showContinueDialog = false },
+            title = { Text("Tirada guardada") },
+            text = {
+                Text(
+                    "Tienes una tirada en progreso " +
+                            "(${saved?.numDianas} dianas, ${saved?.numMaxFlechasPorDiana} flechas). " +
+                            "¿Quieres continuar?"
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showContinueDialog = false
+                    saved?.let { navigator.push(TiradaScreen(it)) }
+                }) { Text("Sí") }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    TiradaManager.clear()
+                    showContinueDialog = false
+                    dialogInitialDianas = null
+                    dialogInitialFlechas = null
+                    showDialog = true
+                }) { Text("No") }
+            }
+        )
+    }
+
     //? Codigo de lo visual
         Row(
             modifier = Modifier
@@ -64,8 +104,14 @@ fun buttonBar(modifier : Modifier = Modifier
             //TODO : TERMINAR LAS DIFERENTES PANTALLAS _Y_ QUE SE PUEDA PASAR EL USUARIO ACTUAL A ELLAS
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn1") }
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn2") }
-            //- Agreagar logica para que vea tiradaManager, si este tiene valor, que pregunte si quieres continuar la tirada que hay cacheada, al negarse, que vuelva al popup de nueva tirada, sino, procedimiento normal, nueva tirada
-            AnimatedButton( text = "+", onClick = { showDialog = true} )
+                AnimatedButton( text = "+", onClick = {
+                        if (TiradaManager.tirada.value != null) {
+                            showContinueDialog = true   //? Pregunta si hay tirada cacheada
+                        } else {
+                            showDialog = true
+                        }
+                    }
+                )
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn3") }
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn4") }
         }

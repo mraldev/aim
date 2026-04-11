@@ -40,7 +40,7 @@ data class Tirada (
      * // getPuntuacionTotal() -> 45
      */
     fun getPuntuacionTotal(): Int {
-        return puntuaciones.values.sumOf { flechas -> flechas.sum() }
+        return puntuaciones.sumOf { dto -> dto.valores.sum() }
     }
 
     /**
@@ -63,13 +63,14 @@ data class Tirada (
     fun agregarPuntuacion(numDiana: Int, flechas: List<Int>) {
         require(numDiana in 0 until numDianas) { "Diana $numDiana no existe" }
         require(flechas.size <= numMaxFlechasPorDiana) { "Demasiadas flechas para la diana $numDiana" }
-        puntuaciones[numDiana] = flechas
+        puntuaciones[numDiana] = PuntuacionTiradaDTO(flechas.toMutableList())
     }
     /**
      * Devuelve las puntuaciones de una diana, o una lista de nulls si no existe.
      */
     fun getFlechasDiana(numDiana: Int): List<Int?> =
-        puntuaciones[numDiana] ?: List(numMaxFlechasPorDiana) { null }
+        puntuaciones.getOrNull(numDiana)?.valores?.map { it as Int? }
+            ?: List(numMaxFlechasPorDiana) { null }
 
     /**
      * Suma las puntuaciones registradas (no nulas) de una diana concreta.
@@ -108,12 +109,12 @@ data class Tirada (
      * // flechas puntuadas = [0, 8, 10]  →  getPorcentajeAciertos() = 66.67
      */
     fun getPorcentajeAciertos(): Float {
-        val puntuadas = puntuaciones.values.flatten().filterNotNull()
+        val puntuadas = puntuaciones.flatMap { it.valores }
         return if (puntuadas.isEmpty()) 0f
         else (puntuadas.count { it > 0 }.toFloat() / puntuadas.size.toFloat()) * 100f
     }
 
     /** Indica si todas las flechas de todas las dianas han sido puntuadas. */
     fun isCompleta(): Boolean =
-        puntuaciones.values.all { flechas -> flechas.all { it != null } }
+        puntuaciones.size == numDianas && puntuaciones.all { dto -> dto.valores.size == numMaxFlechasPorDiana }
 }
