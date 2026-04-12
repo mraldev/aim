@@ -98,7 +98,7 @@ class Settings(): Screen {
                     Button(onClick = {
                         suspend {
                             ApiClient.client.post(
-                                "${ApiConfig.BASE_URL}/baja/" + UserManager.correo.toString()
+                                "${ApiConfig.BASE_URL}/baja/" + UserManager.correo.value
                             )
                         }
                     } , modifier = Modifier.width(200.dp)) { Text("Dar la cuenta de baja") }

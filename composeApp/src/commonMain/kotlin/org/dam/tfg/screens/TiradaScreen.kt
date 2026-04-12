@@ -84,7 +84,7 @@ class TiradaScreen(
 
         fun guardarEnManager() {
             val snapshot = puntuaciones.map { flechas ->
-                PuntuacionTiradaDTO(valores = flechas.toMutableList() as MutableList<Int>)
+                PuntuacionTiradaDTO(valores = flechas.toMutableList())
             }.toMutableList()
             TiradaManager.setTirada(tirada.copy(puntuaciones = snapshot))
         }

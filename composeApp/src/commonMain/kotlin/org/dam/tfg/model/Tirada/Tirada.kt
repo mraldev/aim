@@ -40,7 +40,7 @@ data class Tirada (
      * // getPuntuacionTotal() -> 45
      */
     fun getPuntuacionTotal(): Int {
-        return puntuaciones.sumOf { dto -> dto.valores.sum() }
+        return puntuaciones.sumOf { dto -> dto.valores.filterNotNull().sum() }
     }
 
     /**
@@ -63,7 +63,7 @@ data class Tirada (
     fun agregarPuntuacion(numDiana: Int, flechas: List<Int>) {
         require(numDiana in 0 until numDianas) { "Diana $numDiana no existe" }
         require(flechas.size <= numMaxFlechasPorDiana) { "Demasiadas flechas para la diana $numDiana" }
-        puntuaciones[numDiana] = PuntuacionTiradaDTO(flechas.toMutableList())
+        puntuaciones[numDiana] = PuntuacionTiradaDTO(flechas.map { it as Int? }.toMutableList())
     }
     /**
      * Devuelve las puntuaciones de una diana, o una lista de nulls si no existe.
@@ -109,7 +109,7 @@ data class Tirada (
      * // flechas puntuadas = [0, 8, 10]  →  getPorcentajeAciertos() = 66.67
      */
     fun getPorcentajeAciertos(): Float {
-        val puntuadas = puntuaciones.flatMap { it.valores }
+        val puntuadas = puntuaciones.flatMap { it.valores }.filterNotNull()
         return if (puntuadas.isEmpty()) 0f
         else (puntuadas.count { it > 0 }.toFloat() / puntuadas.size.toFloat()) * 100f
     }

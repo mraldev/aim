@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PuntuacionTiradaDTO (
-    val valores: MutableList<Int>
+    val valores: MutableList<Int?>
 
 ) {
 }
