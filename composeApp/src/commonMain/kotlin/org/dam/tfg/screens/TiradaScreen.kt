@@ -82,23 +82,23 @@ class TiradaScreen(
             }
         }
 
-        fun guardarEnManager() {
-            val snapshot = puntuaciones.map { flechas ->
-                PuntuacionTiradaDTO(valores = flechas.toMutableList())
-            }.toMutableList()
-            TiradaManager.setTirada(tirada.copy(puntuaciones = snapshot))
-        }
-
         suspend fun finalizarTirada(puntuacionesSnapshot: List<List<Int?>>) {
             val completa = puntuacionesSnapshot.all { diana ->
                 diana.size == tirada.numMaxFlechasPorDiana && diana.all { it != null }
             }
 
+            //- Construye la tirada antes de enviarla
+            val tiradaActualizada = tirada.copy(
+                puntuaciones = puntuacionesSnapshot.map { flechas ->
+                    PuntuacionTiradaDTO(valores = flechas.toMutableList())
+                }.toMutableList()
+            )
+
             if (completa) {
-                repository.registrar(tirada) //- Guarda la tirada en la bbdd SOLO cuando esta completa
+                repository.registrar(tiradaActualizada) //- Guarda la tirada en la bbdd SOLO cuando esta completa
                 TiradaManager.clear()
             } else {
-                guardarEnManager()  //- Guarda la tirada incompleta
+                TiradaManager.setTirada(tiradaActualizada)  //- Guarda la tirada incompleta
             }
 
             onFinalizar(puntuacionesSnapshot)
