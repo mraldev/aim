@@ -22,16 +22,12 @@ class TiradaEndpoint {
             ){
                 contentType(ContentType.Application.Json)
 
-                header("Authorization", "Bearer ${TokenManager.token}")
+                header("Authorization", "Bearer ${TokenManager.token.value}")
 
                 setBody(
                     tirada
                 )
             }
-
-            val json = Json { prettyPrint = true }
-
-            println("Tirada JSON:\n${json.encodeToString(tirada)}")
 
             return true
 
