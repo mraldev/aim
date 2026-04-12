@@ -57,7 +57,13 @@ fun profileBar(navigator: Navigator = LocalNavigator.currentOrThrow) {
             //TODO : cambiar 'Button' por IconButton con la imagen ya pasada a Res.drawable.ajustes
             Spacer(modifier = Modifier.width(15.dp))
             Box(modifier = Modifier.size(45.dp)) {
-                Button(onClick = { navigator.push(Settings()) }) { Text("I") }
+                Button(onClick = {
+                    if (navigator.lastItem is Settings) {
+                        navigator.pop()
+                    } else {
+                        navigator.push(Settings())
+                    }
+                }) { Text("I") }
             }
         }
     }

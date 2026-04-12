@@ -41,14 +41,14 @@ class Home(): Screen {
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
-            repeat(100) {
+//            repeat(100) {     <- Eliminado el repeat
                 UserManager.descripcion.value?.let { descripcion ->
                     Text(
                         text = descripcion //? Biografia del usuario
                         //* Si hay mas texto que el de la pantalla, este se deberia de hacer scrolleable, por el verticalScroll
                     )
                 }
-            }
+//            }
         }
             Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
                 buttonBar(Modifier, navigator)
