@@ -11,6 +11,7 @@ import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.api.responses.LogInResponse
 import org.dam.tfg.api.responses.RegisterResponse
+import org.dam.tfg.exceptions.ExcepcionContrasenyaIncorrecta
 
 class VerificacionUsuario {
 

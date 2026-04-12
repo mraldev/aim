@@ -9,4 +9,8 @@ class HealthCheckRepository (
         suspend fun getHealthStatus(): String {
             return api.getHealth()
         }
+
+         suspend fun isServerActive(): Boolean {
+             return getHealthStatus() == "UP"
+         }
     }

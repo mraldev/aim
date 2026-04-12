@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,8 +21,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,10 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -47,20 +40,15 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
-import org.dam.tfg.api.enumerados.RolesUsuario
-import org.dam.tfg.model.Users
+import org.dam.tfg.api.authorization.TokenManager
+import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.exceptions.ExcepcionContrasenyaIncorrecta
 import org.dam.tfg.repository.HealthCheckRepository
 import org.dam.tfg.repository.LoginRepository
 
-
-private val usuarios = listOf(
-    Users("admin", "admin", null,"Usuario admin demo", listOf(RolesUsuario.ADMIN)),
-    Users("demo", "1234", "DEMO","Usuario normal demo", listOf(RolesUsuario.ADMIN))
-)
-//* Agregados usuarios basicos (eliminar en cuanto se haya logrado la conexion a la api)
-
-var isLoading = false
-val loginRepository = LoginRepository()
+private var isLoading = false
+private val loginRepository = LoginRepository()
+private val healthRepository = HealthCheckRepository()
 
 class Login: Screen {
     @Composable
@@ -68,10 +56,9 @@ class Login: Screen {
 
         //? Utils
         val navigator = LocalNavigator.currentOrThrow
-        val healthRepository = HealthCheckRepository()
         //? Labels
         val password = "Contraseña"
-        val user = "Nombre de usuario o correo electronico"
+        val user = "Correo electronico"
         //? remembers (animaciones y otras cosas dinamicas)
         var status by remember { mutableStateOf("Loading...") }
         var login by remember { mutableStateOf(true) } //? Para poder generar componentes al hacer login y cambiar la peticion en caso necesario
@@ -152,14 +139,15 @@ class Login: Screen {
                 onClick = {
                     scope.launch {
                         isLoading = true
-//                        if (isAccValid(correo)) {
-//                            attemptLogin(correo, navigator) {
-//                                frase.value = it
-//                            }
-//                        } else {
-//                            createAccount(correo, contrasenya, navigator)
-//                        }
-                        navigator.push(Home())
+                        if (login) {
+                            attemptLogin(correo, contrasenya, navigator) {
+                                frase.value = it
+                            }
+                        } else {
+                            createAccount(correo, contrasenya, navigator) {
+                                frase.value = it
+                            }
+                        }
                         isLoading = false
                     }
             }) {
@@ -182,28 +170,39 @@ class Login: Screen {
 
     }
 
-    private suspend fun createAccount(correo: String, contrasenya: String, navigator: Navigator) {
+    private suspend fun createAccount(correo: String, contrasenya: String, navigator: Navigator, function: (String) -> Unit) {
+        //TODO mejorar!!!
         val logged = loginRepository.register(correo, contrasenya)
 
         if (logged) navigator.push(Home())
+        else function("Error al crear cuenta.")
     }
 
-    private fun getUser(correo: String): Users {
-        //? funcion para devolver el usuario
-        return usuarios[0]
-    }
-
-    private fun attemptLogin(user: Users, navigator: Navigator, function: (String) -> Unit) {
+    private suspend fun attemptLogin(correo: String, contrasenya: String, navigator: Navigator, function: (String) -> Unit) {
         //? devuelve el usuario, con todos sus datos, se los pasa a home
         //* esta funcion se podria eliminar si isAccValid devolviese el usuario
-        if (user != null) {
-            navigator.push(Home()) //! Decimos si el usuario es admin o no
+
+        if (correo.isNotBlank() && contrasenya.isNotBlank()) {
+            if(healthRepository.isServerActive()){
+                try{
+                    if(loginRepository.login(correo, contrasenya)){
+                        navigator.push(Home())
+                    } else {
+                        //TODO mejorar, podría fallar por más cosas
+                        function("Contraseña incorrecta.")
+                    }
+                } catch (exception: ExcepcionContrasenyaIncorrecta){
+                    function(exception.message!!)
+                } catch (exception: Exception){
+                    function("Error en el inicio de sesión. Intente de nuevo más tarde.")
+                }
+            }
         } else {
             function("Faltan datos a introducir.") //? Como ponemos  { frase.value = it } esto es una funcion, al hacer esto, hacemos que dicha funcion le ponga este valor a frase
         }
     }
 
-    fun isAccValid(correo: String): Boolean? {
+    private fun isAccValid(correo: String): Boolean {
         //! Mirar si dicho usuario existe (ya que va por correo, estos son unicos)
         //* SELECT correo FROM users WHERE correo = ?
         return true

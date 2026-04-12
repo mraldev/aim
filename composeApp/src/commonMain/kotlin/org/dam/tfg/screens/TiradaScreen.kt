@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.dam.tfg.api.managers.TiradaManager
 import org.dam.tfg.customElements.Tirada.FlechasSection
 import org.dam.tfg.customElements.Tirada.NavigationButtons
@@ -20,6 +21,8 @@ import org.dam.tfg.model.Tirada.StatsTotal
 import org.dam.tfg.model.Tirada.Tirada
 import org.dam.tfg.model.Tirada.calcularStatsDiana
 import org.dam.tfg.model.Tirada.calcularStatsTotal
+import org.dam.tfg.repository.HealthCheckRepository
+import org.dam.tfg.repository.TiradaRepository
 
 /**
  * Pantalla principal de una tirada.
@@ -37,10 +40,12 @@ class TiradaScreen(
     private val onFinalizar: (puntuaciones: List<List<Int?>>) -> Unit = {}
 ) : Screen {
 
+    private val repository = TiradaRepository()
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val scope = rememberCoroutineScope()
 
         //? Estado
         val puntuaciones = remember {
@@ -79,19 +84,20 @@ class TiradaScreen(
 
         fun guardarEnManager() {
             val snapshot = puntuaciones.map { flechas ->
-                PuntuacionTiradaDTO(valores = flechas.filterNotNull().toMutableList())
+                PuntuacionTiradaDTO(valores = flechas.toMutableList() as MutableList<Int>)
             }.toMutableList()
             TiradaManager.setTirada(tirada.copy(puntuaciones = snapshot))
         }
 
-        fun finalizarTirada(puntuacionesSnapshot: List<List<Int?>>) {
+        suspend fun finalizarTirada(puntuacionesSnapshot: List<List<Int?>>) {
             val completa = puntuacionesSnapshot.all { diana ->
                 diana.size == tirada.numMaxFlechasPorDiana && diana.all { it != null }
             }
 
             if (completa) {
-                // TODO: Llamar al endpoint de la API para guardar la tirada definitivamente
+                repository.registrar(tirada)
                 TiradaManager.clear()
+
             } else {
                 guardarEnManager()  //- Guarda la tirada incompleta
             }
@@ -109,7 +115,9 @@ class TiradaScreen(
                 confirmButton = {
                     TextButton(onClick = {
                         showConfirmDialog = false
-                        finalizarTirada(puntuaciones.map { it.toList() })
+                        scope.launch {
+                            finalizarTirada(puntuaciones.map { it.toList() })
+                        }
                     }) { Text("Finalizar") }
                 },
                 dismissButton = {
