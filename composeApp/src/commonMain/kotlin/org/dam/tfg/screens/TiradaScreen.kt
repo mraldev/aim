@@ -95,9 +95,8 @@ class TiradaScreen(
             }
 
             if (completa) {
-                repository.registrar(tirada)
+                repository.registrar(tirada) //- Guarda la tirada en la bbdd SOLO cuando esta completa
                 TiradaManager.clear()
-
             } else {
                 guardarEnManager()  //- Guarda la tirada incompleta
             }
