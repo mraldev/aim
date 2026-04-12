@@ -198,7 +198,7 @@ class Login: Screen {
                 }
             }
         } else {
-            function("Faltan datos a introducir.") //? Como ponemos  { frase.value = it } esto es una funcion, al hacer esto, hacemos que dicha funcion le ponga este valor a frase
+            function("El usuario o la contraseña son incorrectos.") //? Como ponemos  { frase.value = it } esto es una funcion, al hacer esto, hacemos que dicha funcion le ponga este valor a frase
         }
     }
 
