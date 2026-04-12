@@ -5,13 +5,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,39 +44,54 @@ class Settings(): Screen {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState()).padding(18.dp)
-                    .fillMaxSize()
+                    .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
             ) {
 
                 profileBar(navigator)
                 Spacer(modifier = Modifier.height(16.dp))
-
+                Text(
+                    text = "AJUSTES DE CUENTA",
+                    style = MaterialTheme.typography.titleLarge
+                )
                 //De momento se guarda tan solo en el manager local hasta que pueda guardar de forma completamente
                 //segura mediante la API.
                 //TODO : AÑADIR FUNCIONALIDAD DE LOS DIFERENTES BOTONES
                 Row {
-                    Text("Nueva Contraseña")
-                    TextField(
+                    OutlinedTextField(
                         value = contrasenyaNueva,
                         onValueChange = { contrasenyaNueva = it },
+                        label = { Text("Nueva Contraseña") },
+                        singleLine = true,
+                        shape = RoundedCornerShape(40.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 30.dp)
                     )
                 }
 
                 Row {
-                    Button(onClick = { UserManager.setContrasenya(contrasenyaNueva) }) { Text("Cambiar contraseña") }
+                    Button(onClick = { UserManager.setContrasenya(contrasenyaNueva) } , modifier = Modifier.width(200.dp)) { Text("Cambiar contraseña") }
                 }
                 Row {
-                    Text("Nuevo correo")
-                    TextField(
+                    OutlinedTextField(
                         value = correoNuevo,
                         onValueChange = { correoNuevo = it },
+                        label = { Text("Nuevo Correo") },
+                        singleLine = true,
+                        shape = RoundedCornerShape(40.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 30.dp)
                     )
                 }
                 //TODO : Funcionalidad para confirmación de cambiar de correo de forma segura.
                 Row {
-                    Button(onClick = { UserManager.setCorreo(correoNuevo) }) { Text("Cambiar Correo") }
+                    Button(onClick = { UserManager.setCorreo(correoNuevo) }, modifier = Modifier.width(200.dp)) { Text("Cambiar Correo") }
                 }
+                Spacer(modifier = Modifier.height(50.dp))
+
                 Row {
-                    Button(onClick = { navigator.push(Login()); }) { Text("Cerrar Sesión") }
+                    Button(onClick = { navigator.push(Login()); } , modifier = Modifier.width(200.dp)) { Text("Cerrar Sesión") }
                 }
                 //por el amor de dios no la utiliceis sin cuentas mock solo para probarlo
                 Row {
@@ -82,7 +101,7 @@ class Settings(): Screen {
                                 "${ApiConfig.BASE_URL}/baja/" + UserManager.correo.toString()
                             )
                         }
-                    }) { Text("Dar la cuenta de baja") }
+                    } , modifier = Modifier.width(200.dp)) { Text("Dar la cuenta de baja") }
                 }
                 }
             Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {

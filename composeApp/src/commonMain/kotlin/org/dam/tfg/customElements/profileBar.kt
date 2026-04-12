@@ -49,15 +49,8 @@ fun profileBar(navigator: Navigator = LocalNavigator.currentOrThrow) {
         Column {
                 UserManager.correo.value?.let {
                     Text(
-                        text = it, //? usuario (correo)
+                        text = UserManager.correo.value.toString(),
                         style = MaterialTheme.typography.titleLarge
-                    )
-                }
-            if (UserManager.correo.value != null) {
-                UserManager.correo.value?.let { correo ->
-                    Text(
-                        text = correo, //? nombre (nombre de la persona, usado en eventos)
-                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
@@ -68,4 +61,3 @@ fun profileBar(navigator: Navigator = LocalNavigator.currentOrThrow) {
             }
         }
     }
-}
