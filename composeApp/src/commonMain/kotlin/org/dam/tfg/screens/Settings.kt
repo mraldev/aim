@@ -4,11 +4,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.recalculateWindowInsets
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -35,6 +38,7 @@ import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
 
 class Settings(): Screen {
+
     @Composable
     override fun Content() {
         var contrasenyaNueva: String by remember { mutableStateOf("") }
@@ -44,9 +48,9 @@ class Settings(): Screen {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState()).padding(18.dp)
-                    .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
+                    .fillMaxSize().recalculateWindowInsets(), horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-
+//.*[@].*[.].* TOMA PUTO REGEX
                 profileBar(navigator)
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
