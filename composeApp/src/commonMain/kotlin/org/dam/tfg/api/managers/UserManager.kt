@@ -50,4 +50,12 @@ object UserManager {
     fun setDescripcion(nuevaDescripcion: String?) {
         _descripcion.value = nuevaDescripcion
     }
+
+    fun clear(){
+        _correo.value = null;
+        _roles.value = emptyList();
+        _descripcion.value = null;
+        _contrasenya.value = null;
+        _fechaAlta.value = null;
+    }
 }

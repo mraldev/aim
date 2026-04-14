@@ -40,8 +40,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
-import org.dam.tfg.api.authorization.TokenManager
-import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.exceptions.ExcepcionContrasenyaIncorrecta
 import org.dam.tfg.repository.HealthCheckRepository
 import org.dam.tfg.repository.LoginRepository

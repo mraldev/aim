@@ -30,11 +30,19 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import io.ktor.client.request.post
 import org.dam.tfg.api.ApiClient
 import org.dam.tfg.api.ApiConfig
+import org.dam.tfg.api.authorization.TokenManager
+import org.dam.tfg.api.managers.TiradaManager
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
 
-class Settings(): Screen {
+class Settings() : Screen {
+    private fun limpiarManagers(){
+        TiradaManager.clear()
+        UserManager.clear()
+        TokenManager.clear()
+    }
+
     @Composable
     override fun Content() {
         var contrasenyaNueva: String by remember { mutableStateOf("") }
@@ -44,7 +52,8 @@ class Settings(): Screen {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState()).padding(18.dp)
-                    .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
 
                 profileBar(navigator)
@@ -70,7 +79,10 @@ class Settings(): Screen {
                 }
 
                 Row {
-                    Button(onClick = { UserManager.setContrasenya(contrasenyaNueva) } , modifier = Modifier.width(200.dp)) { Text("Cambiar contraseña") }
+                    Button(
+                        onClick = { UserManager.setContrasenya(contrasenyaNueva) },
+                        modifier = Modifier.width(200.dp)
+                    ) { Text("Cambiar contraseña") }
                 }
                 Row {
                     OutlinedTextField(
@@ -86,12 +98,23 @@ class Settings(): Screen {
                 }
                 //TODO : Funcionalidad para confirmación de cambiar de correo de forma segura.
                 Row {
-                    Button(onClick = { UserManager.setCorreo(correoNuevo) }, modifier = Modifier.width(200.dp)) { Text("Cambiar Correo") }
+                    Button(
+                        onClick = { UserManager.setCorreo(correoNuevo) },
+                        modifier = Modifier.width(200.dp)
+                    ) { Text("Cambiar Correo") }
                 }
                 Spacer(modifier = Modifier.height(50.dp))
 
                 Row {
-                    Button(onClick = { navigator.push(Login()); } , modifier = Modifier.width(200.dp)) { Text("Cerrar Sesión") }
+                    Button(
+                        onClick = {
+                            limpiarManagers()
+                            navigator.push(Home());
+                        },
+                        modifier = Modifier.width(200.dp)
+                    ) {
+                        Text("Cerrar Sesión")
+                    }
                 }
                 //por el amor de dios no la utiliceis sin cuentas mock solo para probarlo
                 Row {
@@ -101,9 +124,9 @@ class Settings(): Screen {
                                 "${ApiConfig.BASE_URL}/baja/" + UserManager.correo.value
                             )
                         }
-                    } , modifier = Modifier.width(200.dp)) { Text("Dar la cuenta de baja") }
+                    }, modifier = Modifier.width(200.dp)) { Text("Dar la cuenta de baja") }
                 }
-                }
+            }
             Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
                 buttonBar(Modifier, navigator)
             }
