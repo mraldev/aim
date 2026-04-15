@@ -127,8 +127,8 @@ fun DianaChip(
 ) {
     val bgColor = when {
         isSelected  -> MaterialTheme.colorScheme.primary
-        esPerfecta  -> Color(0xFFFFF59D)  // amarillo pastel
-        tieneDatos  -> Color(0xFFBBDEFB)  // azul pastel
+        esPerfecta  -> Color(0xFFFFF59D)  //- amarillo pastel
+        tieneDatos  -> Color(0xFFBBDEFB)  //- azul pastel
         else        -> Color.Transparent
     }
     val textColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface

@@ -11,6 +11,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.dam.tfg.api.managers.TiradaManager
+import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.customElements.Tirada.FlechasSection
 import org.dam.tfg.customElements.Tirada.NavigationButtons
 import org.dam.tfg.customElements.Tirada.TiradaStatsSection
@@ -107,21 +108,22 @@ class TiradaScreen(
         var showConfirmDialog by remember { mutableStateOf(false) }
 
         if (showConfirmDialog) {
-            AlertDialog(
-                onDismissRequest = { showConfirmDialog = false },
-                title = { Text("Finalizar tirada") },
-                text = { Text("¿Seguro que quieres finalizar? Si la tirada no está completa se guardará para continuar más tarde.") },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showConfirmDialog = false
-                        scope.launch {
-                            finalizarTirada(puntuaciones.map { it.toList() })
-                        }
-                    }) { Text("Finalizar") }
+            val completa = puntuaciones.all { diana ->
+                diana.size == tirada.numMaxFlechasPorDiana && diana.all { it != null }
+            }
+
+            DialogBase(
+                data = mapOf(
+                    "header"        to "Finalizar tirada",
+                    "content"       to if (completa) "¿Seguro que quieres finalizar?" else "La tirada esta incompleta, se guardará esta tirada a no ser que hagas una nueva. ¿Seguro que quieres finalizar?",
+                    "confirmButton" to "Confirmar",
+                    "dismissButton" to "Cancelar"
+                ),
+                onConfirm = {
+                    showConfirmDialog = false
+                    scope.launch { finalizarTirada(puntuaciones.map { it.toList() }) }
                 },
-                dismissButton = {
-                    TextButton(onClick = { showConfirmDialog = false }) { Text("Cancelar") }
-                }
+                onDismiss = { showConfirmDialog = false }
             )
         }
 
