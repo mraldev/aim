@@ -111,11 +111,19 @@ class Login: Screen {
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
-//                        if (isAccValid(correo)) {
-//                            attemptLogin(correo, navigator) {
-//                                frase.value = it
-//                            }
-//                        }
+                        scope.launch {
+                            isLoading = true
+                            if (login) {
+                                attemptLogin(correo, contrasenya, navigator) {
+                                    frase.value = it
+                                }
+                            } else {
+                                createAccount(correo, contrasenya, navigator) {
+                                    frase.value = it
+                                }
+                            }
+                            isLoading = false
+                        }
                     }
                 ),
                 modifier = Modifier

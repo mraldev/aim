@@ -14,12 +14,11 @@ class HealthCheck {
             )
 
             val body = response.body<HealthResponse>()
-            return body.status
+            return body.health
 
         } catch (e: Exception) {
             println("HealthCheck error: ${e.message}")
             return "DOWN"
         }
     }
-
 }
