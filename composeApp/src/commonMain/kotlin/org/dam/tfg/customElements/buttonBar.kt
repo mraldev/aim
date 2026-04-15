@@ -30,6 +30,8 @@ import org.dam.tfg.dto.UsuarioTiradaDTO
 import org.dam.tfg.enums.TipoCircuito
 import org.dam.tfg.screens.Login
 import org.dam.tfg.model.Tirada.Tirada
+import org.dam.tfg.screens.Home
+import org.dam.tfg.screens.Profile
 import org.dam.tfg.screens.TiradaScreen
 
 //Para utilizar TIENE que estar dentro de un row dentro de la pantalla al final.
@@ -100,9 +102,9 @@ fun buttonBar(modifier : Modifier = Modifier
                 .background(Color(255, 255, 255)),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-                //? De momento todos llevan al login (si se quiere agregar uno mas, se agrega
             //TODO : TERMINAR LAS DIFERENTES PANTALLAS _Y_ QUE SE PUEDA PASAR EL USUARIO ACTUAL A ELLAS
-                Button(onClick = { navigator.push(Login()) }) { Text("Btn1") }
+            //TODO: Cambiar los textos por iconos/imágenes/emojis/etc
+                Button(onClick = { navigator.push(Home()) }) { Text("Home") }
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn2") }
                 AnimatedButton( text = "+", onClick = {
                         if (TiradaManager.tirada.value != null) {
@@ -113,6 +115,6 @@ fun buttonBar(modifier : Modifier = Modifier
                     }
                 )
                 Button(onClick = { navigator.push(Login()) }) { Text("Btn3") }
-                Button(onClick = { navigator.push(Login()) }) { Text("Btn4") }
+                Button(onClick = { navigator.push(Profile()) }) { Text("Perfil") }
         }
     }

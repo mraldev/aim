@@ -1,5 +1,6 @@
 package org.dam.tfg.screens
 
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,34 +19,37 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
 
-class Home(): Screen {
+class Profile(): Screen {
+    //? En esta ventana no vamos a usar isAdmin, pero de aqui se la podemos pasar a todas las demas ventanas
+    //? lo que significa que podemos saber cuando un usuario es admin en cualquier punto de la app
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        //RECORDAR LOS MODIFIERS - LAS PANTALLAS QUEDARAN DIFERENTES SI NO SE PONEN
         Box(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(18.dp).fillMaxSize()) {
-                Text(
-                    text = UserManager.correo.value ?: "No hay",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = TokenManager.token.value ?: "No hay",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(18.dp).fillMaxSize()){
+                profileBar(navigator)
 
-            //MANTENER COMO LA ULTIMA LINEA DE CODIGO, DENTRO DEL BOX FUERA DE EL PRIMER COLUMN.
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Bio",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+                UserManager.descripcion.value?.let { descripcion ->
+                    Text(
+                        text = descripcion //? Biografia del usuario
+                        //* Si hay mas texto que el de la pantalla, este se deberia de hacer scrolleable, por el verticalScroll
+                    )
+                }
+        }
             Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
-                buttonBar(Modifier, navigator);
+                buttonBar(Modifier, navigator)
             }
         }
     }
