@@ -11,7 +11,7 @@ import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.api.responses.LogInResponse
 import org.dam.tfg.api.responses.RegisterResponse
-import org.dam.tfg.exceptions.ExcepcionContrasenyaIncorrecta
+import org.dam.tfg.api.responses.ResponseHelper
 
 class VerificacionUsuario {
 
@@ -51,13 +51,15 @@ class VerificacionUsuario {
                 )
             }
 
+            val exito = ResponseHelper.validarResponse(response)
+
             val body = response.body<LogInResponse>()
 
             TokenManager.setToken(body.token)
             UserManager.setCorreo(correo)
             UserManager.setContrasenya(contrasenya)
 
-            return true
+            return exito
 
         } catch (e: Exception) {
             println("Login error: ${e.message}")
@@ -101,13 +103,15 @@ class VerificacionUsuario {
                 )
             }
 
+            val exito = ResponseHelper.validarResponse(response)
+
             val body = response.body<RegisterResponse>()
 
             TokenManager.setToken(body.token)
             UserManager.setCorreo(correo)
             UserManager.setContrasenya(contrasenya)
 
-            return true
+            return exito
 
         } catch (e: Exception) {
             println("Login error: ${e.message}")

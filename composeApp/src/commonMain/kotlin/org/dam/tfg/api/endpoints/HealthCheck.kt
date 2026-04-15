@@ -5,6 +5,7 @@ import io.ktor.client.request.*
 import org.dam.tfg.api.ApiClient
 import org.dam.tfg.api.ApiConfig
 import org.dam.tfg.api.responses.HealthResponse
+import org.dam.tfg.api.responses.ResponseHelper
 
 class HealthCheck {
     suspend fun getHealth(): String {
@@ -13,8 +14,13 @@ class HealthCheck {
                 "${ApiConfig.BASE_URL}/health"
             )
 
-            val body = response.body<HealthResponse>()
-            return body.health
+            val exito = ResponseHelper.validarResponse(response)
+
+            return if (exito) {
+                response.body<HealthResponse>().health
+            } else {
+                "DOWN"
+            }
 
         } catch (e: Exception) {
             println("HealthCheck error: ${e.message}")
