@@ -1,5 +1,6 @@
 package org.dam.tfg.customElements.Tirada
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -8,152 +9,183 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.dam.tfg.model.Tirada.PUNTUACIONES_VALIDAS
 
-//- Colores pastel para los botones de flecha
-private val ColorFlechaVerde = Color(0xFF90EE90)
-private val ColorFlechaRojo  = Color(0xFFFF9999)
+private val ColorFlechaVerde    = Color(0xFF90EE90)
+private val ColorFlechaRojo     = Color(0xFFFF9999)
 private val ColorFlechaAmarillo = Color(0xFFFFFFCC)
 
 @Composable
 fun FlechasSection(
     numFlechas: Int,
+    currentDiana: Int,
     puntuaciones: List<Int?>,
     onPuntuacionChanged: (index: Int, puntuacion: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var flechaDialogIndex by remember { mutableStateOf<Int?>(null) }
+    var flechaSeleccionada by remember { mutableStateOf<Int?>(null) }
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        repeat(numFlechas) { index ->
-            FlechaButton(
-                numero = index + 1,
-                puntuacion = puntuaciones.getOrNull(index),
-                onClick = { flechaDialogIndex = index }
-            )
+    //? Resetea la selección al cambiar de diana
+    LaunchedEffect(currentDiana) { flechaSeleccionada = null }
+
+    Column(modifier = modifier.fillMaxWidth()) {
+
+        //? Lista de flechas
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            repeat(numFlechas) { index ->
+                FlechaRow(
+                    numero     = index + 1,
+                    puntuacion = puntuaciones.getOrNull(index),
+                    isSelected = index == flechaSeleccionada,
+                    onClick    = { flechaSeleccionada = index }
+                )
+            }
         }
-    }
 
-    // Dialog de puntuación
-    flechaDialogIndex?.let { idx ->
-        PuntuacionDialog(
-            flechaNumero = idx + 1,
-            puntuacionActual = puntuaciones.getOrNull(idx),
-            onConfirm = { nuevaPuntuacion ->
-                onPuntuacionChanged(idx, nuevaPuntuacion)
-                flechaDialogIndex = null
-            },
-            onDismiss = { flechaDialogIndex = null }
+        HorizontalDivider()
+
+        //? Botonera de puntuación
+        PuntuacionButtons(
+            enabled = flechaSeleccionada != null,
+            onPuntuacionSelected = { score ->
+                flechaSeleccionada?.let { idx ->
+                    onPuntuacionChanged(idx, score)
+                    // Auto-avance a la siguiente flecha sin puntuar
+                    flechaSeleccionada = (idx + 1 until numFlechas)
+                        .firstOrNull { puntuaciones.getOrNull(it) == null }
+                }
+            }
         )
     }
 }
 
-// ─── Botón individual de flecha ───────────────────────────────────────────────
+//? Fila individual de flecha
 @Composable
-fun FlechaButton(
+private fun FlechaRow(
     numero: Int,
     puntuacion: Int?,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    isSelected: Boolean,
+    onClick: () -> Unit
 ) {
-    val containerColor = when {
-        puntuacion == null -> MaterialTheme.colorScheme.surfaceVariant
+    val bgColor = when {
+        isSelected         -> MaterialTheme.colorScheme.primaryContainer
+        puntuacion == null -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         puntuacion == 0    -> ColorFlechaRojo
         puntuacion >= 10   -> ColorFlechaAmarillo
         else               -> ColorFlechaVerde
     }
 
-    val label = if (puntuacion == null) "Flecha $numero" else "Flecha $numero — $puntuacion pts"
-
-    Button(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(containerColor = containerColor)
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        color = bgColor,
+        shape = MaterialTheme.shapes.small
     ) {
-        Text(
-            text = label,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (puntuacion != null) "Flecha $numero — $puntuacion" else "Flecha $numero",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                color = if (isSelected)
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                else
+                    MaterialTheme.colorScheme.onSurface
+            )
+            if (isSelected) {
+                Text(
+                    text = "◀ selecciona",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
     }
 }
 
-// ─── Dialog de puntuación con spinner de valores válidos ──────────────────────
-@OptIn(ExperimentalMaterial3Api::class)
+//? Botonera 3 + 2
 @Composable
-fun PuntuacionDialog(
-    flechaNumero: Int,
-    puntuacionActual: Int?,
-    onConfirm: (Int) -> Unit,
-    onDismiss: () -> Unit
+private fun PuntuacionButtons(
+    enabled: Boolean,
+    onPuntuacionSelected: (Int) -> Unit
 ) {
-    var seleccion by remember { mutableStateOf(puntuacionActual ?: PUNTUACIONES_VALIDAS[0]) }
-    var expanded by remember { mutableStateOf(false) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Puntuación — Flecha $flechaNumero") },
-        text = {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "Selecciona la puntuación obtenida:",
-                    style = MaterialTheme.typography.bodyMedium
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Fila 1: 0 · 5 · 8
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            listOf(0, 5, 8).forEach { score ->
+                PuntuacionButton(
+                    score   = score,
+                    enabled = enabled,
+                    modifier = Modifier.weight(1f),
+                    onClick = { onPuntuacionSelected(score) }
                 )
-
-                // Spinner (ExposedDropdownMenu)
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }
-                ) {
-                    OutlinedTextField(
-                        value = seleccion.toString(),
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Puntuación") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                        modifier = Modifier.menuAnchor()
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        PUNTUACIONES_VALIDAS.forEach { valor ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = buildString {
-                                            append(valor.toString())
-                                        }
-                                    )
-                                },
-                                onClick = {
-                                    seleccion = valor
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(onClick = { onConfirm(seleccion) }) {
-                Text("Guardar")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar")
             }
         }
-    )
+        // Fila 2: 10 · 11 (estirados)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            listOf(10, 11).forEach { score ->
+                PuntuacionButton(
+                    score   = score,
+                    enabled = enabled,
+                    modifier = Modifier.weight(1f),
+                    onClick = { onPuntuacionSelected(score) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PuntuacionButton(
+    score: Int,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    val containerColor = when {
+        !enabled   -> MaterialTheme.colorScheme.surfaceVariant
+        score == 0 -> ColorFlechaRojo
+        score >= 10 -> ColorFlechaAmarillo
+        else        -> ColorFlechaVerde
+    }
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier.height(52.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor  = containerColor,
+            contentColor    = MaterialTheme.colorScheme.onSurface,
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Text(
+            text  = score.toString(),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+    }
 }

@@ -6,62 +6,78 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DialogContent(
     header: String,
     onConfirm: (Int, Int) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var numDianas by remember { mutableStateOf("") }
-    var flechas by remember { mutableStateOf("") }
+    var numDianas by remember { mutableStateOf(1) }
+    var flechas   by remember { mutableStateOf("") }
+    var expanded  by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier.padding(20.dp)
-    ) {
+    Column(modifier = Modifier.padding(20.dp)) {
         Text(
-            text = header,
+            text  = header,
             style = MaterialTheme.typography.titleLarge
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = numDianas,
-            onValueChange = {
-                if (it.all { c -> c.isDigit() }) numDianas = it
-            },
-            label = { Text("Dianas") },
-            singleLine = true
-        )
+        //? Spinner de dianas (1–4)
+        ExposedDropdownMenuBox(
+            expanded        = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                value        = numDianas.toString(),
+                onValueChange = {},
+                readOnly     = true,
+                label        = { Text("Dianas") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                modifier     = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded        = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                (1..4).forEach { option ->
+                    DropdownMenuItem(
+                        text    = { Text("$option") },
+                        onClick = {
+                            numDianas = option
+                            expanded  = false
+                        }
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedTextField(
-            value = flechas,
-            onValueChange = {
-                if (it.all { c -> c.isDigit() }) flechas = it
-            },
-            label = { Text("Flechas por diana") },
-            singleLine = true
+            value         = flechas,
+            onValueChange = { if (it.all { c -> c.isDigit() }) flechas = it },
+            label         = { Text("Flechas por diana") },
+            singleLine    = true,
+            modifier      = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(20.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier            = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar")
-            }
-
+            TextButton(onClick = onDismiss) { Text("Cancelar") }
             Spacer(modifier = Modifier.width(8.dp))
-
-            Button(onClick = {
-                if (numDianas.isNotEmpty() && flechas.isNotEmpty()) {
-                    onConfirm(numDianas.toInt(), flechas.toInt())
-                }
-            }) {
+            Button(
+                onClick  = { if (flechas.isNotEmpty()) onConfirm(numDianas, flechas.toInt()) },
+                enabled  = flechas.isNotEmpty()
+            ) {
                 Text("Aceptar")
             }
         }
