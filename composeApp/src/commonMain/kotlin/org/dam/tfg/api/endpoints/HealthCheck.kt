@@ -14,10 +14,12 @@ class HealthCheck {
                 "${ApiConfig.BASE_URL}/health"
             )
 
+            println(response.status.value)
+
             val exito = ResponseHelper.validarResponse(response)
 
             return if (exito) {
-                response.body<HealthResponse>().health
+                response.body<HealthResponse>().status
             } else {
                 "DOWN"
             }
