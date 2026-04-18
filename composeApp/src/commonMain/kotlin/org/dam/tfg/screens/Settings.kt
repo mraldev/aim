@@ -58,6 +58,7 @@ class Settings() : Screen {
                     .fillMaxSize().recalculateWindowInsets(), horizontalAlignment = Alignment.CenterHorizontally,
             ) {
 //.*[@].*[.].* TOMA PUTO REGEX
+                //El regex ya ha sido implementado en LogIn, por favor que se use el mismo formato
                 profileBar(navigator)
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(

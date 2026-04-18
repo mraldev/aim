@@ -189,6 +189,11 @@ class Login: Screen {
         //* esta funcion se podria eliminar si isAccValid devolviese el usuario
 
         if (correo.isNotBlank() && contrasenya.isNotBlank()) {
+            if(!correoValido(correo)){
+                function("Formato de correo incorrecto.")
+                return
+            }
+
             if(healthRepository.isServerActive()){
                 try{
                     if(loginRepository.login(correo, contrasenya)){
@@ -212,5 +217,13 @@ class Login: Screen {
         //! Mirar si dicho usuario existe (ya que va por correo, estos son unicos)
         //* SELECT correo FROM users WHERE correo = ?
         return true
+    }
+
+    private fun correoValido(email: String): Boolean {
+        val regex = Regex(
+            pattern = "^[A-Za-z0-9+._%\\-]{1,64}@[A-Za-z0-9\\-]+(\\.[A-Za-z0-9\\-]+)*\\.[A-Za-z]{2,}$",
+            option = RegexOption.IGNORE_CASE
+        )
+        return regex.matches(email)
     }
 }
