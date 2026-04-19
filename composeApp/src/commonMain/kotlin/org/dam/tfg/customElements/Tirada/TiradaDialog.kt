@@ -17,7 +17,7 @@ import org.dam.tfg.customElements.DialogContent
 @Composable
 fun TiradaDialog(
     onDismiss: () -> Unit,
-    onConfirm: (Int, Int) -> Unit
+    onConfirm: (Int, Int, List<String>) -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismiss,

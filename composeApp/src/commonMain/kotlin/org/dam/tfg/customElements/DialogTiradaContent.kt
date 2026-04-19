@@ -1,21 +1,25 @@
 package org.dam.tfg.customElements
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.dam.tfg.api.managers.UserManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DialogContent(
     header: String,
-    onConfirm: (Int, Int) -> Unit,
+    onConfirm: (Int, Int, List<String>) -> Unit,
     onDismiss: () -> Unit
 ) {
     var numDianas by remember { mutableStateOf("") }
     var flechas   by remember { mutableStateOf(1) }
     var expanded  by remember { mutableStateOf(false) }
+    var nuevoParticipante by remember { mutableStateOf("") }
+    val participantes = remember { mutableStateListOf<String>( UserManager.correo.value ?: "Usuario no registrado" ) }
 
     Column(modifier = Modifier.padding(20.dp)) {
         Text(
@@ -68,6 +72,50 @@ fun DialogContent(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        Text("Participantes", style = MaterialTheme.typography.titleMedium)
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = nuevoParticipante,
+                onValueChange = { nuevoParticipante = it },
+                label = { Text("Nombre o correo") },
+                singleLine = true,
+                modifier = Modifier.weight(1f)
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Button(
+                onClick = {
+                    if (nuevoParticipante.isNotBlank()
+                        && !participantes.contains(nuevoParticipante.trim())) {
+                        participantes.add(nuevoParticipante.trim())
+                        nuevoParticipante = ""
+                    }
+                }
+            ) {
+                Text("+")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        participantes.forEach { nombre ->
+            Text(
+                text = "• $nombre",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .clickable {
+                        participantes.remove(nombre)
+                    }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         Row(
             modifier            = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
@@ -75,8 +123,8 @@ fun DialogContent(
             TextButton(onClick = onDismiss) { Text("Cancelar") }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
-                onClick  = { if (numDianas.isNotEmpty()) onConfirm(numDianas.toInt(), flechas) },
-                enabled  = numDianas.isNotEmpty()
+                onClick  = { if (numDianas.isNotEmpty()) onConfirm(numDianas.toInt(), flechas, participantes) },
+                enabled  = numDianas.isNotEmpty() && participantes.isNotEmpty()
             ) {
                 Text("Aceptar")
             }

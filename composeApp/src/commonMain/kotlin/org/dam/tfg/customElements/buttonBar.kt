@@ -52,19 +52,21 @@ fun buttonBar(
     if (showDialog) {
         TiradaDialog(
             onDismiss = { showDialog = false },
-            onConfirm = { numDianas, flechas ->
+            onConfirm = { numDianas, flechas, participantes ->
                 showDialog = false
-                val tirada = Sesion(
-                    listOf(
-                        Tirada(
-                            usuario = UsuarioTiradaDTO(UserManager.correo.value),
-                            numDianas = numDianas,
-                            numMaxFlechasPorDiana = flechas,
-                            puntuaciones = mutableListOf(),
-                            tipoCircuito = TipoCircuito.CUSTOM
-                        )
+
+                val tiradas = participantes.map { participante ->
+                    Tirada(
+                        usuario = UsuarioTiradaDTO(participante),
+                        numDianas = numDianas,
+                        numMaxFlechasPorDiana = flechas,
+                        puntuaciones = mutableListOf(),
+                        tipoCircuito = TipoCircuito.CUSTOM
                     )
-                )
+                }
+
+                val tirada = Sesion(tiradas)
+
                 navigator.push(TiradaScreen(tirada))
             }
         )

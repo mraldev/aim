@@ -73,13 +73,15 @@ private fun StatRow(label: String, value: String) {
 fun NavigationButtons(
     currentDiana: Int,
     totalDianas: Int,
+    currentTirada: Int,
+    totalTiradas: Int,
     onPrev: () -> Unit,
     onNext: () -> Unit,
     onFinalizar: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isFirst = currentDiana == 0
-    val isLast  = currentDiana == totalDianas - 1
+    val isFirst = currentTirada == 0 && currentDiana == 0
+    val isLast  = currentDiana == totalDianas - 1 && currentTirada == totalTiradas
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -93,7 +95,7 @@ fun NavigationButtons(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                contentDescription = "Diana anterior"
+                contentDescription = "Siguiente arquero"
             )
             Spacer(Modifier.width(4.dp))
             Text("Anterior")
@@ -101,7 +103,7 @@ fun NavigationButtons(
 
         //- Indicador de posición
         Text(
-            text = "Diana ${currentDiana + 1} / $totalDianas",
+            text = "Arquero ${currentTirada + 1} / $totalTiradas",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -122,7 +124,7 @@ fun NavigationButtons(
                 Spacer(Modifier.width(4.dp))
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Diana siguiente"
+                    contentDescription = "Siguiente arquero"
                 )
             }
         }

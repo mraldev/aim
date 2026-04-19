@@ -144,7 +144,8 @@ class TiradaScreen(
         //- Codigo de la UI
         Scaffold(
             topBar = {
-                TiradaTopBar(onFinalizar = { showConfirmDialog = true })
+                TiradaTopBar(sesion.tiradas[currentTirada].usuario.correo!!,
+                    onFinalizar = { showConfirmDialog = true })
             }
         ) { padding ->
             Column(
@@ -168,7 +169,12 @@ class TiradaScreen(
                     currentDiana = currentDiana,
                     puntuaciones = puntuaciones[currentTirada].getOrNull(currentDiana) ?: emptyList(),
                     onPuntuacionChanged = { index, puntuacion ->
-                        puntuaciones[currentTirada][currentDiana][index] = puntuacion
+                        val tirada = puntuaciones.getOrNull(currentTirada)
+                        val diana = tirada?.getOrNull(currentDiana)
+
+                        if (diana != null && index in diana.indices) {
+                            diana[index] = puntuacion
+                        }
                     }
                 )
 
@@ -186,8 +192,16 @@ class TiradaScreen(
                 NavigationButtons(
                     currentDiana = currentDiana,
                     totalDianas = sesion.tiradas[0].numDianas,
-                    onPrev = { if (currentDiana > 0) currentDiana-- },
-                    onNext = { if (currentDiana < sesion.tiradas[0].numDianas - 1) currentDiana++ },
+                    currentTirada = currentTirada,
+                    totalTiradas = sesion.tiradas.size, //para pasar el número y no el índice
+                    onPrev = { if (currentTirada > 0) currentTirada-- },
+                    onNext = {
+                        if (currentTirada < sesion.tiradas.size - 1) currentTirada++
+                        else {
+                            currentTirada = 0
+                            currentDiana++
+                        }
+                    },
                     onFinalizar = { showConfirmDialog = true },
                     modifier = Modifier.weight(0.15f)
                         .padding(horizontal = 16.dp, vertical = 8.dp)

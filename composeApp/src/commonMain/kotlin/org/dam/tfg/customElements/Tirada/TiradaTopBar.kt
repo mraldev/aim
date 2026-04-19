@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 //- Top Bar
 @Composable
 fun TiradaTopBar(
+    arquero: String,
     onFinalizar: () -> Unit
 ) {
     Surface(
@@ -38,6 +39,13 @@ fun TiradaTopBar(
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(start = 8.dp)
             )
+
+            Text(
+                text = arquero,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
             IconButton(onClick = onFinalizar) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ExitToApp,
