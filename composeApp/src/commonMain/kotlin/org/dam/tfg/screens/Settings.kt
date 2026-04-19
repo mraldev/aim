@@ -189,11 +189,8 @@ class Settings() : Screen {
                     text = "AJUSTES DE CUENTA",
                     style = MaterialTheme.typography.titleLarge
                 )
-                //De momento se guarda tan solo en el manager local hasta que pueda guardar de forma completamente
-                //segura mediante la API.
-                //TODO : AÑADIR FUNCIONALIDAD DE LOS DIFERENTES BOTONES
 
-
+                Text(text = "Correo actual = " + UserManager.correo.value.toString() )
                 Row {
                     Button(
                         onClick = { showPasswordDialog = true },
@@ -201,7 +198,7 @@ class Settings() : Screen {
                     ) { Text("Cambiar contraseña") }
 
                 }
-                //TODO : Funcionalidad para confirmación de cambiar de correo de forma segura.
+
                 Row {
                     Button(
                         onClick = { showEmailDialog = true },
@@ -209,6 +206,8 @@ class Settings() : Screen {
                     ) { Text("Cambiar Correo") }
                 }
                 Spacer(modifier = Modifier.height(50.dp))
+
+
 
                 Row {
                     Button(
