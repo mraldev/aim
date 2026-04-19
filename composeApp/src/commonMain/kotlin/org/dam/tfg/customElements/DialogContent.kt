@@ -13,8 +13,8 @@ fun DialogContent(
     onConfirm: (Int, Int) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var numDianas by remember { mutableStateOf(1) }
-    var flechas   by remember { mutableStateOf("") }
+    var numDianas by remember { mutableStateOf("") }
+    var flechas   by remember { mutableStateOf(1) }
     var expanded  by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.padding(20.dp)) {
@@ -25,16 +25,26 @@ fun DialogContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        //? Spinner de dianas (1–4)
+        OutlinedTextField(
+            value         = numDianas,
+            onValueChange = { if (it.all { c -> c.isDigit() }) numDianas = it },
+            label         = { Text("Dianas") },
+            singleLine    = true,
+            modifier      = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        //? Spinner de flechas (1–4)
         ExposedDropdownMenuBox(
             expanded        = expanded,
             onExpandedChange = { expanded = !expanded }
         ) {
             OutlinedTextField(
-                value        = numDianas.toString(),
+                value        = flechas.toString(),
                 onValueChange = {},
                 readOnly     = true,
-                label        = { Text("Dianas") },
+                label        = { Text("Flechas por diana") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                 modifier     = Modifier
                     .fillMaxWidth()
@@ -48,23 +58,13 @@ fun DialogContent(
                     DropdownMenuItem(
                         text    = { Text("$option") },
                         onClick = {
-                            numDianas = option
+                            flechas = option
                             expanded  = false
                         }
                     )
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value         = flechas,
-            onValueChange = { if (it.all { c -> c.isDigit() }) flechas = it },
-            label         = { Text("Flechas por diana") },
-            singleLine    = true,
-            modifier      = Modifier.fillMaxWidth()
-        )
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -75,8 +75,8 @@ fun DialogContent(
             TextButton(onClick = onDismiss) { Text("Cancelar") }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
-                onClick  = { if (flechas.isNotEmpty()) onConfirm(numDianas, flechas.toInt()) },
-                enabled  = flechas.isNotEmpty()
+                onClick  = { if (numDianas.isNotEmpty()) onConfirm(numDianas.toInt(), flechas) },
+                enabled  = numDianas.isNotEmpty()
             ) {
                 Text("Aceptar")
             }

@@ -22,12 +22,12 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import org.dam.tfg.api.managers.TiradaManager
+import org.dam.tfg.api.managers.SesionManager
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.Tirada.TiradaDialog
-import org.dam.tfg.dto.PuntuacionTiradaDTO
 import org.dam.tfg.dto.UsuarioTiradaDTO
 import org.dam.tfg.enums.TipoCircuito
+import org.dam.tfg.model.Tirada.Sesion
 import org.dam.tfg.screens.Login
 import org.dam.tfg.model.Tirada.Tirada
 import org.dam.tfg.screens.Home
@@ -36,11 +36,12 @@ import org.dam.tfg.screens.TiradaScreen
 
 //Para utilizar TIENE que estar dentro de un row dentro de la pantalla al final.
 @Composable
-fun buttonBar(modifier : Modifier = Modifier
-    .fillMaxWidth().size(65.dp)
-    .background(Color(255,255,255)),
-              navigator: Navigator = LocalNavigator.currentOrThrow,
-              ) {
+fun buttonBar(
+    modifier: Modifier = Modifier
+        .fillMaxWidth().size(65.dp)
+        .background(Color(255, 255, 255)),
+    navigator: Navigator = LocalNavigator.currentOrThrow,
+) {
     var showContinueDialog by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
 
@@ -53,12 +54,16 @@ fun buttonBar(modifier : Modifier = Modifier
             onDismiss = { showDialog = false },
             onConfirm = { numDianas, flechas ->
                 showDialog = false
-                val tirada = Tirada(
-                    usuario = UsuarioTiradaDTO(UserManager.correo.value),
-                    numDianas = numDianas,
-                    numMaxFlechasPorDiana = flechas,
-                    puntuaciones = mutableListOf(),
-                    tipoCircuito = TipoCircuito.CUSTOM
+                val tirada = Sesion(
+                    listOf(
+                        Tirada(
+                            usuario = UsuarioTiradaDTO(UserManager.correo.value),
+                            numDianas = numDianas,
+                            numMaxFlechasPorDiana = flechas,
+                            puntuaciones = mutableListOf(),
+                            tipoCircuito = TipoCircuito.CUSTOM
+                        )
+                    )
                 )
                 navigator.push(TiradaScreen(tirada))
             }
@@ -66,14 +71,14 @@ fun buttonBar(modifier : Modifier = Modifier
     }
 
     if (showContinueDialog) {
-        val saved = TiradaManager.tirada.value  // snapshot, safe here
+        val saved = SesionManager.sesion.value  // snapshot, safe here
         AlertDialog(
             onDismissRequest = { showContinueDialog = false },
             title = { Text("Tirada guardada") },
             text = {
                 Text(
                     "Tienes una tirada en progreso " +
-                            "(${saved?.numDianas} dianas, ${saved?.numMaxFlechasPorDiana} flechas). " +
+                            "(${saved?.tiradas[0]?.numDianas} dianas, ${saved?.tiradas[0]?.numMaxFlechasPorDiana} flechas). " +
                             "¿Quieres continuar?"
                 )
             },
@@ -85,7 +90,7 @@ fun buttonBar(modifier : Modifier = Modifier
             },
             dismissButton = {
                 TextButton(onClick = {
-                    TiradaManager.clear()
+                    SesionManager.clear()
                     showContinueDialog = false
                     dialogInitialDianas = null
                     dialogInitialFlechas = null
@@ -96,25 +101,25 @@ fun buttonBar(modifier : Modifier = Modifier
     }
 
     //? Codigo de lo visual
-        Row(
-            modifier = Modifier
-                .fillMaxWidth().size(65.dp)
-                .background(Color(255, 255, 255)),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            //TODO : TERMINAR LAS DIFERENTES PANTALLAS _Y_ QUE SE PUEDA PASAR EL USUARIO ACTUAL A ELLAS
-            //TODO: Cambiar los textos por iconos/imágenes/emojis/etc
-                Button(onClick = { navigator.push(Home()) }) { Text("Home") }
-                Button(onClick = { navigator.push(Login()) }) { Text("Btn2") }
-                AnimatedButton( text = "+", onClick = {
-                        if (TiradaManager.tirada.value != null) {
-                            showContinueDialog = true   //? Pregunta si hay tirada cacheada
-                        } else {
-                            showDialog = true
-                        }
-                    }
-                )
-                Button(onClick = { navigator.push(Login()) }) { Text("Btn3") }
-                Button(onClick = { navigator.push(Profile()) }) { Text("Perfil") }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth().size(65.dp)
+            .background(Color(255, 255, 255)),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        //TODO : TERMINAR LAS DIFERENTES PANTALLAS _Y_ QUE SE PUEDA PASAR EL USUARIO ACTUAL A ELLAS
+        //TODO: Cambiar los textos por iconos/imágenes/emojis/etc
+        Button(onClick = { navigator.push(Home()) }) { Text("Home") }
+        Button(onClick = { navigator.push(Login()) }) { Text("Btn2") }
+        AnimatedButton(text = "+", onClick = {
+            if (SesionManager.sesion.value != null) {
+                showContinueDialog = true   //? Pregunta si hay tirada cacheada
+            } else {
+                showDialog = true
+            }
         }
+        )
+        Button(onClick = { navigator.push(Login()) }) { Text("Btn3") }
+        Button(onClick = { navigator.push(Profile()) }) { Text("Perfil") }
     }
+}

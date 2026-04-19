@@ -4,14 +4,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.recalculateWindowInsets
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -34,14 +32,14 @@ import io.ktor.client.request.post
 import org.dam.tfg.api.ApiClient
 import org.dam.tfg.api.ApiConfig
 import org.dam.tfg.api.authorization.TokenManager
-import org.dam.tfg.api.managers.TiradaManager
+import org.dam.tfg.api.managers.SesionManager
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
 
 class Settings() : Screen {
     private fun limpiarManagers(){
-        TiradaManager.clear()
+        SesionManager.clear()
         UserManager.clear()
         TokenManager.clear()
     }
