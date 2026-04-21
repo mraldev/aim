@@ -26,14 +26,15 @@ import org.dam.tfg.repository.TiradaRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 class TiradaScreen(
-    private val sesion: Sesion,
-    private val onFinalizar: (puntuaciones: List<List<List<Int?>>>) -> Unit = {}
+    //private val sesion: Sesion
+    //private val onFinalizar: (puntuaciones: List<List<List<Int?>>>) -> Unit = {}
 ) : Screen {
-
-    private val repository = TiradaRepository()
 
     @Composable
     override fun Content() {
+        val sesion = SesionManager.sesion.value!!
+        val repository = TiradaRepository()
+        val onFinalizar: (puntuaciones: List<List<List<Int?>>>) -> Unit = {}
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
 
@@ -70,6 +71,7 @@ class TiradaScreen(
         }
 
         //- Lógica de finalizar
+        //suspend fun finalizarTirada(snapshot: List<List<List<Int?>>>) {
         suspend fun finalizarTirada(snapshot: List<List<List<Int?>>>) {
             val completa = snapshot.all { itSesion ->
                 itSesion.all { diana ->

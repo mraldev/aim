@@ -67,7 +67,8 @@ fun buttonBar(
 
                 val tirada = Sesion(tiradas)
 
-                navigator.push(TiradaScreen(tirada))
+                SesionManager.setSesion(tirada)
+                navigator.push(TiradaScreen())
             }
         )
     }
@@ -87,7 +88,10 @@ fun buttonBar(
             confirmButton = {
                 TextButton(onClick = {
                     showContinueDialog = false
-                    saved?.let { navigator.push(TiradaScreen(it)) }
+                    saved?.let {
+                        SesionManager.setSesion(it)
+                        navigator.push(TiradaScreen())
+                    }
                 }) { Text("Sí") }
             },
             dismissButton = {
