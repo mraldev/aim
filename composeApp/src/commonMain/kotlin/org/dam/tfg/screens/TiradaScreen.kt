@@ -78,7 +78,7 @@ class TiradaScreen(
                 }
             }
 
-            //Recorre todas las tiradas y actualiza la actual
+            //- Recorre todas las tiradas y actualiza la actual
             val sesionActualizada = sesion.copy(
                 tiradas = sesion.tiradas.mapIndexed { index, tirada ->
                     tirada.copy(

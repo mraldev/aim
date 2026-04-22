@@ -1,16 +1,16 @@
 package org.dam.tfg.model
 
 import kotlinx.serialization.Serializable
-import org.dam.tfg.api.enumerados.RolesUsuario
+import org.dam.tfg.enums.UserRole
 
 @Serializable
 data class Users
     (
-        val correo: String,
-        val contrasenya: String,
-        val name: String?,
-        val descripcion: String?,
-        val rolesUsuario: List<RolesUsuario>,
+    val correo: String,
+    val contrasenya: String,
+    val name: String?,
+    val descripcion: String?,
+    val rolesUsuario: List<UserRole>,
     )
 {
     override fun equals(other: Any?): Boolean {

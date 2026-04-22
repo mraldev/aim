@@ -3,7 +3,7 @@ package org.dam.tfg.api.managers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.LocalDate
-import org.dam.tfg.api.enumerados.RolesUsuario
+import org.dam.tfg.enums.UserRole
 
 
 object UserManager {
@@ -20,8 +20,8 @@ object UserManager {
     private val _fechaAlta = MutableStateFlow<LocalDate?>(null)
     val fechaAlta: StateFlow<LocalDate?> get() = _fechaAlta
 
-    private val _roles = MutableStateFlow<List<RolesUsuario>>(emptyList())
-    val roles: StateFlow<List<RolesUsuario>> get() = _roles
+    private val _roles = MutableStateFlow<List<UserRole>>(emptyList())
+    val roles: StateFlow<List<UserRole>> get() = _roles
 
     private val _descripcion = MutableStateFlow<String?>(null)
     val descripcion: StateFlow<String?> get() = _descripcion
@@ -43,7 +43,7 @@ object UserManager {
         _fechaAlta.value = nuevaFecha
     }
 
-    fun setRoles(nuevosRoles: List<RolesUsuario>) {
+    fun setRoles(nuevosRoles: List<UserRole>) {
         _roles.value = nuevosRoles
     }
 

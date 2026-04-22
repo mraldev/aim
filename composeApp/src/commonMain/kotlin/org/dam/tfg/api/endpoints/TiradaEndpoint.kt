@@ -21,6 +21,8 @@ class TiradaEndpoint {
 
                 header("Authorization", "Bearer ${TokenManager.token.value}")
 
+                println(sesion)
+
                 setBody(
                     sesion
                 )

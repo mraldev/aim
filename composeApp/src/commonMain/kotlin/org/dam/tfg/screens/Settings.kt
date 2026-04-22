@@ -8,10 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.recalculateWindowInsets
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -19,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,23 +27,14 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import io.ktor.client.request.post
-import kotlinx.coroutines.launch
-import org.dam.tfg.api.ApiClient
-import org.dam.tfg.api.ApiConfig
 import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.SesionManager
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.DialogBase
-import org.dam.tfg.customElements.Tirada.TiradaDialog
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
-import org.dam.tfg.dto.UsuarioTiradaDTO
-import org.dam.tfg.enums.TipoCircuito
-import org.dam.tfg.model.Tirada.Sesion
-import org.dam.tfg.model.Tirada.Tirada
 
-class Settings() : Screen {
+class Settings : Screen {
     private fun limpiarManagers() {
         SesionManager.clear()
         UserManager.clear()
@@ -56,13 +43,15 @@ class Settings() : Screen {
 
     @Composable
     override fun Content() {
-        var contrasenyaNueva: String by remember { mutableStateOf("") }
-        var correoNuevo: String by remember { mutableStateOf("") }
+        var contrasenyaNueva by remember { mutableStateOf("") }
+        var correoNuevo by remember { mutableStateOf("") }
 
-        val regex = Regex(
-            pattern = "^[A-Za-z0-9+._%\\-]{1,64}@[A-Za-z0-9\\-]+(\\.[A-Za-z0-9\\-]+)*\\.[A-Za-z]{2,}$",
-            option = RegexOption.IGNORE_CASE
-        )
+        val regex = remember {
+            Regex(
+                pattern = "^[A-Za-z0-9+._%\\-]{1,64}@[A-Za-z0-9\\-]+(\\.[A-Za-z0-9\\-]+)*\\.[A-Za-z]{2,}$",
+                option = RegexOption.IGNORE_CASE
+            )
+        }
 
         val navigator = LocalNavigator.currentOrThrow
 
@@ -79,13 +68,8 @@ class Settings() : Screen {
                     "dismissButton" to "Cancelar"
                 ),
                 onConfirm = {
-                    suspend {
-                        ApiClient.client.post(
-                            "${ApiConfig.BASE_URL}/baja/" + UserManager.correo.value
-                        )
-                    }
                     limpiarManagers()
-                    navigator.push(Home());
+                    navigator.push(Home())
                 },
                 onDismiss = { showConfirmationDialog = false }
             )
@@ -97,8 +81,8 @@ class Settings() : Screen {
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            if (correoNuevo.isNullOrEmpty() || !regex.matches(correoNuevo)) {
-                                correoNuevo = "Correo no valido."
+                            if (correoNuevo.isBlank() || !regex.matches(correoNuevo)) {
+                                correoNuevo = ""
                             } else {
                                 UserManager.setCorreo(correoNuevo)
                                 showEmailDialog = false
@@ -108,14 +92,13 @@ class Settings() : Screen {
                         Text("Confirmar")
                     }
                 },
-                dismissButton =
-                    {
-                        TextButton(
-                            onClick = { showEmailDialog = false }
-                        ) {
-                            Text("Cancelar")
-                        }
-                    },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showEmailDialog = false }
+                    ) {
+                        Text("Cancelar")
+                    }
+                },
                 title = { Text("Cambiar Email") },
                 text = {
                     OutlinedTextField(
@@ -123,25 +106,24 @@ class Settings() : Screen {
                         onValueChange = { correoNuevo = it },
                         label = { Text("Nuevo Email") },
                         singleLine = true,
-                        shape = RoundedCornerShape(40.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 30.dp)
                     )
-                },
-                shape = MaterialTheme.shapes.large,
+                }
             )
         }
+
         if (showPasswordDialog) {
             AlertDialog(
                 onDismissRequest = { showPasswordDialog = false },
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            if (correoNuevo.isNullOrEmpty()) {
-                                contrasenyaNueva = "Correo no valido."
+                            if (contrasenyaNueva.isBlank() || contrasenyaNueva.length < 8) {
+                                contrasenyaNueva = ""
                             } else {
-                                UserManager.setCorreo(correoNuevo)
+                                UserManager.setContrasenya(contrasenyaNueva)
                                 showPasswordDialog = false
                             }
                         }
@@ -149,14 +131,13 @@ class Settings() : Screen {
                         Text("Confirmar")
                     }
                 },
-                dismissButton =
-                    {
-                        TextButton(
-                            onClick = { showPasswordDialog = false }
-                        ) {
-                            Text("Cancelar")
-                        }
-                    },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showPasswordDialog = false }
+                    ) {
+                        Text("Cancelar")
+                    }
+                },
                 title = { Text("Cambiar Contraseña") },
                 text = {
                     OutlinedTextField(
@@ -164,25 +145,22 @@ class Settings() : Screen {
                         onValueChange = { contrasenyaNueva = it },
                         label = { Text("Nueva Contraseña") },
                         singleLine = true,
-                        shape = RoundedCornerShape(40.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 30.dp)
                     )
-                },
-                shape = MaterialTheme.shapes.large,
+                }
             )
         }
 
-
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()).padding(18.dp)
-                    .fillMaxSize().recalculateWindowInsets(),
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(18.dp)
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.Start,
             ) {
-//.*[@].*[.].* TOMA PUTO REGEX
-                //El regex ya ha sido implementado en LogIn, por favor que se use el mismo formato
                 profileBar(navigator)
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
@@ -190,42 +168,45 @@ class Settings() : Screen {
                     style = MaterialTheme.typography.titleLarge
                 )
 
-                Text(text = "Correo actual = " + UserManager.correo.value.toString() )
+                Text(text = "Correo actual = " + (UserManager.correo.value ?: ""))
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Row {
                     Button(
                         onClick = { showPasswordDialog = true },
-                        modifier = Modifier.width(200.dp)
+                        modifier = Modifier.fillMaxWidth()
                     ) { Text("Cambiar contraseña") }
-
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Row {
                     Button(
                         onClick = { showEmailDialog = true },
-                        modifier = Modifier.width(200.dp)
+                        modifier = Modifier.fillMaxWidth()
                     ) { Text("Cambiar Correo") }
                 }
                 Spacer(modifier = Modifier.height(50.dp))
-
-
 
                 Row {
                     Button(
                         onClick = {
                             limpiarManagers()
-                            navigator.push(Home());
+                            navigator.push(Login())
                         },
-                        modifier = Modifier.width(200.dp)
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Cerrar Sesión")
                     }
                 }
-                //por el amor de dios no la utiliceis sin cuentas mock solo para probarlo
-                Row {
-                    Button(onClick = {
-                        showConfirmationDialog = true;
 
-                    }, modifier = Modifier.width(200.dp)) { Text("Dar la cuenta de baja") }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row {
+                    Button(
+                        onClick = { showConfirmationDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Dar la cuenta de baja") }
                 }
             }
             Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
@@ -234,4 +215,3 @@ class Settings() : Screen {
         }
     }
 }
-

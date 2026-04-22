@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 //? los enums tienen que ser serializables tambien
 @Serializable
-enum class TipoCircuito {
-    CUSTOM
+enum class TipoCircuito(val label: String) {
+    CUSTOM("Custom")
 }

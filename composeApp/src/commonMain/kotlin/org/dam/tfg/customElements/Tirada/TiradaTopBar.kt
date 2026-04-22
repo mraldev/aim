@@ -42,7 +42,8 @@ fun TiradaTopBar(
 
             Text(
                 text = arquero,
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 

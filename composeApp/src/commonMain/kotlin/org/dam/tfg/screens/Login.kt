@@ -44,11 +44,10 @@ import org.dam.tfg.exceptions.ExcepcionContrasenyaIncorrecta
 import org.dam.tfg.repository.HealthCheckRepository
 import org.dam.tfg.repository.LoginRepository
 
-private var isLoading = false
-private val loginRepository = LoginRepository()
-private val healthRepository = HealthCheckRepository()
-
 class Login: Screen {
+    private val loginRepository = LoginRepository()
+    private val healthRepository = HealthCheckRepository()
+
     @Composable
     override fun Content() {
 
@@ -59,16 +58,17 @@ class Login: Screen {
         val user = "Correo electronico"
         //? remembers (animaciones y otras cosas dinamicas)
         var status by remember { mutableStateOf("Loading...") }
-        var login by remember { mutableStateOf(true) } //? Para poder generar componentes al hacer login y cambiar la peticion en caso necesario
-        var correo: String by remember { mutableStateOf("") }
-        val frase = remember { mutableStateOf("") }
-        var contrasenya: String by remember { mutableStateOf("") }
+        var isLoading by remember { mutableStateOf(false) }
+        var login by remember { mutableStateOf(true) }
+        var correo by remember { mutableStateOf("") }
+        var message by remember { mutableStateOf("") }
+        var contrasenya by remember { mutableStateOf("") }
         val focusRequester = remember { FocusRequester() }
         var passwordFocused by remember { mutableStateOf(false) }
         var passwordError by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
 
-        LaunchedEffect(Unit) { //? Focus dinamico, al iniciar la app, hace focus en el campo de usuario
+        LaunchedEffect(Unit) {
             focusRequester.requestFocus()
         }
 
@@ -82,10 +82,12 @@ class Login: Screen {
             AnimatedVisibility (
                 visible = true,
                 enter = fadeIn() + expandVertically(),
-            ) {Text(
-                text = if (login) "Inicio de sesión" else "Crear cuenta",
-                style = MaterialTheme.typography.headlineMedium
-            )}
+            ) {
+                Text(
+                    text = if (login) "Inicio de sesión" else "Crear cuenta",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+            }
             Text("Usuario")
             OutlinedTextField(
                 value = correo,
@@ -96,7 +98,7 @@ class Login: Screen {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 30.dp)
-                )
+            )
             Text(password)
             OutlinedTextField(
                 value = contrasenya,
@@ -115,11 +117,11 @@ class Login: Screen {
                             isLoading = true
                             if (login) {
                                 attemptLogin(correo, contrasenya, navigator) {
-                                    frase.value = it
+                                    message = it
                                 }
                             } else {
                                 createAccount(correo, contrasenya, navigator) {
-                                    frase.value = it
+                                    message = it
                                 }
                             }
                             isLoading = false
@@ -147,16 +149,17 @@ class Login: Screen {
                         isLoading = true
                         if (login) {
                             attemptLogin(correo, contrasenya, navigator) {
-                                frase.value = it
+                                message = it
                             }
                         } else {
                             createAccount(correo, contrasenya, navigator) {
-                                frase.value = it
+                                message = it
                             }
                         }
                         isLoading = false
                     }
-            }) {
+                }
+            ) {
                 if (isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
@@ -164,20 +167,18 @@ class Login: Screen {
                     )
                 } else {
                     val texto = if (login) "INICIAR SESION" else "CREAR CUENTA"
-                    Text( text=texto )
+                    Text(text = texto)
                 }
             }
             LaunchedEffect(Unit) {
                 status = healthRepository.getHealthStatus()
             }
             Text("Server status: $status")
-            Text(frase.value)
         }
 
     }
 
     private suspend fun createAccount(correo: String, contrasenya: String, navigator: Navigator, function: (String) -> Unit) {
-        //TODO mejorar!!!
         val logged = loginRepository.register(correo, contrasenya)
 
         if (logged) navigator.push(Home())
@@ -185,38 +186,30 @@ class Login: Screen {
     }
 
     private suspend fun attemptLogin(correo: String, contrasenya: String, navigator: Navigator, function: (String) -> Unit) {
-        //? devuelve el usuario, con todos sus datos, se los pasa a home
-        //* esta funcion se podria eliminar si isAccValid devolviese el usuario
-
         if (correo.isNotBlank() && contrasenya.isNotBlank()) {
-            if(!correoValido(correo)){
+            if (!correoValido(correo)) {
                 function("Formato de correo incorrecto.")
                 return
             }
 
-            if(healthRepository.isServerActive()){
-                try{
-                    if(loginRepository.login(correo, contrasenya)){
+            if (healthRepository.isServerActive()) {
+                try {
+                    if (loginRepository.login(correo, contrasenya)) {
                         navigator.push(Home())
                     } else {
-                        //TODO mejorar, podría fallar por más cosas
                         function("Contraseña incorrecta.")
                     }
-                } catch (exception: ExcepcionContrasenyaIncorrecta){
-                    function(exception.message!!)
-                } catch (exception: Exception){
+                } catch (exception: ExcepcionContrasenyaIncorrecta) {
+                    function(exception.message ?: "Error de contraseña")
+                } catch (exception: Exception) {
                     function("Error en el inicio de sesión. Intente de nuevo más tarde.")
                 }
+            } else {
+                function("Servidor no disponible")
             }
         } else {
-            function("El usuario o la contraseña son incorrectos.") //? Como ponemos  { frase.value = it } esto es una funcion, al hacer esto, hacemos que dicha funcion le ponga este valor a frase
+            function("El usuario o la contraseña son incorrectos.")
         }
-    }
-
-    private fun isAccValid(correo: String): Boolean {
-        //! Mirar si dicho usuario existe (ya que va por correo, estos son unicos)
-        //* SELECT correo FROM users WHERE correo = ?
-        return true
     }
 
     private fun correoValido(email: String): Boolean {

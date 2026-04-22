@@ -12,14 +12,27 @@ import org.dam.tfg.api.managers.UserManager
 @Composable
 fun DialogContent(
     header: String,
+    numDianasFixed: Int? = null,
+    flechasFixed: Int? = null,
+    participantesFixed: List<String>? = null,
     onConfirm: (Int, Int, List<String>) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var numDianas by remember { mutableStateOf("") }
-    var flechas   by remember { mutableStateOf(1) }
+    var numDianas by remember {
+        mutableStateOf(numDianasFixed?.toString() ?: "")
+    }
+    var flechas   by remember { mutableStateOf(flechasFixed ?: 1) }
     var expanded  by remember { mutableStateOf(false) }
     var nuevoParticipante by remember { mutableStateOf("") }
-    val participantes = remember { mutableStateListOf<String>( UserManager.correo.value ?: "Usuario no registrado" ) }
+    val participantes = remember(participantesFixed) {
+        mutableStateListOf<String>().apply {
+            if (participantesFixed != null) {
+                addAll(participantesFixed)
+            } else {
+                add(UserManager.correo.value ?: "Usuario no registrado")
+            }
+        }
+    }
 
     Column(modifier = Modifier.padding(20.dp)) {
         Text(
@@ -34,12 +47,13 @@ fun DialogContent(
             onValueChange = { if (it.all { c -> c.isDigit() }) numDianas = it },
             label         = { Text("Dianas") },
             singleLine    = true,
+            readOnly     = numDianasFixed != null,
+            enabled     = numDianasFixed == null,
             modifier      = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        //? Spinner de flechas (1–4)
         ExposedDropdownMenuBox(
             expanded        = expanded,
             onExpandedChange = { expanded = !expanded }
@@ -48,6 +62,7 @@ fun DialogContent(
                 value        = flechas.toString(),
                 onValueChange = {},
                 readOnly     = true,
+                enabled     = flechasFixed == null,
                 label        = { Text("Flechas por diana") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                 modifier     = Modifier

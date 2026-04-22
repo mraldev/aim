@@ -1,5 +1,6 @@
 package org.dam.tfg.model.Tirada
 
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 
 @Serializable
