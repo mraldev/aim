@@ -36,11 +36,6 @@ class Home(): Screen {
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = TokenManager.token.value ?: "No hay",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.height(16.dp))
             }
 
             //MANTENER COMO LA ULTIMA LINEA DE CODIGO, DENTRO DEL BOX FUERA DE EL PRIMER COLUMN.
