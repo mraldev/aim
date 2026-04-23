@@ -82,6 +82,7 @@ fun buttonBar(
                 val tirada = Sesion(tiradas)
 
                 SesionManager.setSesion(tirada)
+                nav.pop()
                 nav.push(TiradaScreen())
             }
         )
@@ -102,6 +103,7 @@ fun buttonBar(
                     showContinueDialog = false
                     saved?.let {
                         SesionManager.setSesion(it)
+                        nav.pop()
                         nav.push(TiradaScreen())
                     }
                 }) { Text("Sí") }
@@ -126,6 +128,7 @@ fun buttonBar(
         }
 
         Button(onClick = {
+            nav.pop()
             nav.push(
                 CompeticionScreen(
                     userRole = userRole,
@@ -154,11 +157,17 @@ fun buttonBar(
             }
         )
 
-        Button(onClick = { nav.push(HistorialScreen()) }) {
+        Button(onClick = {
+            nav.pop()
+            nav.push(HistorialScreen())
+        }) {
             Icon(Icons.Filled.History, contentDescription = "Historial")
         }
 
-        Button(onClick = { nav.push(Profile()) }) {
+        Button(onClick = {
+            nav.pop()
+            nav.push(Profile())
+        }) {
             Icon(Icons.Filled.Person, contentDescription = "Perfil")
         }
     }
