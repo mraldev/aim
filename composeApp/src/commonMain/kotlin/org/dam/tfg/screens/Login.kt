@@ -4,6 +4,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -39,12 +42,13 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.dam.tfg.exceptions.ExcepcionContrasenyaIncorrecta
 import org.dam.tfg.repository.HealthCheckRepository
 import org.dam.tfg.repository.LoginRepository
 
-class Login: Screen {
+class Login : Screen {
     private val loginRepository = LoginRepository()
     private val healthRepository = HealthCheckRepository()
 
@@ -62,6 +66,8 @@ class Login: Screen {
         var login by remember { mutableStateOf(true) }
         var correo by remember { mutableStateOf("") }
         var message by remember { mutableStateOf("") }
+        var messageKey by remember { mutableIntStateOf(0) }
+        var showMessage by remember { mutableStateOf(false) }
         var contrasenya by remember { mutableStateOf("") }
         val focusRequester = remember { FocusRequester() }
         var passwordFocused by remember { mutableStateOf(false) }
@@ -72,14 +78,24 @@ class Login: Screen {
             focusRequester.requestFocus()
         }
 
+        //- Muestra el mensaje 1 segundo con fade, se relanza aunque el error sea el mismo
+        LaunchedEffect(messageKey) {
+            if (messageKey > 0) {
+                showMessage = true
+                delay(1000)
+                showMessage = false
+            }
+        }
+
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .animateContentSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Spacer(modifier = Modifier.height(38.dp))
-            AnimatedVisibility (
+            AnimatedVisibility(
                 visible = true,
                 enter = fadeIn() + expandVertically(),
             ) {
@@ -118,10 +134,12 @@ class Login: Screen {
                             if (login) {
                                 attemptLogin(correo, contrasenya, navigator) {
                                     message = it
+                                    messageKey++
                                 }
                             } else {
                                 createAccount(correo, contrasenya, navigator) {
                                     message = it
+                                    messageKey++
                                 }
                             }
                             isLoading = false
@@ -150,10 +168,12 @@ class Login: Screen {
                         if (login) {
                             attemptLogin(correo, contrasenya, navigator) {
                                 message = it
+                                messageKey++
                             }
                         } else {
                             createAccount(correo, contrasenya, navigator) {
                                 message = it
+                                messageKey++
                             }
                         }
                         isLoading = false
@@ -174,13 +194,27 @@ class Login: Screen {
                 status = healthRepository.getHealthStatus()
             }
             Text("Server status: $status")
+            AnimatedVisibility(
+                visible = showMessage,
+                enter = fadeIn(animationSpec = tween(durationMillis = 400, easing = androidx.compose.animation.core.EaseInOut)),
+                exit = fadeOut(animationSpec = tween(durationMillis = 400, easing = androidx.compose.animation.core.EaseInOut))
+            ) {
+                Text(
+                    text = message,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
         }
-
     }
 
     private suspend fun createAccount(correo: String, contrasenya: String, navigator: Navigator, function: (String) -> Unit) {
+        if (!correoValido(correo)) {
+            function("Formato de correo incorrecto.")
+            return
+        }
         val logged = loginRepository.register(correo, contrasenya)
-
         if (logged) navigator.push(Home())
         else function("Error al crear cuenta.")
     }

@@ -61,6 +61,7 @@ fun profileBar(navigator: Navigator = LocalNavigator.currentOrThrow) {
                     if (navigator.lastItem is Settings) {
                         navigator.pop()
                     } else {
+                        navigator.pop()
                         navigator.push(Settings())
                     }
                 }) { Text("I") }

@@ -28,24 +28,29 @@ class Profile(): Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(18.dp).fillMaxSize()){
-                profileBar(navigator)
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Bio",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                UserManager.descripcion.value?.let { descripcion ->
+        if (UserManager.correo.value != null) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(18.dp).fillMaxSize()){
+                    profileBar(navigator)
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = descripcion
+                        text = "Bio",
+                        style = MaterialTheme.typography.titleMedium
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    UserManager.descripcion.value?.let { descripcion ->
+                        Text(
+                            text = descripcion
+                        )
+                    }
+                }
+                Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
+                    buttonBar(Modifier, navigator)
                 }
             }
-            Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
-                buttonBar(Modifier, navigator)
-            }
+        } else {
+            navigator.pop()
+            navigator.push(Login())
         }
     }
 }
