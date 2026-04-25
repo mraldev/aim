@@ -9,29 +9,43 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.datetime.LocalDate
-import org.dam.tfg.model.Competicion
 import org.dam.tfg.enums.Asociacion
 import org.dam.tfg.enums.TipoCircuito
+import org.dam.tfg.model.competiciones.Liga
+import kotlin.uuid.ExperimentalUuidApi
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
 @Composable
 internal fun FormularioCompeticion(
-    competicion: Competicion?,
-    onGuardar: (Competicion) -> Unit,
+    competicion: Liga?,
+    onGuardar: (Liga) -> Unit,
     onCancelar: () -> Unit
 ) {
-    var nombre         by remember { mutableStateOf(competicion?.nombre ?: "") }
-    var numDianas      by remember { mutableStateOf(competicion?.numDianas?.toString() ?: "") }
-    var numFlechas     by remember { mutableStateOf(competicion?.numFlechas ?: 1) }
-    var fecha          by remember { mutableStateOf(competicion?.fecha) }
-    var asocSelec      by remember { mutableStateOf(competicion?.asociacion) }
-    var circuitoSelec  by remember { mutableStateOf(competicion?.tipoCircuito) }
-    var asocExpanded   by remember { mutableStateOf(false) }
+    var nombre by remember {
+        mutableStateOf(
+            competicion?.sesionesCompetidas[0]!!.tiradasCompetitivas[0].usuario.correo!!
+            //? se pone !! en sesiones porque no existe la posibilidad de una liga sin sesiones
+            //? se pone !! en correo porque un usuario federado siempre va a tener nombre (recordar cambiar de correo a nombre)
+        )
+    }
+    var numDianas by remember {
+        mutableStateOf(
+            competicion?.sesionesCompetidas[0]!!.tiradasCompetitivas[0].numDianas.toString()
+        )
+    }
+    var numFlechas by remember {
+        mutableStateOf(
+            competicion?.sesionesCompetidas[0]!!.tiradasCompetitivas[0].numMaxFlechasPorDiana
+        )
+    }
+    var fecha by remember { mutableStateOf(competicion?.fecha) }
+    var asocSelec by remember { mutableStateOf(competicion?.sesionesCompetidas[0]!!.tiradasCompetitivas[0].asociacion) }
+    var circuitoSelec by remember { mutableStateOf(competicion?.sesionesCompetidas[0]!!.tiradasCompetitivas[0].tipoCircuito) }
+    var asocExpanded by remember { mutableStateOf(false) }
     var circuitoExpanded by remember { mutableStateOf(false) }
-    var flExpanded     by remember { mutableStateOf(false) }
-    var mostrarFecha   by remember { mutableStateOf(false) }
-    var editEnabled    by remember { mutableStateOf(competicion == null) }
+    var flExpanded by remember { mutableStateOf(false) }
+    var mostrarFecha by remember { mutableStateOf(false) }
+    var editEnabled by remember { mutableStateOf(competicion == null) }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         // Cabecera
@@ -40,7 +54,7 @@ internal fun FormularioCompeticion(
                 Icon(Icons.Default.ArrowBack, "Volver")
             }
             Text(
-                if (competicion == null) "Nueva competición" else competicion.nombre,
+                if (competicion == null) "Nueva competición" else competicion.sesionesCompetidas[0].tiradasCompetitivas[0].usuario.correo!!,
                 style = MaterialTheme.typography.titleLarge
             )
             Spacer(Modifier.weight(1f))
@@ -192,26 +206,28 @@ internal fun FormularioCompeticion(
 
             Button(
                 onClick = {
-                    val base = competicion ?: Competicion(
-                        id             = java.util.UUID.randomUUID().toString(),
-                        nombre         = "",
-                        asociacion     = asocSelec!!,
-                        tipoCircuito   = circuitoSelec!!,
-                        fecha          = fecha ?: LocalDate(2024, 1, 1),
-                        numFlechas     = numFlechas,
-                        numDianas      = numDianas.toInt(),
-                        administradorId = ""
+                    /*
+                    Queda pendiente de hacerse
+
+                    val base = competicion ?: TiradaCompetitivaReal(
+                        usuario = "",
+                        asociacion = asocSelec!!,
+                        tipoCircuito = circuitoSelec!!,
+                        fecha = fecha ?: LocalDate(2024, 1, 1),
+                        numMaxFlechasPorDiana = numFlechas,
+                        numDianas = numDianas.toInt(),
+                        administradorId = 0
                     )
                     onGuardar(
                         base.copy(
-                            nombre       = nombre,
-                            asociacion   = asocSelec!!,
-                            tipoCircuito = circuitoSelec!!,
-                            fecha        = fecha ?: LocalDate(2024, 1, 1),
-                            numFlechas   = numFlechas,
-                            numDianas    = numDianas.toInt()
+                            usuario = nombre,
+                            asociacion = asocSelec,
+                            tipoCircuito = circuitoSelec,
+                            fecha = fecha ?: LocalDate(2024, 1, 1),
+                            numMaxFlechasPorDiana = numFlechas,
+                            numDianas = numDianas.toInt()
                         )
-                    )
+                    )*/
                 },
                 enabled = canSave,
                 modifier = Modifier.fillMaxWidth()

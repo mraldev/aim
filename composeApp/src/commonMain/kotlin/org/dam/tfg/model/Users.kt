@@ -10,7 +10,7 @@ data class Users
     val contrasenya: String,
     val name: String?,
     val descripcion: String?,
-    val rolesUsuario: List<UserRole>,
+    val rolesUsuario: UserRole,
     )
 {
     override fun equals(other: Any?): Boolean {

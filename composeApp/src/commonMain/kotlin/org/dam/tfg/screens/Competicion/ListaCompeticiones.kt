@@ -11,23 +11,28 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.datetime.LocalDate
-import org.dam.tfg.model.Competicion
+import org.dam.tfg.model.competiciones.TiradaCompetitiva
 import org.dam.tfg.enums.Asociacion
 import org.dam.tfg.enums.TipoCircuito
 import org.dam.tfg.enums.UserRole
 import org.dam.tfg.customElements.buttonBar
+import org.dam.tfg.model.competiciones.Liga
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ListaCompeticiones(
     userRole: UserRole,
-    userId: String,
-    competiciones: List<Competicion>,
-    onSelect: (Competicion) -> Unit,
+    asociacionesUsuario: Map<Asociacion, Int>, //? el número de federado de las distintas asociaciones
+    competiciones: List<Liga>,
+    onSelect: (Liga) -> Unit,
     onAñadir: () -> Unit
 ) {
-    var busqueda by remember { mutableStateOf("") }
+    val nav = LocalNavigator.currentOrThrow
+
+    var busquedaPorNombre by remember { mutableStateOf("") }
     var asocExpanded by remember { mutableStateOf(false) }
     var asocSelec by remember { mutableStateOf<Asociacion?>(null) }
     var circuitoExpanded by remember { mutableStateOf(false) }
@@ -37,16 +42,20 @@ internal fun ListaCompeticiones(
     var mostrarFecha by remember { mutableStateOf(false) }
 
     val listaBase = if (userRole == UserRole.ADMIN)
-        competiciones.filter { it.administradorId == userId }
+        competiciones.filter { asociacionesUsuario.containsValue(it.administradorId) }
+    //TODO importante preguntar a iván por qué se hace esto
     else
         competiciones
 
     val listaFiltrada = listaBase.filter { comp ->
-        (busqueda.isBlank() || comp.nombre.contains(busqueda, ignoreCase = true)) &&
-                (asocSelec == null || comp.asociacion == asocSelec) &&
-                (circuitoSelec == null || comp.tipoCircuito == circuitoSelec) &&
+        (busquedaPorNombre.isBlank() || comp.nombreLiga.contains(busquedaPorNombre, ignoreCase = true)) &&
+                (asocSelec == null || comp.sesionesCompetidas[0].tiradasCompetitivas[0].asociacion == asocSelec) &&
+                //Se filtra por el índice 0 ya que es el mismo para todos, además siempre va a haber al menos 1
+                (circuitoSelec == null || comp.sesionesCompetidas[0].tiradasCompetitivas[0].tipoCircuito == circuitoSelec) &&
                 (fechaSelec == null || comp.fecha == fechaSelec) &&
-                (!soloPropias || userId in comp.participantes)
+                (!soloPropias || asociacionesUsuario.values.any {
+                    it == comp.sesionesCompetidas[0].tiradasCompetitivas[0].usuario.numFederado
+                })
     }
 
     Scaffold(
@@ -68,8 +77,8 @@ internal fun ListaCompeticiones(
             Spacer(Modifier.height(12.dp))
 
             OutlinedTextField(
-                value = busqueda,
-                onValueChange = { busqueda = it },
+                value = busquedaPorNombre,
+                onValueChange = { busquedaPorNombre = it },
                 label = { Text("Buscar competición") },
                 leadingIcon = { Icon(Icons.Default.Search, null) },
                 singleLine = true,
@@ -202,15 +211,21 @@ internal fun ListaCompeticiones(
 }
 
 @Composable
-internal fun CompeticionCard(comp: Competicion, onClick: () -> Unit) {
+internal fun CompeticionCard(comp: Liga, onClick: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(comp.nombre, style = MaterialTheme.typography.titleMedium)
+            comp.sesionesCompetidas[0].tiradasCompetitivas[0].usuario.correo?.let {
+                Text(it, style = MaterialTheme.typography.titleMedium)
+            }
             Spacer(Modifier.height(4.dp))
             Text(
-                "${comp.asociacion.label}  •  ${comp.tipoCircuito.label}  •  ${comp.fecha}",
+                "${comp.sesionesCompetidas[0].tiradasCompetitivas[0].asociacion.label}  •  ${comp.sesionesCompetidas[0].tiradasCompetitivas[0].tipoCircuito.label}  •  ${comp.fecha}",
                 style = MaterialTheme.typography.bodySmall
             )
+            /*
+            esto habría que sacar un tiradaCompetitivaCard y meter más info ahí
+            tomar como ejemplo lo que se hace en historial para tiradas y sesiones
+
             if (comp.cancelada) {
                 Spacer(Modifier.height(4.dp))
                 Text(
@@ -218,7 +233,7 @@ internal fun CompeticionCard(comp: Competicion, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.labelSmall
                 )
-            }
+            }*/
         }
     }
 }

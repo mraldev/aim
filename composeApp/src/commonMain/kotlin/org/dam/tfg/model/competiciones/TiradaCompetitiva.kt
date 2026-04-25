@@ -1,35 +1,34 @@
-package org.dam.tfg.model.Tirada
+package org.dam.tfg.model.competiciones
 
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
+import org.dam.tfg.dto.FederadoTiradaDto
 import org.dam.tfg.dto.PuntuacionTiradaDTO
-import org.dam.tfg.dto.UsuarioTiradaDTO
+import org.dam.tfg.enums.Asociacion
+import org.dam.tfg.enums.Estilo
+import org.dam.tfg.enums.Genero
+import org.dam.tfg.enums.Posicion
+import org.dam.tfg.enums.RangoDeEdad
 import org.dam.tfg.enums.TipoCircuito
 
-//? Puntuaciones validas, una flecha es perfecta si vale 10 u 11.
-val PUNTUACIONES_VALIDAS = listOf(0, 5, 8, 10, 11)
-
-/**
- * Representa una tirada de arquería realizada por un usuario.
- *
- * @property usuario El usuario que realiza la tirada.
- * @property numDianas El número total de dianas en el circuito.
- * @property numMaxFlechasPorDiana El número máximo de flechas permitidas por diana.
- * @property puntuaciones Mapa que asocia el índice de cada diana (0 hasta [numDianas] - 1)
- * con la lista de puntuaciones de cada flecha disparada en esa diana.
- * @property tipoCircuito El tipo de circuito en el que se realiza la tirada.
- *
- */
 @Serializable
-data class Tirada (
-    val usuario: UsuarioTiradaDTO,
+data class TiradaCompetitiva(
+    val id: String,
+    val usuario: FederadoTiradaDto,
+    val fecha: LocalDate?,
     val numDianas: Int,
     val numMaxFlechasPorDiana: Int,
     val puntuaciones: MutableList<PuntuacionTiradaDTO>,
-    val tipoCircuito: TipoCircuito
-) {
-    //- Cuando la tirada termina creo el objeto usuariotiradadto y que dentro tenga el valor de usermanager la propiedad del correo y mando la tirada a la bbdd mendiante los endpoints como body
-
+    val tipoCircuito: TipoCircuito,
+    val asociacion: Asociacion,
+    val dorsal: Int,
+    val posicion: Posicion,
+    val patrulla: Int,
+    val estilo: Estilo,
+    val edad: RangoDeEdad,
+    val genero: Genero,
+    val cancelada: Boolean = false
+){
     /**
      * Calcula la puntuación total de la tirada sumando los puntos
      * de todas las flechas en todas las dianas.
@@ -66,6 +65,7 @@ data class Tirada (
         require(flechas.size <= numMaxFlechasPorDiana) { "Demasiadas flechas para la diana $numDiana" }
         puntuaciones[numDiana] = PuntuacionTiradaDTO(flechas.map { it as Int? }.toMutableList())
     }
+
     /**
      * Devuelve las puntuaciones de una diana, o una lista de nulls si no existe.
      */

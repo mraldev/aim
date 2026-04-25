@@ -9,10 +9,10 @@ import org.dam.tfg.api.ApiClient
 import org.dam.tfg.api.ApiConfig
 import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.responses.ResponseHelper
-import org.dam.tfg.model.Tirada.Sesion
+import org.dam.tfg.model.Tirada.SesionEnviar
 
 class TiradaEndpoint {
-    suspend fun registrar(sesion: Sesion): Boolean {
+    suspend fun registrar(sesionEnviar: SesionEnviar): Boolean {
         try {
             val response = ApiClient.client.post(
                 "${ApiConfig.BASE_URL}/tiradas/registrar"
@@ -21,10 +21,10 @@ class TiradaEndpoint {
 
                 header("Authorization", "Bearer ${TokenManager.token.value}")
 
-                println(sesion)
+                println(sesionEnviar)
 
                 setBody(
-                    sesion
+                    sesionEnviar
                 )
             }
 

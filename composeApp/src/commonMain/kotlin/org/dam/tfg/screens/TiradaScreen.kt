@@ -17,7 +17,6 @@ import org.dam.tfg.customElements.Tirada.NavigationButtons
 import org.dam.tfg.customElements.Tirada.TiradaStatsSection
 import org.dam.tfg.customElements.Tirada.TiradaTopBar
 import org.dam.tfg.dto.PuntuacionTiradaDTO
-import org.dam.tfg.model.Tirada.Sesion
 import org.dam.tfg.model.Tirada.StatsDiana
 import org.dam.tfg.model.Tirada.StatsTotal
 import org.dam.tfg.model.Tirada.calcularStatsDiana
@@ -32,7 +31,7 @@ class TiradaScreen(
 
     @Composable
     override fun Content() {
-        val sesion = SesionManager.sesion.value!!
+        val sesion = SesionManager.sesionEnviar.value!!
         val repository = TiradaRepository()
         val onFinalizar: (puntuaciones: List<List<List<Int?>>>) -> Unit = {}
         val navigator = LocalNavigator.currentOrThrow

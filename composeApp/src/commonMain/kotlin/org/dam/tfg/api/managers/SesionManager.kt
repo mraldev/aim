@@ -2,21 +2,20 @@ package org.dam.tfg.api.managers
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.dam.tfg.model.Tirada.Sesion
-import org.dam.tfg.model.Tirada.Tirada
+import org.dam.tfg.model.Tirada.SesionEnviar
 
 object SesionManager {
 
-    private val _sesion = MutableStateFlow<Sesion?>(null)
+    private val _sesionEnviar = MutableStateFlow<SesionEnviar?>(null)
 
-    val sesion: StateFlow<Sesion?> get() = _sesion
+    val sesionEnviar: StateFlow<SesionEnviar?> get() = _sesionEnviar
 
     //? Set cada vez que se cambia el valor de sesion -> actualiza la tirada
-    fun setSesion(nuevaSesion: Sesion) {
-        _sesion.value = nuevaSesion
+    fun setSesion(nuevaSesionEnviar: SesionEnviar) {
+        _sesionEnviar.value = nuevaSesionEnviar
     }
 
     fun clear() {
-        _sesion.value = null
+        _sesionEnviar.value = null
     }
 }

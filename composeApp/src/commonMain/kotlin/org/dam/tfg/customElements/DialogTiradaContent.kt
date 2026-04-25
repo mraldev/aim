@@ -7,6 +7,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.dto.FederadoTiradaDto
+import org.dam.tfg.enums.Asociacion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -14,10 +16,13 @@ fun DialogContent(
     header: String,
     numDianasFixed: Int? = null,
     flechasFixed: Int? = null,
-    participantesFixed: List<String>? = null,
+    participantesFixed: List<FederadoTiradaDto>? = null,
     onConfirm: (Int, Int, List<String>) -> Unit,
     onDismiss: () -> Unit
 ) {
+
+    //TODO IMPORTANTE cambiar para que coincida con el nuevo modelo (ahora se pasan el FederadoTiradaDto
+
     var numDianas by remember {
         mutableStateOf(numDianasFixed?.toString() ?: "")
     }
@@ -25,11 +30,14 @@ fun DialogContent(
     var expanded  by remember { mutableStateOf(false) }
     var nuevoParticipante by remember { mutableStateOf("") }
     val participantes = remember(participantesFixed) {
-        mutableStateListOf<String>().apply {
+        mutableStateListOf<FederadoTiradaDto>().apply {
             if (participantesFixed != null) {
                 addAll(participantesFixed)
             } else {
-                add(UserManager.correo.value ?: "Usuario no registrado")
+                add(FederadoTiradaDto(
+                    UserManager.correo.value ?: "Usuario no registrado",
+                    UserManager.asociaciones.value[Asociacion.IFAA] ?: 0)
+                )
             }
         }
     }
@@ -105,8 +113,11 @@ fun DialogContent(
             Button(
                 onClick = {
                     if (nuevoParticipante.isNotBlank()
-                        && !participantes.contains(nuevoParticipante.trim())) {
-                        participantes.add(nuevoParticipante.trim())
+                        /*
+1                        && !participantes.contains(nuevoParticipante.trim())
+                        */) {
+                        //participantes.add(nuevoParticipante.trim())
+                        //! Daba error lo comentado aquí arriba
                         nuevoParticipante = ""
                     }
                 }
@@ -138,7 +149,7 @@ fun DialogContent(
             TextButton(onClick = onDismiss) { Text("Cancelar") }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
-                onClick  = { if (numDianas.isNotEmpty()) onConfirm(numDianas.toInt(), flechas, participantes) },
+                onClick  = { if (numDianas.isNotEmpty()) onConfirm(numDianas.toInt(), flechas, participantes.map { it.correo.orEmpty() }) },
                 enabled  = numDianas.isNotEmpty() && participantes.isNotEmpty()
             ) {
                 Text("Aceptar")

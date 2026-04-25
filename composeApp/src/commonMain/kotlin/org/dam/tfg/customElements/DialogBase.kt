@@ -23,10 +23,10 @@ import androidx.compose.runtime.Composable
 fun DialogBase(
     data: Map<String, String>,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: (() -> Unit)? = null //? Esto hace que sea nulable, si no se rellena solo habrá opción de aceptar
 ) {
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { onDismiss?.invoke() },
         title = data["header"]?.let {
             { Text(text = it) }
         },
@@ -40,7 +40,7 @@ fun DialogBase(
         },
         dismissButton = data["dismissButton"]?.let { label ->
             {
-                TextButton(onClick = onDismiss) {
+                TextButton(onClick = { onDismiss?.invoke() }) {
                     Text(label)
                 }
             }

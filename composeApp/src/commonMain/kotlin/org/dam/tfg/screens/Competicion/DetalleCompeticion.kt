@@ -11,12 +11,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.dam.tfg.customElements.DialogContent
-import org.dam.tfg.model.Competicion
+import org.dam.tfg.dto.FederadoTiradaDto
 import org.dam.tfg.enums.UserRole
+import org.dam.tfg.model.competiciones.Liga
 
 @Composable
 internal fun DetalleCompeticion(
-    competicion: Competicion,
+    competicion: Liga,
     userRole: UserRole,
     userId: String,
     onBack: () -> Unit,
@@ -27,7 +28,11 @@ internal fun DetalleCompeticion(
     onEliminarParticipante: (String) -> Unit,
     onApuntarTirada: (Int, Int, List<String>) -> Unit
 ) {
-    val esParticipante = userId in competicion.participantes
+    val esParticipante = competicion.sesionesCompetidas.any { sesion ->
+        sesion.tiradasCompetitivas.any { tirada ->
+            tirada.usuario.correo == userId
+        }
+    }
     var mostrarDialog by remember { mutableStateOf(false) }
     var mostrarConfirmCancelar by remember { mutableStateOf(false) }
 
@@ -36,7 +41,7 @@ internal fun DetalleCompeticion(
             IconButton(onClick = onBack) {
                 Icon(Icons.Default.ArrowBack, "Volver")
             }
-            Text(competicion.nombre, style = MaterialTheme.typography.titleLarge)
+            Text(userId, style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.weight(1f))
             if (userRole == UserRole.ADMIN) {
                 IconButton(onClick = onEditar) {
@@ -47,11 +52,11 @@ internal fun DetalleCompeticion(
 
         Spacer(Modifier.height(16.dp))
 
-        InfoRow(label = "Asociación",    value = competicion.asociacion.label)
-        InfoRow(label = "Tipo circuito", value = competicion.tipoCircuito.label)
+        InfoRow(label = "Asociación",    value = competicion.sesionesCompetidas[0].tiradasCompetitivas[0].asociacion.label)
+        InfoRow(label = "Tipo circuito", value = competicion.sesionesCompetidas[0].tiradasCompetitivas[0].tipoCircuito.label)
         InfoRow(label = "Fecha",         value = competicion.fecha.toString())
-        InfoRow(label = "Dianas",        value = competicion.numDianas.toString())
-        InfoRow(label = "Flechas / diana", value = competicion.numFlechas.toString())
+        InfoRow(label = "Dianas",        value = competicion.sesionesCompetidas[0].tiradasCompetitivas[0].numDianas.toString())
+        InfoRow(label = "Flechas / diana", value = competicion.sesionesCompetidas[0].tiradasCompetitivas[0].numMaxFlechasPorDiana.toString())
 
         Spacer(Modifier.height(20.dp))
         HorizontalDivider()
@@ -78,7 +83,7 @@ internal fun DetalleCompeticion(
             }
             UserRole.ADMIN -> {
                 Text(
-                    "Participantes (${competicion.participantes.size})",
+                    "Participantes (${competicion.competidores.size})",
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(Modifier.height(8.dp))
@@ -87,7 +92,7 @@ internal fun DetalleCompeticion(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    if (competicion.participantes.isEmpty()) {
+                    if (competicion.competidores.isEmpty()) {
                         item {
                             Text(
                                 "Sin participantes inscritos",
@@ -95,17 +100,17 @@ internal fun DetalleCompeticion(
                             )
                         }
                     }
-                    items(competicion.participantes) { participante ->
+                    items(competicion.competidores) { participante ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = participante,
+                                text = participante.correo!!, //? se pone el !! porque es seguro que va a estar registrado
                                 modifier = Modifier.weight(1f),
                                 style = MaterialTheme.typography.bodyMedium
                             )
-                            IconButton(onClick = { onEliminarParticipante(participante) }) {
+                            IconButton(onClick = { onEliminarParticipante(participante.correo) }) {
                                 Icon(
                                     Icons.Default.Close,
                                     contentDescription = "Eliminar participante",
@@ -118,6 +123,9 @@ internal fun DetalleCompeticion(
 
                 Spacer(Modifier.height(12.dp))
 
+                /*
+                Cambiar para cancelar solo tiradas concretas, tiene más sentido que echar por tierra todo
+
                 if (!competicion.cancelada) {
                     OutlinedButton(
                         onClick = { mostrarConfirmCancelar = true },
@@ -126,21 +134,22 @@ internal fun DetalleCompeticion(
                             contentColor = MaterialTheme.colorScheme.error
                         )
                     ) { Text("Cancelar competición") }
-                }
+                }*/
             }
             else -> {}
         }
     }
 
+    //Esto actualmente no hace nada, cambiar en un futuro
     if (mostrarDialog) {
         AlertDialog(
             onDismissRequest = { mostrarDialog = false },
             text = {
                 DialogContent(
-                    header = "Apuntar tirada – ${competicion.nombre}",
-                    numDianasFixed = competicion.numDianas,
-                    flechasFixed = competicion.numFlechas,
-                    participantesFixed = competicion.participantes,
+                    header = "Apuntar tirada – ${userId}",
+                    numDianasFixed = competicion.sesionesCompetidas[0].tiradasCompetitivas[0].numDianas,
+                    flechasFixed = competicion.sesionesCompetidas[0].tiradasCompetitivas[0].numMaxFlechasPorDiana,
+                    participantesFixed = competicion.competidores,
                     onConfirm = { d, f, p ->
                         onApuntarTirada(d, f, p)
                         mostrarDialog = false
