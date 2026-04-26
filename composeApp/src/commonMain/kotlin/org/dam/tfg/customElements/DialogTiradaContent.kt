@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.dto.FederadoTiradaDto
+import org.dam.tfg.dto.UsuarioTiradaDTO
 import org.dam.tfg.enums.Asociacion
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -16,7 +17,7 @@ fun DialogContent(
     header: String,
     numDianasFixed: Int? = null,
     flechasFixed: Int? = null,
-    participantesFixed: List<FederadoTiradaDto>? = null,
+    participantesFixed: List<String>? = null,
     onConfirm: (Int, Int, List<String>) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -26,17 +27,16 @@ fun DialogContent(
     var numDianas by remember {
         mutableStateOf(numDianasFixed?.toString() ?: "")
     }
-    var flechas   by remember { mutableStateOf(flechasFixed ?: 1) }
-    var expanded  by remember { mutableStateOf(false) }
+    var flechas by remember { mutableStateOf(flechasFixed ?: 1) }
+    var expanded by remember { mutableStateOf(false) }
     var nuevoParticipante by remember { mutableStateOf("") }
     val participantes = remember(participantesFixed) {
-        mutableStateListOf<FederadoTiradaDto>().apply {
+        mutableStateListOf<String>().apply {
             if (participantesFixed != null) {
                 addAll(participantesFixed)
             } else {
-                add(FederadoTiradaDto(
-                    UserManager.correo.value ?: "Usuario no registrado",
-                    UserManager.asociaciones.value[Asociacion.IFAA] ?: 0)
+                add(
+                    UserManager.correo.value ?: "Usuario no registrado"
                 )
             }
         }
@@ -44,49 +44,49 @@ fun DialogContent(
 
     Column(modifier = Modifier.padding(20.dp)) {
         Text(
-            text  = header,
+            text = header,
             style = MaterialTheme.typography.titleLarge
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value         = numDianas,
+            value = numDianas,
             onValueChange = { if (it.all { c -> c.isDigit() }) numDianas = it },
-            label         = { Text("Dianas") },
-            singleLine    = true,
-            readOnly     = numDianasFixed != null,
-            enabled     = numDianasFixed == null,
-            modifier      = Modifier.fillMaxWidth()
+            label = { Text("Dianas") },
+            singleLine = true,
+            readOnly = numDianasFixed != null,
+            enabled = numDianasFixed == null,
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
         ExposedDropdownMenuBox(
-            expanded        = expanded,
+            expanded = expanded,
             onExpandedChange = { expanded = !expanded }
         ) {
             OutlinedTextField(
-                value        = flechas.toString(),
+                value = flechas.toString(),
                 onValueChange = {},
-                readOnly     = true,
-                enabled     = flechasFixed == null,
-                label        = { Text("Flechas por diana") },
+                readOnly = true,
+                enabled = flechasFixed == null,
+                label = { Text("Flechas por diana") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                modifier     = Modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .menuAnchor()
             )
             ExposedDropdownMenu(
-                expanded        = expanded,
+                expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
                 (1..4).forEach { option ->
                     DropdownMenuItem(
-                        text    = { Text("$option") },
+                        text = { Text("$option") },
                         onClick = {
                             flechas = option
-                            expanded  = false
+                            expanded = false
                         }
                     )
                 }
@@ -112,12 +112,8 @@ fun DialogContent(
 
             Button(
                 onClick = {
-                    if (nuevoParticipante.isNotBlank()
-                        /*
-1                        && !participantes.contains(nuevoParticipante.trim())
-                        */) {
-                        //participantes.add(nuevoParticipante.trim())
-                        //! Daba error lo comentado aquí arriba
+                    if (nuevoParticipante.isNotBlank() && !participantes.contains(nuevoParticipante.trim())) {
+                        participantes.add(nuevoParticipante.trim())
                         nuevoParticipante = ""
                     }
                 }
@@ -143,14 +139,19 @@ fun DialogContent(
         Spacer(modifier = Modifier.height(20.dp))
 
         Row(
-            modifier            = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
             TextButton(onClick = onDismiss) { Text("Cancelar") }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
-                onClick  = { if (numDianas.isNotEmpty()) onConfirm(numDianas.toInt(), flechas, participantes.map { it.correo.orEmpty() }) },
-                enabled  = numDianas.isNotEmpty() && participantes.isNotEmpty()
+                onClick = {
+                    if (numDianas.isNotEmpty()) onConfirm(
+                        numDianas.toInt(),
+                        flechas,
+                        participantes)
+                },
+                enabled = numDianas.isNotEmpty() && participantes.isNotEmpty()
             ) {
                 Text("Aceptar")
             }

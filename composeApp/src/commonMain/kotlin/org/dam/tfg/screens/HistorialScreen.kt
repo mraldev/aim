@@ -21,11 +21,17 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import org.dam.tfg.model.Tirada.Tirada
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import kotlinx.coroutines.launch
+import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.dto.PuntuacionTiradaDTO
 import org.dam.tfg.dto.UsuarioTiradaDTO
 import org.dam.tfg.enums.TipoCircuito
+import org.dam.tfg.exceptions.ExceptionNoRegistrado
 import org.dam.tfg.model.Tirada.SesionHistorial
+import org.dam.tfg.repository.TiradaRepository
 
 class HistorialScreen(val sesiones: List<SesionHistorial> = emptyList()) : Screen {
     @Composable
@@ -96,6 +102,35 @@ class HistorialScreen(val sesiones: List<SesionHistorial> = emptyList()) : Scree
             )
         )
         */
+
+        val tiradaRepository = TiradaRepository()
+        val scope = rememberCoroutineScope()
+        var showDialog by remember { mutableStateOf(false) }
+        val nav = LocalNavigator.currentOrThrow
+
+        var sesiones by remember { mutableStateOf<List<SesionHistorial>>(emptyList()) }
+
+        LaunchedEffect(Unit) {
+            try {
+                sesiones = tiradaRepository.historialTiradasNormales()
+            } catch (e: ExceptionNoRegistrado) {
+                showDialog = true
+            }
+        }
+
+        if (showDialog) {
+            DialogBase(
+                data = mapOf(
+                    "header" to "Título del diálogo",
+                    "content" to "Aquí va el contenido del mensaje.",
+                    "confirmButton" to "Confirmar",
+                    "dismissButton" to "Cancelar"
+                ),
+                onConfirm = { showDialog = nav.pop() }
+            )
+        }
+
+
         HistorialContent(sesiones)
     }
 }

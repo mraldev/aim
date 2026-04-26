@@ -122,8 +122,14 @@ class TiradaScreen(
                 onConfirm = {
                     showConfirmDialog = false
                     scope.launch { finalizarTirada(puntuaciones.map { it.toList() }) }
+                    navigator.pop()
+                    navigator.push(Home())
                 },
-                onDismiss = { showConfirmDialog = false }
+                onDismiss = {
+                    showConfirmDialog = false
+                    navigator.pop()
+                    navigator.push(Home())
+                }
             )
         }
 
@@ -145,7 +151,8 @@ class TiradaScreen(
         //- Codigo de la UI
         Scaffold(
             topBar = {
-                TiradaTopBar(sesion.tiradas[currentTirada].usuario.correo!!,
+                TiradaTopBar(
+                    sesion.tiradas[currentTirada].usuario.correo!!,
                     onFinalizar = { showConfirmDialog = true })
             }
         ) { padding ->

@@ -64,6 +64,7 @@ fun buttonBar(
     var showDialog by remember { mutableStateOf(false) }
     var showDialogNoRegistradoCompeticion by remember { mutableStateOf(false) }
     var showDialogNoAsociaciones by remember { mutableStateOf(false) }
+    var showDialogNoRegistradoHistorial by remember { mutableStateOf(false) }
 
     if (showDialog) {
         TiradaDialog(
@@ -95,6 +96,22 @@ fun buttonBar(
             data = mapOf(
                 "header" to "Sesión no iniciada",
                 "content" to "Se necesita una cuenta para acceder a las competiciones.",
+                "confirmButton" to "Iniciar sesión",
+                "dismissButton" to "Mejor en otro momento"
+            ),
+            onConfirm = {
+                nav.pop()
+                nav.push(Login())
+            },
+            onDismiss = { showDialogNoRegistradoCompeticion = false }
+        )
+    }
+
+    if (showDialogNoRegistradoHistorial) {
+        DialogBase(
+            data = mapOf(
+                "header" to "Sesión no iniciada",
+                "content" to "Se necesita una cuenta para acceder al historial.",
                 "confirmButton" to "Iniciar sesión",
                 "dismissButton" to "Mejor en otro momento"
             ),
@@ -209,8 +226,11 @@ fun buttonBar(
 
         AnimatedButton(
             onClick = {
-                nav.pop()
-                nav.push(HistorialScreen())
+                if (!TokenManager.isLoggedIn) showDialogNoRegistradoHistorial = true
+                else{
+                    nav.pop()
+                    nav.push(HistorialScreen())
+                }
             },
             containerColor = Color.Transparent
         ) {

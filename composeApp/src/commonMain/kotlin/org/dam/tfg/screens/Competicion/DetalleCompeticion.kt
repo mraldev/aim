@@ -149,7 +149,8 @@ internal fun DetalleCompeticion(
                     header = "Apuntar tirada – ${userId}",
                     numDianasFixed = competicion.sesionesCompetidas[0].tiradasCompetitivas[0].numDianas,
                     flechasFixed = competicion.sesionesCompetidas[0].tiradasCompetitivas[0].numMaxFlechasPorDiana,
-                    participantesFixed = competicion.competidores,
+                    //participantesFixed = competicion.competidores,
+                    participantesFixed = emptyList(),
                     onConfirm = { d, f, p ->
                         onApuntarTirada(d, f, p)
                         mostrarDialog = false

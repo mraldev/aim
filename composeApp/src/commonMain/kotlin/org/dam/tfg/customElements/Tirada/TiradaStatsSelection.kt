@@ -81,7 +81,7 @@ fun NavigationButtons(
     modifier: Modifier = Modifier
 ) {
     val isFirst = currentTirada == 0 && currentDiana == 0
-    val isLast  = currentDiana == totalDianas - 1 && currentTirada == totalTiradas
+    val isLast  = currentDiana == totalDianas - 1 && currentTirada == totalTiradas - 1
 
     Row(
         modifier = modifier.fillMaxWidth(),
