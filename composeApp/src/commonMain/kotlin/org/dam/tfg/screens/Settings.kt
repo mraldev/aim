@@ -186,6 +186,22 @@ class Settings : Screen {
                         modifier = Modifier.fillMaxWidth()
                     ) { Text("Cambiar Correo") }
                 }
+
+                Row{
+                    Text("Núm. Federado: "+UserManager.numFederado.value.toString())
+                }
+                Row{
+                    Text("Asocioaciones: "+UserManager.asociaciones.value.toString())
+                }
+                Row{
+                    Text("Nombre: "+UserManager.nombre.value.toString())
+                }
+                Row{
+                    Text("Fecha Nacimiento: "+UserManager.fecNac.value.toString())
+                }
+                Row{
+                    Text("Sexo: "+ UserManager.genero.value.toString())
+                }
                 Spacer(modifier = Modifier.height(50.dp))
 
                 Row {

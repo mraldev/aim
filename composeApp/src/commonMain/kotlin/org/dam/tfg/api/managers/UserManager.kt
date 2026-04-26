@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.LocalDate
 import org.dam.tfg.enums.Asociacion
+import org.dam.tfg.enums.Genero
 import org.dam.tfg.enums.UserRole
 
 
@@ -26,6 +27,18 @@ object UserManager {
 
     private val _descripcion = MutableStateFlow<String?>(null)
     val descripcion: StateFlow<String?> get() = _descripcion
+
+    private val _nombre = MutableStateFlow<String?>(null)
+    val nombre: StateFlow<String?> get() = _nombre
+
+    private val _numFederado = MutableStateFlow<Int?>(null)
+    val numFederado: StateFlow<Int?> get() = _numFederado
+
+    private val _fecNac = MutableStateFlow<LocalDate?>(null)
+    val fecNac: StateFlow<LocalDate?> get() = _fecNac
+
+    private val _genero = MutableStateFlow<Genero?>(null)
+    val genero: StateFlow<Genero?> get() = _genero
 
     private var _asociaciones = MutableStateFlow<Map<Asociacion, Int>>(emptyMap())
     val asociaciones: StateFlow<Map<Asociacion, Int>> get() = _asociaciones
