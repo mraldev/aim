@@ -186,6 +186,7 @@ class Settings : Screen {
                         modifier = Modifier.fillMaxWidth()
                     ) { Text("Cambiar Correo") }
                 }
+                Spacer(modifier = Modifier.height(50.dp))
 
                 Row{
                     Text("Núm. Federado: "+UserManager.numFederado.value.toString())
