@@ -12,8 +12,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 
 @Composable
 fun AnimatedButton(
-    text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary,
+    content: @Composable () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -26,9 +28,13 @@ fun AnimatedButton(
     Button(
         onClick = onClick,
         interactionSource = interactionSource,
-        modifier = Modifier.scale(scale),
-        shape = RoundedCornerShape(100.dp)
+        modifier = modifier.scale(scale),
+        shape = RoundedCornerShape(100.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor
+        ),
+        contentPadding = ButtonDefaults.ContentPadding
     ) {
-        Text(text)
+        content()
     }
 }

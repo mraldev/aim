@@ -5,12 +5,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -24,26 +24,23 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.flow.first
 import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.SesionManager
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.Tirada.TiradaDialog
-import org.dam.tfg.dto.FederadoTiradaDto
 import org.dam.tfg.dto.UsuarioTiradaDTO
-import org.dam.tfg.enums.Asociacion
 import org.dam.tfg.enums.TipoCircuito
 import org.dam.tfg.model.Tirada.SesionEnviar
 import org.dam.tfg.model.Tirada.Tirada
 import org.dam.tfg.enums.UserRole
 import org.dam.tfg.model.competiciones.Liga
-import org.dam.tfg.model.competiciones.TiradaCompetitiva
 import org.dam.tfg.screens.competicion.CompeticionScreen
 import org.dam.tfg.screens.Home
 import org.dam.tfg.screens.HistorialScreen
 import org.dam.tfg.screens.Login
 import org.dam.tfg.screens.Profile
 import org.dam.tfg.screens.TiradaScreen
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun buttonBar(
@@ -157,62 +154,77 @@ fun buttonBar(
             .size(65.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        Button(onClick = {
-            nav.pop()
-            nav.push(Home())
-        }) {
-            Icon(Icons.Filled.Home, contentDescription = "Home")
-        }
-
-        Button(onClick = {
-            if (TokenManager.isLoggedIn) showDialogNoRegistradoCompeticion = true;
-            //! agregar un not (!) para que se haga bien la validación
-            else if(!UserManager.asociaciones.value.isEmpty()) showDialogNoAsociaciones = true
-            //! quitar el not para que se haga bien la validación
-            //! las validaciones están así para que se pueda probar directamente la app
-            else {
+        AnimatedButton(
+            onClick = {
                 nav.pop()
-                nav.push(
-                    CompeticionScreen(
-                        userRole = userRole,
-                        asociacionesUsuario = userId,
-                        competiciones = emptyList<Liga>(),
-                        onParticipar = onParticipar,
-                        onDejarParticipar = onDejarParticipar,
-                        onEliminarParticipante = onEliminarParticipante,
-                        onGuardarCompeticion = onGuardarCompeticion,
-                        onCancelarCompeticion = onCancelarCompeticion,
-                        onApuntarTirada = onApuntarTirada
-                    )
-                )
-            }
-        }) {
-            Icon(Icons.Filled.EmojiEvents, contentDescription = "Competición")
+                nav.push(Home())
+            },
+            containerColor = Color.Transparent
+        ) {
+            Icon(Icons.Filled.Home, tint = Color.Black, contentDescription = "Home")
         }
 
         AnimatedButton(
-            text = "+",
+            onClick = {
+                if (TokenManager.isLoggedIn) showDialogNoRegistradoCompeticion = true
+                else if (!UserManager.asociaciones.value.isEmpty()) showDialogNoAsociaciones = true
+                else {
+                    nav.pop()
+                    nav.push(
+                        CompeticionScreen(
+                            userRole = userRole,
+                            asociacionesUsuario = userId,
+                            competiciones = emptyList(),
+                            onParticipar = onParticipar,
+                            onDejarParticipar = onDejarParticipar,
+                            onEliminarParticipante = onEliminarParticipante,
+                            onGuardarCompeticion = onGuardarCompeticion,
+                            onCancelarCompeticion = onCancelarCompeticion,
+                            onApuntarTirada = onApuntarTirada
+                        )
+                    )
+                }
+            },
+            containerColor = Color.Transparent
+        ) {
+            Icon(Icons.Filled.EmojiEvents, tint = Color.Black, contentDescription = "Competición")
+        }
+
+        AnimatedButton(
             onClick = {
                 if (SesionManager.sesionEnviar.value != null) {
                     showContinueDialog = true
                 } else {
                     showDialog = true
                 }
-            }
-        )
-
-        Button(onClick = {
-            nav.pop()
-            nav.push(HistorialScreen())
-        }) {
-            Icon(Icons.Filled.History, contentDescription = "Historial")
+            },
+            containerColor = Color.Transparent
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = "Nueva tirada",
+                tint = Color.Black
+            )
         }
 
-        Button(onClick = {
-            nav.pop()
-            nav.push(Profile())
-        }) {
-            Icon(Icons.Filled.Person, contentDescription = "Perfil")
+        AnimatedButton(
+            onClick = {
+                nav.pop()
+                nav.push(HistorialScreen())
+            },
+            containerColor = Color.Transparent
+        ) {
+            Icon(Icons.Filled.History, tint = Color.Black, contentDescription = "Historial")
+        }
+
+        AnimatedButton(
+            onClick = {
+                nav.pop()
+                nav.push(Profile())
+            },
+            containerColor = Color.Transparent
+        ) {
+            Icon(Icons.Filled.Person, tint = Color.Black, contentDescription = "Perfil")
         }
     }
 }
