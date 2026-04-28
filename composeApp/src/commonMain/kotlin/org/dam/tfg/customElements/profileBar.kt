@@ -25,6 +25,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.screens.Home
+import org.dam.tfg.screens.Profile
 import org.dam.tfg.screens.Settings
 
 
@@ -59,7 +61,7 @@ fun profileBar(navigator: Navigator = LocalNavigator.currentOrThrow) {
             Box(modifier = Modifier.size(45.dp)) {
                 Button(onClick = {
                     if (navigator.lastItem is Settings) {
-                        navigator.pop()
+                        navigator.push(Profile())
                     } else {
                         navigator.pop()
                         navigator.push(Settings())

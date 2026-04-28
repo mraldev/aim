@@ -64,6 +64,22 @@ object UserManager {
         _roles.value = nuevoRol
     }
 
+    fun setFechaNac(nuevaFecha: LocalDate?) {
+        _fecNac.value = nuevaFecha
+    }
+
+    fun setGenero(genero : Genero?){
+        _genero.value = genero
+    }
+
+    fun setName(name : String?){
+        _nombre.value = name
+    }
+
+    fun setNumFed(num : Int?){
+        _numFederado.value = num
+    }
+
     fun setDescripcion(nuevaDescripcion: String?) {
         _descripcion.value = nuevaDescripcion
     }
