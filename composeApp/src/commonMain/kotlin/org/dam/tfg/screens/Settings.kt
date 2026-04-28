@@ -44,6 +44,7 @@ class Settings : Screen {
     @Composable
     override fun Content() {
         var contrasenyaNueva by remember { mutableStateOf("") }
+        var confirmarContrasenya by remember { mutableStateOf("") }
         var correoNuevo by remember { mutableStateOf("") }
 
         val regex = remember {
@@ -123,8 +124,12 @@ class Settings : Screen {
                             if (contrasenyaNueva.isBlank() || contrasenyaNueva.length < 8) {
                                 contrasenyaNueva = ""
                             } else {
-                                UserManager.setContrasenya(contrasenyaNueva)
-                                showPasswordDialog = false
+                                if (contrasenyaNueva.equals(confirmarContrasenya)) {
+                                    UserManager.setContrasenya(contrasenyaNueva)
+                                    showPasswordDialog = false
+                                } else {
+
+                                }
                             }
                         }
                     ) {
@@ -139,96 +144,179 @@ class Settings : Screen {
                     }
                 },
                 title = { Text("Cambiar Contraseña") },
+
                 text = {
-                    OutlinedTextField(
-                        value = contrasenyaNueva,
-                        onValueChange = { contrasenyaNueva = it },
-                        label = { Text("Nueva Contraseña") },
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 30.dp)
-                    )
+                    Column {
+                        Row {
+                            OutlinedTextField(
+                                value = contrasenyaNueva,
+                                onValueChange = { contrasenyaNueva = it },
+                                label = { Text("Nueva Contraseña") },
+                                singleLine = true,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 30.dp)
+                            )
+                        }
+                        Row {
+                            OutlinedTextField(
+                                value = confirmarContrasenya,
+                                onValueChange = { confirmarContrasenya = it },
+                                label = { Text("Confirmar Contraseña") },
+                                singleLine = true,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 30.dp)
+                            )
+                        }
+                    }
                 }
             )
         }
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .padding(18.dp)
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    profileBar(navigator)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "AJUSTES DE CUENTA",
+                        style = MaterialTheme.typography.titleLarge
+                    )
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .padding(18.dp)
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.Start,
-            ) {
-                profileBar(navigator)
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "AJUSTES DE CUENTA",
-                    style = MaterialTheme.typography.titleLarge
-                )
+                    Text(text = "Correo actual = " + (UserManager.correo.value ?: ""))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                Text(text = "Correo actual = " + (UserManager.correo.value ?: ""))
-                Spacer(modifier = Modifier.height(8.dp))
+                    Row {
+                        Button(
+                            onClick = { showPasswordDialog = true },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Cambiar contraseña") }
+                    }
 
-                Row {
-                    Button(
-                        onClick = { showPasswordDialog = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) { Text("Cambiar contraseña") }
-                }
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.height(8.dp))
+                    Row {
+                        Button(
+                            onClick = { showEmailDialog = true },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Cambiar Correo") }
+                    }
+                    Spacer(modifier = Modifier.height(50.dp))
 
-                Row {
-                    Button(
-                        onClick = { showEmailDialog = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) { Text("Cambiar Correo") }
-                }
-                Spacer(modifier = Modifier.height(50.dp))
+                    if (UserManager.numFederado.value != null) {
+                        Row {
+                            Text("Núm. Federado: " + UserManager.numFederado.value.toString())
+                        }
+                    } else {
+                        Row {
+                            Button(
+                                onClick = {
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Asignar número federado")
+                            }
+                        }
+                    }
 
-                Row{
-                    Text("Núm. Federado: "+UserManager.numFederado.value.toString())
-                }
-                Row{
-                    Text("Asocioaciones: "+UserManager.asociaciones.value.toString())
-                }
-                Row{
-                    Text("Nombre: "+UserManager.nombre.value.toString())
-                }
-                Row{
-                    Text("Fecha Nacimiento: "+UserManager.fecNac.value.toString())
-                }
-                Row{
-                    Text("Sexo: "+ UserManager.genero.value.toString())
-                }
-                Spacer(modifier = Modifier.height(50.dp))
+                    if (UserManager.numFederado.value != null) {
+                        Row {
+                            Text("Asociaciones: " + UserManager.asociaciones.value)
+                        }
+                    } else {
+                        Row {
+                            Button(
+                                onClick = {
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Asignar asociciacion")
+                            }
+                        }
+                    }
+                    Row {
+                        Text("Asociaciones: " + UserManager.asociaciones.value)
+                    }
 
-                Row {
-                    Button(
-                        onClick = {
-                            limpiarManagers()
-                            navigator.push(Login())
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Cerrar Sesión")
+                    if (UserManager.nombre.value != null) {
+                        Row {
+                            Text("Nombre: " + UserManager.nombre.value)
+                        }
+                    } else {
+                        Row {
+                            Button(
+                                onClick = {
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Asignar nombre")
+                            }
+                        }
+                    }
+
+                    if (UserManager.fecNac.value != null) {
+                        Row {
+                            Text("Fecha Nacimiento: " + UserManager.fecNac.value)
+                        }
+                    } else {
+                        Row {
+                            Button(
+                                onClick = {
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Asignar fecha nacimiento")
+                            }
+                        }
+                    }
+
+                    if (UserManager.genero.value != null) {
+                        Row {
+                            Text("Genero: " + UserManager.genero.value)
+                        }
+                    } else {
+                        Row {
+                            Button(
+                                onClick = {
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Asignar genero")
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(50.dp))
+
+                    Row {
+                        Button(
+                            onClick = {
+                                limpiarManagers()
+                                navigator.push(Login())
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Cerrar Sesión")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row {
+                        Button(
+                            onClick = { showConfirmationDialog = true },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Dar la cuenta de baja") }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row {
-                    Button(
-                        onClick = { showConfirmationDialog = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) { Text("Dar la cuenta de baja") }
+                Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
+                    buttonBar(Modifier, navigator)
                 }
             }
-            Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
-                buttonBar(Modifier, navigator)
-            }
         }
-    }
+
 }

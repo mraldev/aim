@@ -51,7 +51,7 @@ fun profileBar(navigator: Navigator = LocalNavigator.currentOrThrow) {
         Column {
                 UserManager.correo.value?.let {
                     Text(
-                        text = UserManager.correo.value.toString(),
+                        text = UserManager.correo.value.toString().split('@')[0],
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
