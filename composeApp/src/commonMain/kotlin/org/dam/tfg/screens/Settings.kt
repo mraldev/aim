@@ -43,9 +43,6 @@ class Settings : Screen {
 
     @Composable
     override fun Content() {
-        var contrasenyaNueva by remember { mutableStateOf("") }
-        var confirmarContrasenya by remember { mutableStateOf("") }
-        var correoNuevo by remember { mutableStateOf("") }
 
         val regex = remember {
             Regex(
@@ -59,6 +56,19 @@ class Settings : Screen {
         var showEmailDialog by remember { mutableStateOf(false) }
         var showPasswordDialog by remember { mutableStateOf(false) }
         var showConfirmationDialog by remember { mutableStateOf(false) }
+        var showFedDialog by remember { mutableStateOf(false) }
+        var showAsociacionDialog by remember { mutableStateOf(false) }
+        var showNameDialog by remember { mutableStateOf(false) }
+        var showFecNacDialog by remember { mutableStateOf(false) }
+        var showSexDialog by remember { mutableStateOf(false) }
+
+        var contrasenyaNueva by remember { mutableStateOf("") }
+        var confirmarContrasenya by remember { mutableStateOf("") }
+        var correoNuevo by remember { mutableStateOf("") }
+        var numFedNuevo by remember { mutableStateOf("") }
+        var nombreNuevo by remember { mutableStateOf("") }
+        var fecNacNuevo by remember { mutableStateOf("") }
+        var generoNuevo by remember { mutableStateOf("") }
 
         if (showConfirmationDialog) {
             DialogBase(
@@ -173,6 +183,45 @@ class Settings : Screen {
                 }
             )
         }
+        if (showFedDialog) {
+            AlertDialog(
+                onDismissRequest = { showEmailDialog = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            if(numFedNuevo.contains("[A-Za-z!\\\"#\$%&'()*+,-./:;\\\\\\\\<=>?@\\\\[\\\\]^_`{|}~]".toRegex())){
+                                numFedNuevo = "Solo se aceptan números."
+                            }
+                            else{
+                                UserManager.setNumFed( numFedNuevo.toInt())
+                                showEmailDialog = false
+                            }
+                        }
+                    ) {
+                        Text("Confirmar")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showEmailDialog = false }
+                    ) {
+                        Text("Cancelar")
+                    }
+                },
+                title = { Text("Cambiar número federado") },
+                text = {
+                    OutlinedTextField(
+                        value = numFedNuevo,
+                        onValueChange = { numFedNuevo = it },
+                        label = { Text("Nuevo Email") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 30.dp)
+                    )
+                }
+            )
+        }
             Box(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
@@ -216,6 +265,7 @@ class Settings : Screen {
                         Row {
                             Button(
                                 onClick = {
+                                    showFedDialog = true
                                 },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
