@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.dam.tfg.model.Tirada.StatsDiana
 import org.dam.tfg.model.Tirada.StatsTotal
+import kotlin.math.round
 
 //? Sección de estadísticas dinámicas
 @Composable
@@ -36,11 +37,11 @@ fun TiradaStatsSection(
             StatRow(label = "Dianas perfectas", value = "${statsTotal.dianasPerfectas}")
             StatRow(
                 label = "% Dianas perfectas",
-                value = "%.1f%%".format(statsTotal.porcentajePerfecta)
+                statsTotal.porcentajePerfecta.toPercent1()
             )
             StatRow(
                 label = "% Aciertos",
-                value = "%.1f%%".format(statsTotal.porcentajeAciertos)
+                value = statsTotal.porcentajeAciertos.toPercent1()
             )
         }
     }
@@ -129,4 +130,9 @@ fun NavigationButtons(
             }
         }
     }
+}
+
+private fun Float.toPercent1(): String {
+    val v = round(this * 10) / 10.0
+    return "$v%"
 }

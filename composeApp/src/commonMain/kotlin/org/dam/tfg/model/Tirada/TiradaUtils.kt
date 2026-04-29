@@ -27,5 +27,7 @@ fun calcularStatsTotal(
 }
 
 fun formatTiempo(segundos: Long): String {
-    return "%02d:%02d".format(segundos / 60, segundos % 60)
+    val m = segundos / 60
+    val s = segundos % 60
+    return "${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}"
 }

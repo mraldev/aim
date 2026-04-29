@@ -119,7 +119,7 @@ fun buttonBar(
                 nav.pop()
                 nav.push(Login())
             },
-            onDismiss = { showDialogNoRegistradoCompeticion = false }
+            onDismiss = { showDialogNoRegistradoHistorial = false }
         )
     }
 
@@ -183,8 +183,8 @@ fun buttonBar(
 
         AnimatedButton(
             onClick = {
-                if (TokenManager.isLoggedIn) showDialogNoRegistradoCompeticion = true
-                else if (!UserManager.asociaciones.value.isEmpty()) showDialogNoAsociaciones = true
+                if (!TokenManager.isLoggedIn) showDialogNoRegistradoCompeticion = true
+                //else if (UserManager.asociaciones.value.isEmpty()) showDialogNoAsociaciones = true
                 else {
                     nav.pop()
                     nav.push(
