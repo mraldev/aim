@@ -6,6 +6,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.dto.FederadoTiradaDto
 import org.dam.tfg.model.competiciones.Liga
+import org.dam.tfg.screens.Competicion.AccionesCompeticion
 
 internal sealed class NavState {
     object Lista : NavState()
@@ -17,12 +18,6 @@ class CompeticionScreen(
     val userRole: UserRole,
     val asociacionesUsuario: String,
     val competiciones: List<Liga>, //! Se debe buscar en la API en buttonBar
-    val onParticipar: (Liga) -> Unit,
-    val onDejarParticipar: (Liga) -> Unit,
-    val onEliminarParticipante: (Liga, String) -> Unit,
-    val onGuardarCompeticion: (Liga) -> Unit,
-    val onCancelarCompeticion: (Liga) -> Unit,
-    val onApuntarTirada: (Int, Int, List<String>) -> Unit
 ) : Screen {
     @Composable
     override fun Content() {
@@ -47,16 +42,29 @@ class CompeticionScreen(
                 userRole = userRole,
                 userId = asociacionesUsuario.toString(),
                 onBack = { nav = NavState.Lista },
-                onParticipar = { onParticipar(state.comp) },
-                onDejarParticipar = { onDejarParticipar(state.comp) },
+                onParticipar = {
+                    AccionesCompeticion.onParticipar?.invoke(state.comp)
+                },
+                onDejarParticipar = {
+                    AccionesCompeticion.onDejarParticipar?.invoke(state.comp)
+                },
                 onEditar = { nav = NavState.Formulario(state.comp) },
-                onCancelarCompeticion = { onCancelarCompeticion(state.comp) },
-                onEliminarParticipante = { pid -> onEliminarParticipante(state.comp, pid) },
-                onApuntarTirada = onApuntarTirada
+                onCancelarCompeticion = {
+                    AccionesCompeticion.onCancelarCompeticion?.invoke(state.comp)
+                },
+                onEliminarParticipante = { pid ->
+                    AccionesCompeticion.onEliminarParticipante?.invoke(state.comp, pid)
+                },
+                onApuntarTirada = { d, f, p ->
+                    AccionesCompeticion.onApuntarTirada?.invoke(d, f, p)
+                }
             )
             is NavState.Formulario -> FormularioCompeticion(
                 competicion = state.comp,
-                onGuardar = { onGuardarCompeticion(it); nav = NavState.Lista },
+                onGuardar = {
+                    AccionesCompeticion.onGuardarCompeticion?.invoke(it)
+                    nav = NavState.Lista
+                },
                 onCancelar = { nav = NavState.Lista }
             )
         }

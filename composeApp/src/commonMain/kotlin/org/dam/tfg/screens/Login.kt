@@ -58,11 +58,12 @@ import org.dam.tfg.repository.HealthCheckRepository
 import org.dam.tfg.repository.LoginRepository
 
 class Login : Screen {
-    private val loginRepository = LoginRepository()
-    private val healthRepository = HealthCheckRepository()
+
 
     @Composable
     override fun Content() {
+        val loginRepository = LoginRepository()
+        val healthRepository = HealthCheckRepository()
 
         //? Utils
         val navigator = LocalNavigator.currentOrThrow
@@ -109,7 +110,7 @@ class Login : Screen {
                     messageKey++
                 } else {
                     confirmPasswordError = false
-                    createAccount(correo, contrasenya, navigator) {
+                    createAccount(loginRepository, correo, contrasenya, navigator) {
                         message = it
                         messageKey++
                     }
@@ -194,7 +195,7 @@ class Login : Screen {
                             if (login) {
                                 scope.launch {
                                     isLoading = true
-                                    attemptLogin(correo, contrasenya, navigator) {
+                                    attemptLogin(loginRepository, healthRepository, correo, contrasenya, navigator) {
                                         message = it
                                         messageKey++
                                     }
@@ -275,7 +276,7 @@ class Login : Screen {
                         if (login) {
                             scope.launch {
                                 isLoading = true
-                                attemptLogin(correo, contrasenya, navigator) {
+                                attemptLogin(loginRepository, healthRepository, correo, contrasenya, navigator) {
                                     message = it
                                     messageKey++
                                 }
@@ -316,17 +317,17 @@ class Login : Screen {
         }
     }
 
-    private suspend fun createAccount(correo: String, contrasenya: String, navigator: Navigator, function: (String) -> Unit) {
+    private suspend fun createAccount(repo: LoginRepository, correo: String, contrasenya: String, navigator: Navigator, function: (String) -> Unit) {
         if (!correoValido(correo)) {
             function("Formato de correo incorrecto.")
             return
         }
-        val logged = loginRepository.register(correo, contrasenya)
+        val logged = repo.register(correo, contrasenya)
         if (logged) navigator.push(Home())
         else function("Error al crear cuenta.")
     }
 
-    private suspend fun attemptLogin(correo: String, contrasenya: String, navigator: Navigator, function: (String) -> Unit) {
+    private suspend fun attemptLogin(loginRepository: LoginRepository, healthRepository: HealthCheckRepository, correo: String, contrasenya: String, navigator: Navigator, function: (String) -> Unit) {
         if (correo.isNotBlank() && contrasenya.isNotBlank()) {
             if (!correoValido(correo)) {
                 function("Formato de correo incorrecto.")

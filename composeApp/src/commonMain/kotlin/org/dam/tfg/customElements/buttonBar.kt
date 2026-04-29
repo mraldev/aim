@@ -50,14 +50,7 @@ fun buttonBar(
     userId: String = "",
     competiciones: List<Liga> = emptyList(),
     asociaciones: List<String> = emptyList(),
-    tiradas: List<Tirada> = emptyList(),
-    onParticipar: (Liga) -> Unit = {},
-    onDejarParticipar: (Liga) -> Unit = {},
-    onEliminarParticipante: (Liga, String) -> Unit = { _, _ -> },
-    onGuardarCompeticion: (Liga) -> Unit = {},
-    onCancelarCompeticion: (Liga) -> Unit = {},
-    onApuntarTirada: (Int, Int, List<String>) -> Unit = { _, _, _ -> },
-    onTiradasUpdated: (List<Tirada>) -> Unit = {}
+    tiradas: List<Tirada> = emptyList()
 ) {
     val nav = navigator ?: LocalNavigator.currentOrThrow
     var showContinueDialog by remember { mutableStateOf(false) }
@@ -191,13 +184,7 @@ fun buttonBar(
                         CompeticionScreen(
                             userRole = userRole,
                             asociacionesUsuario = userId,
-                            competiciones = emptyList(),
-                            onParticipar = onParticipar,
-                            onDejarParticipar = onDejarParticipar,
-                            onEliminarParticipante = onEliminarParticipante,
-                            onGuardarCompeticion = onGuardarCompeticion,
-                            onCancelarCompeticion = onCancelarCompeticion,
-                            onApuntarTirada = onApuntarTirada
+                            competiciones = emptyList()
                         )
                     )
                 }
