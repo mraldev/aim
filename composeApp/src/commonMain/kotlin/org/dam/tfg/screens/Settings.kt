@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kotlinx.datetime.LocalDate
 import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.SesionManager
 import org.dam.tfg.api.managers.UserManager
@@ -67,9 +68,10 @@ class Settings : Screen {
         var correoNuevo by remember { mutableStateOf("") }
         var numFedNuevo by remember { mutableStateOf("") }
         var nombreNuevo by remember { mutableStateOf("") }
-        var fecNacNuevo by remember { mutableStateOf("") }
+        var fecNacNuevo by remember { mutableStateOf<LocalDate?>(null) }
         var generoNuevo by remember { mutableStateOf("") }
 
+        //- Dialog Confirmación baja cuenta
         if (showConfirmationDialog) {
             DialogBase(
                 data = mapOf(
@@ -86,6 +88,7 @@ class Settings : Screen {
             )
         }
 
+        //- Dialog Cambiar Email
         if (showEmailDialog) {
             AlertDialog(
                 onDismissRequest = { showEmailDialog = false },
@@ -125,6 +128,7 @@ class Settings : Screen {
             )
         }
 
+        //- Dialog Cambiar Contraseña
         if (showPasswordDialog) {
             AlertDialog(
                 onDismissRequest = { showPasswordDialog = false },
@@ -183,17 +187,18 @@ class Settings : Screen {
                 }
             )
         }
+
+        //- Dialog Número federado
         if (showFedDialog) {
             AlertDialog(
                 onDismissRequest = { showFedDialog = false },
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            if(numFedNuevo.contains("[A-Za-z!\\\"#\$%&'()*+,-./:;\\\\\\\\<=>?@\\\\[\\\\]^_`{|}~]".toRegex())){
+                            if (!numFedNuevo.all { it.isDigit() }) {
                                 numFedNuevo = "Solo se aceptan números."
-                            }
-                            else{
-                                UserManager.setNumFed( numFedNuevo.toInt())
+                            } else {
+                                UserManager.setNumFed(numFedNuevo.toInt())
                                 showFedDialog = false
                             }
                         }
@@ -222,6 +227,22 @@ class Settings : Screen {
                 }
             )
         }
+
+        //- Dialog Fecha nacimiento
+        if (showFecNacDialog) {
+            org.dam.tfg.screens.Historial.DatePicker(
+                onDateSelected = { date ->
+                    fecNacNuevo = date
+                    UserManager.setFechaNac(fecNacNuevo)
+                    showFecNacDialog = false
+                },
+                onDismiss = {
+                    showFecNacDialog = false
+                }
+            )
+        }
+
+        //- Codigo UI
             Box(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
@@ -317,6 +338,7 @@ class Settings : Screen {
                         Row {
                             Button(
                                 onClick = {
+                                    showFecNacDialog = true
                                 },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
