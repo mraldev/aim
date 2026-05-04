@@ -41,6 +41,51 @@ fun DialogContent(
             }
         }
     }
+    //- Estado para duplicados
+    var participantesDuplicado by remember { mutableStateOf<String?>(null) }
+    //- Metodo para saber si hay un nombre duplicado
+    fun siguienteNombre(nombre: String): String {
+        val count = participantes.count { it == nombre || it.startsWith("$nombre (") }
+        return "$nombre (${count + 1})"
+    }
+
+    //- Dialogo de duplicado
+    participantesDuplicado?.let { nombre ->
+        DialogBase(
+            data = mapOf(
+                "header"        to "Nombre duplicado",
+                "content"       to "\"$nombre\" ya existe, ¿seguro que quieres agregarlo?",
+                "confirmButton" to "Aceptar",
+                "dismissButton" to "Cancelar"
+            ),
+            onConfirm = {
+                participantes.add(siguienteNombre(nombre))
+                nuevoParticipante = ""
+                participantesDuplicado = null
+            },
+            onDismiss = { participantesDuplicado = null }
+        )
+    }
+
+    //- Estado para el diálogo de confirmación de borrado
+    var participanteAEliminar by remember { mutableStateOf<String?>(null) }
+
+    //- Diálogo de confirmación
+    participanteAEliminar?.let { nombre ->
+        DialogBase(
+            data = mapOf(
+                "header"        to "Eliminar participante",
+                "content"       to "¿Desea eliminar el usuario $nombre?",
+                "confirmButton" to "Aceptar",
+                "dismissButton" to "Cancelar"
+            ),
+            onConfirm = {
+                participantes.remove(nombre)
+                participanteAEliminar = null
+            },
+            onDismiss = { participanteAEliminar = null }
+        )
+    }
 
     Column(modifier = Modifier.padding(20.dp)) {
         Text(
@@ -112,9 +157,14 @@ fun DialogContent(
 
             Button(
                 onClick = {
-                    if (nuevoParticipante.isNotBlank() && !participantes.contains(nuevoParticipante.trim())) {
-                        participantes.add(nuevoParticipante.trim())
-                        nuevoParticipante = ""
+                    if (nuevoParticipante.isNotBlank() && participantes.size < 6) {
+                        val nombre = nuevoParticipante.trim()
+                        if (participantes.contains(nombre)) {
+                            participantesDuplicado = nombre
+                        } else {
+                            participantes.add(nombre)
+                            nuevoParticipante = ""
+                        }
                     }
                 }
             ) {
@@ -131,7 +181,7 @@ fun DialogContent(
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
                     .clickable {
-                        participantes.remove(nombre)
+                        participanteAEliminar = nombre  // Abre el diálogo en lugar de borrar directamente
                     }
             )
         }

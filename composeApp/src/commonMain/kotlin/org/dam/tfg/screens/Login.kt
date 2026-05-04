@@ -155,7 +155,7 @@ class Login : Screen {
                 Text("Usuario")
                 OutlinedTextField(
                     value = correo,
-                    onValueChange = { correo = it },
+                    onValueChange = { correo = it.trim() },
                     label = { Text(user) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
@@ -176,10 +176,10 @@ class Login : Screen {
                 OutlinedTextField(
                     value = contrasenya,
                     onValueChange = {
-                        contrasenya = it
+                        contrasenya = it.trim()
                         //? Revalida en tiempo real si el campo de confirmación ya tiene texto
                         if (confirmarContrasenya.isNotEmpty()) {
-                            confirmPasswordError = it != confirmarContrasenya
+                            confirmPasswordError = it.trim() != confirmarContrasenya
                         }
                     },
                     label = { Text(password) },
@@ -236,8 +236,8 @@ class Login : Screen {
                         OutlinedTextField(
                             value = confirmarContrasenya,
                             onValueChange = {
-                                confirmarContrasenya = it
-                                confirmPasswordError = it != contrasenya
+                                confirmarContrasenya = it.trim()
+                                confirmPasswordError = it.trim() != contrasenya
                             },
                             label = { Text("Confirmar contraseña") },
                             shape = RoundedCornerShape(40.dp),
@@ -328,7 +328,7 @@ class Login : Screen {
     }
 
     private suspend fun attemptLogin(loginRepository: LoginRepository, healthRepository: HealthCheckRepository, correo: String, contrasenya: String, navigator: Navigator, function: (String) -> Unit) {
-        if (correo.isNotBlank() && contrasenya.isNotBlank()) {
+        if (correo.trim().isNotBlank() && contrasenya.trim().isNotBlank()) {
             if (!correoValido(correo)) {
                 function("Formato de correo incorrecto.")
                 return

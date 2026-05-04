@@ -185,7 +185,7 @@ class Settings : Screen {
         }
         if (showFedDialog) {
             AlertDialog(
-                onDismissRequest = { showEmailDialog = false },
+                onDismissRequest = { showFedDialog = false },
                 confirmButton = {
                     TextButton(
                         onClick = {
@@ -194,7 +194,7 @@ class Settings : Screen {
                             }
                             else{
                                 UserManager.setNumFed( numFedNuevo.toInt())
-                                showEmailDialog = false
+                                showFedDialog = false
                             }
                         }
                     ) {
@@ -203,7 +203,7 @@ class Settings : Screen {
                 },
                 dismissButton = {
                     TextButton(
-                        onClick = { showEmailDialog = false }
+                        onClick = { showFedDialog = false }
                     ) {
                         Text("Cancelar")
                     }
@@ -213,7 +213,7 @@ class Settings : Screen {
                     OutlinedTextField(
                         value = numFedNuevo,
                         onValueChange = { numFedNuevo = it },
-                        label = { Text("Nuevo Email") },
+                        label = { Text("Numero de federado") },
                         singleLine = true,
                         modifier = Modifier
                             .fillMaxWidth()

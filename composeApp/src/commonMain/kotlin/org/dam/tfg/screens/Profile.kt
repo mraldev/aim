@@ -62,7 +62,7 @@ class Profile(): Screen {
                         Text("Cancelar")
                     }
                 },
-                title = { Text("Cambiar Email") },
+                title = { Text("Cambiar Biografia") },
                 text = {
                     OutlinedTextField(
                         value = bioNueva,
@@ -77,7 +77,7 @@ class Profile(): Screen {
             )
         }
 
-        if (UserManager.correo.value != null) {
+        // if (UserManager.correo.value != null) {
             Box(modifier = Modifier.fillMaxSize()) {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(18.dp).fillMaxSize()){
                     profileBar(navigator)
@@ -104,9 +104,9 @@ class Profile(): Screen {
                     buttonBar(Modifier, navigator)
                 }
             }
-        } else {
-            navigator.pop()
-            navigator.push(Login())
-        }
+//        } else {
+//            navigator.pop()
+//            navigator.push(Login())
+//        }
     }
 }
