@@ -24,30 +24,33 @@ import org.dam.tfg.model.Tirada.calcularStatsTotal
 import org.dam.tfg.repository.TiradaRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
-class TiradaScreen(
-    //private val sesion: Sesion
-    //private val onFinalizar: (puntuaciones: List<List<List<Int?>>>) -> Unit = {}
-) : Screen {
+class TiradaScreen : Screen {
 
     @Composable
     override fun Content() {
-        val sesion = SesionManager.sesionEnviar.value!!
+        //? Recoge el StateFlow reactivamente
+        val sesionState by SesionManager.sesionEnviar.collectAsState()
+        val s = sesionState ?: return  //? Guard: si no hay sesión activa no renderiza nada
+
         val repository = TiradaRepository()
         val onFinalizar: (puntuaciones: List<List<List<Int?>>>) -> Unit = {}
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
 
         val puntuaciones = remember {
-            List(sesion.tiradas.size) { //cantidad de tiradas
-                List(sesion.tiradas[0].numDianas) { //dianas por tirada
-                    List(sesion.tiradas[0].numMaxFlechasPorDiana)
-                    { null as Int? }.toMutableStateList() //flechas por diana
+            List(s.tiradas.size) {
+                List(s.tiradas[0].numDianas) {
+                    List(s.tiradas[0].numMaxFlechasPorDiana)
+                    { null as Int? }.toMutableStateList()
                 }.toMutableStateList()
             }
         }
 
         var currentTirada by remember { mutableIntStateOf(0) }
-        var currentDiana by remember { mutableIntStateOf(0) }
+        var currentDiana  by remember { mutableIntStateOf(0) }
+
+        val totalTiradas = s.tiradas.size
+        val totalDianas  = s.tiradas[0].numDianas
 
         val statsDianaActual: StatsDiana by remember {
             derivedStateOf {
@@ -61,27 +64,24 @@ class TiradaScreen(
         val statsTotal: StatsTotal by remember {
             derivedStateOf {
                 calcularStatsTotal(
-                    puntuaciones = puntuaciones.getOrNull(currentTirada)
+                    puntuaciones    = puntuaciones.getOrNull(currentTirada)
                         ?.map { it.toList() } ?: emptyList(),
-                    numDianas = sesion.tiradas[0].numDianas,
-                    flechasPorDiana = sesion.tiradas[0].numMaxFlechasPorDiana
+                    numDianas       = totalDianas,
+                    flechasPorDiana = s.tiradas[0].numMaxFlechasPorDiana
                 )
             }
         }
 
-        //- Lógica de finalizar
-        //suspend fun finalizarTirada(snapshot: List<List<List<Int?>>>) {
         suspend fun finalizarTirada(snapshot: List<List<List<Int?>>>) {
             val completa = snapshot.all { itSesion ->
                 itSesion.all { diana ->
-                    diana.size == sesion.tiradas[0].numMaxFlechasPorDiana
+                    diana.size == s.tiradas[0].numMaxFlechasPorDiana
                             && diana.all { it != null }
                 }
             }
 
-            //- Recorre todas las tiradas y actualiza la actual
-            val sesionActualizada = sesion.copy(
-                tiradas = sesion.tiradas.mapIndexed { index, tirada ->
+            val sesionActualizada = s.copy(
+                tiradas = s.tiradas.mapIndexed { index, tirada ->
                     tirada.copy(
                         puntuaciones = snapshot[index].map { flechas ->
                             PuntuacionTiradaDTO(valores = flechas.toMutableList())
@@ -94,6 +94,7 @@ class TiradaScreen(
                 repository.registrar(sesionActualizada)
                 SesionManager.clear()
             } else {
+                //? Guarda en caché si la tirada está incompleta
                 SesionManager.setSesion(sesionActualizada)
             }
             onFinalizar(snapshot)
@@ -105,14 +106,14 @@ class TiradaScreen(
         if (showConfirmDialog) {
             val completa = puntuaciones.all { itSesion ->
                 itSesion.all { diana ->
-                    diana.size == sesion.tiradas[0].numMaxFlechasPorDiana && diana.all { it != null }
+                    diana.size == s.tiradas[0].numMaxFlechasPorDiana && diana.all { it != null }
                 }
             }
 
             DialogBase(
                 data = mapOf(
-                    "header" to "Finalizar tirada",
-                    "content" to if (completa)
+                    "header"        to "Finalizar tirada",
+                    "content"       to if (completa)
                         "¿Seguro que quieres finalizar?"
                     else
                         "La tirada está incompleta, se guardará a no ser que hagas una nueva. ¿Seguro que quieres finalizar?",
@@ -133,8 +134,8 @@ class TiradaScreen(
             )
         }
 
-        LaunchedEffect(sesion) {
-            sesion.tiradas.forEachIndexed { tiradaIdx, tirada ->
+        LaunchedEffect(s) {
+            s.tiradas.forEachIndexed { tiradaIdx, tirada ->
                 tirada.puntuaciones.forEachIndexed { dianaIdx, dto ->
                     dto.valores.forEachIndexed { flechaIdx, valor ->
                         if (tiradaIdx < puntuaciones.size &&
@@ -148,12 +149,12 @@ class TiradaScreen(
             }
         }
 
-        //- Codigo de la UI
         Scaffold(
             topBar = {
                 TiradaTopBar(
-                    sesion.tiradas[currentTirada].usuario.correo!!,
-                    onFinalizar = { showConfirmDialog = true })
+                    s.tiradas[currentTirada].usuario.correo!!,
+                    onFinalizar = { showConfirmDialog = true }
+                )
             }
         ) { padding ->
             Column(
@@ -162,24 +163,23 @@ class TiradaScreen(
                     .padding(padding)
             ) {
                 DianaListSection(
-                    modifier = Modifier.weight(0.35f),
-                    numDianas = sesion.tiradas[0].numDianas,
-                    currentDiana = currentDiana,
+                    modifier             = Modifier.weight(0.35f),
+                    numDianas            = totalDianas,
+                    currentDiana         = currentDiana,
                     puntuacionesPorDiana = puntuaciones[currentTirada].map { it.toList() },
-                    onDianaSelected = { currentDiana = it }
+                    onDianaSelected      = { currentDiana = it }
                 )
 
                 HorizontalDivider()
 
                 FlechasSection(
-                    modifier = Modifier.weight(0.35f),
-                    numFlechas = sesion.tiradas[0].numMaxFlechasPorDiana,
-                    currentDiana = currentDiana,
-                    puntuaciones = puntuaciones[currentTirada].getOrNull(currentDiana) ?: emptyList(),
+                    modifier            = Modifier.weight(0.35f),
+                    numFlechas          = s.tiradas[0].numMaxFlechasPorDiana,
+                    currentDiana        = currentDiana,
+                    currentTirada       = currentTirada,
+                    puntuaciones        = puntuaciones[currentTirada].getOrNull(currentDiana) ?: emptyList(),
                     onPuntuacionChanged = { index, puntuacion ->
-                        val tirada = puntuaciones.getOrNull(currentTirada)
-                        val diana = tirada?.getOrNull(currentDiana)
-
+                        val diana = puntuaciones.getOrNull(currentTirada)?.getOrNull(currentDiana)
                         if (diana != null && index in diana.indices) {
                             diana[index] = puntuacion
                         }
@@ -191,27 +191,38 @@ class TiradaScreen(
                 TiradaStatsSection(
                     statsDiana = statsDianaActual,
                     statsTotal = statsTotal,
-                    modifier = Modifier.weight(0.15f)
+                    modifier   = Modifier
+                        .weight(0.15f)
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 )
 
                 HorizontalDivider()
 
                 NavigationButtons(
-                    currentDiana = currentDiana,
-                    totalDianas = sesion.tiradas[0].numDianas,
+                    currentDiana  = currentDiana,
+                    totalDianas   = totalDianas,
                     currentTirada = currentTirada,
-                    totalTiradas = sesion.tiradas.size, //para pasar el número y no el índice
-                    onPrev = { if (currentTirada > 0) currentTirada-- },
+                    totalTiradas  = totalTiradas,
+                    onPrev = {
+                        //? Retrocede arquero; si es el primero, retrocede diana y va al último arquero
+                        if (currentTirada > 0) {
+                            currentTirada--
+                        } else if (currentDiana > 0) {
+                            currentDiana--
+                            currentTirada = totalTiradas - 1
+                        }
+                    },
                     onNext = {
-                        if (currentTirada < sesion.tiradas.size - 1) currentTirada++
-                        else {
+                        if (currentTirada < totalTiradas - 1) {
+                            currentTirada++
+                        } else {
                             currentTirada = 0
                             currentDiana++
                         }
                     },
                     onFinalizar = { showConfirmDialog = true },
-                    modifier = Modifier.weight(0.15f)
+                    modifier    = Modifier
+                        .weight(0.15f)
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 )
             }

@@ -10,11 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.SettingsSystemDaydream
-import androidx.compose.material.icons.filled.Support
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 
 import androidx.compose.material3.MaterialTheme
@@ -30,10 +26,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.UserManager
-import org.dam.tfg.screens.HistorialScreen
-import org.dam.tfg.screens.Home
 import org.dam.tfg.screens.Profile
 import org.dam.tfg.screens.Settings
 

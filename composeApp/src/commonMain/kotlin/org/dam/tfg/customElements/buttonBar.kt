@@ -26,7 +26,6 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.SesionManager
-import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.Tirada.TiradaDialog
 import org.dam.tfg.dto.UsuarioTiradaDTO
 import org.dam.tfg.enums.TipoCircuito
@@ -36,7 +35,7 @@ import org.dam.tfg.enums.UserRole
 import org.dam.tfg.model.competiciones.Liga
 import org.dam.tfg.screens.competicion.CompeticionScreen
 import org.dam.tfg.screens.Home
-import org.dam.tfg.screens.HistorialScreen
+import org.dam.tfg.screens.Historial.HistorialScreen
 import org.dam.tfg.screens.Login
 import org.dam.tfg.screens.Profile
 import org.dam.tfg.screens.TiradaScreen

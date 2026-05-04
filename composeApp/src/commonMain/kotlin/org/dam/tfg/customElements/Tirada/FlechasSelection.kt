@@ -21,18 +21,18 @@ private val ColorFlechaAmarillo = Color(0xFFFFFFCC)
 fun FlechasSection(
     numFlechas: Int,
     currentDiana: Int,
+    currentTirada: Int,        // nuevo parámetro
     puntuaciones: List<Int?>,
     onPuntuacionChanged: (index: Int, puntuacion: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var flechaSeleccionada by remember { mutableStateOf<Int?>(null) }
+    var flechaSeleccionada by remember { mutableStateOf<Int?>(0) }
 
-    //? Resetea la selección al cambiar de diana
-    LaunchedEffect(currentDiana) { flechaSeleccionada = null }
+    //? Resetea a la primera flecha al cambiar de diana O de arquero
+    LaunchedEffect(currentDiana, currentTirada) { flechaSeleccionada = 0 }
 
     Column(modifier = modifier.fillMaxWidth()) {
 
-        //? Lista de flechas
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -53,13 +53,11 @@ fun FlechasSection(
 
         HorizontalDivider()
 
-        //? Botonera de puntuación
         PuntuacionButtons(
             enabled = flechaSeleccionada != null,
             onPuntuacionSelected = { score ->
                 flechaSeleccionada?.let { idx ->
                     onPuntuacionChanged(idx, score)
-                    // Auto-avance a la siguiente flecha sin puntuar
                     flechaSeleccionada = (idx + 1 until numFlechas)
                         .firstOrNull { puntuaciones.getOrNull(it) == null }
                 }
@@ -68,7 +66,6 @@ fun FlechasSection(
     }
 }
 
-//? Fila individual de flecha
 @Composable
 private fun FlechaRow(
     numero: Int,
@@ -116,7 +113,6 @@ private fun FlechaRow(
     }
 }
 
-//? Botonera 3 + 2
 @Composable
 private fun PuntuacionButtons(
     enabled: Boolean,
@@ -128,31 +124,29 @@ private fun PuntuacionButtons(
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Fila 1: 0 · 5 · 8
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             listOf(0, 5, 8).forEach { score ->
                 PuntuacionButton(
-                    score   = score,
-                    enabled = enabled,
+                    score    = score,
+                    enabled  = enabled,
                     modifier = Modifier.weight(1f),
-                    onClick = { onPuntuacionSelected(score) }
+                    onClick  = { onPuntuacionSelected(score) }
                 )
             }
         }
-        // Fila 2: 10 · 11 (estirados)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             listOf(10, 11).forEach { score ->
                 PuntuacionButton(
-                    score   = score,
-                    enabled = enabled,
+                    score    = score,
+                    enabled  = enabled,
                     modifier = Modifier.weight(1f),
-                    onClick = { onPuntuacionSelected(score) }
+                    onClick  = { onPuntuacionSelected(score) }
                 )
             }
         }
@@ -167,8 +161,8 @@ private fun PuntuacionButton(
     onClick: () -> Unit
 ) {
     val containerColor = when {
-        !enabled   -> MaterialTheme.colorScheme.surfaceVariant
-        score == 0 -> ColorFlechaRojo
+        !enabled    -> MaterialTheme.colorScheme.surfaceVariant
+        score == 0  -> ColorFlechaRojo
         score >= 10 -> ColorFlechaAmarillo
         else        -> ColorFlechaVerde
     }
@@ -177,14 +171,14 @@ private fun PuntuacionButton(
         enabled = enabled,
         modifier = modifier.height(52.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor  = containerColor,
-            contentColor    = MaterialTheme.colorScheme.onSurface,
+            containerColor         = containerColor,
+            contentColor           = MaterialTheme.colorScheme.onSurface,
             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
         Text(
-            text  = score.toString(),
-            style = MaterialTheme.typography.titleMedium,
+            text       = score.toString(),
+            style      = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
     }

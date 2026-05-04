@@ -53,6 +53,7 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.exceptions.ExcepcionContrasenyaIncorrecta
 import org.dam.tfg.repository.HealthCheckRepository
 import org.dam.tfg.repository.LoginRepository
@@ -87,7 +88,11 @@ class Login : Screen {
         val scope = rememberCoroutineScope()
         val focusManager = LocalFocusManager.current
 
+
         LaunchedEffect(Unit) {
+            if (UserManager.correo.value != null) {
+                navigator.pop()
+            }
             focusRequester.requestFocus()
         }
 
@@ -99,7 +104,6 @@ class Login : Screen {
                 showMessage = false
             }
         }
-
         //? Centralizado el intento de registro con validación
         fun launchRegister() {
             scope.launch {

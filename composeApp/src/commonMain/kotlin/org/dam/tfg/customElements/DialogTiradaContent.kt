@@ -36,7 +36,7 @@ fun DialogContent(
                 addAll(participantesFixed)
             } else {
                 add(
-                    UserManager.correo.value ?: "Usuario no registrado"
+                    UserManager.nombre.value ?: UserManager.correo.value ?: "Usuario no registrado"
                 )
             }
         }
