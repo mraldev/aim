@@ -11,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
 import org.dam.tfg.screens.Home
-import org.dam.tfg.screens.Login
 
 @Composable
 fun App() {

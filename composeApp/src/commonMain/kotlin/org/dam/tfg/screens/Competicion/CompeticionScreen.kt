@@ -4,7 +4,6 @@ import androidx.compose.runtime.*
 import org.dam.tfg.enums.UserRole
 import cafe.adriel.voyager.core.screen.Screen
 import org.dam.tfg.api.managers.UserManager
-import org.dam.tfg.dto.FederadoTiradaDto
 import org.dam.tfg.model.competiciones.Liga
 import org.dam.tfg.screens.Competicion.AccionesCompeticion
 

@@ -7,9 +7,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.dam.tfg.api.managers.UserManager
-import org.dam.tfg.dto.FederadoTiradaDto
-import org.dam.tfg.dto.UsuarioTiradaDTO
-import org.dam.tfg.enums.Asociacion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

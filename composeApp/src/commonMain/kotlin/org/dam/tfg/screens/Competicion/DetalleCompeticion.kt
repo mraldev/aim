@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.dam.tfg.customElements.DialogContent
-import org.dam.tfg.dto.FederadoTiradaDto
 import org.dam.tfg.enums.UserRole
 import org.dam.tfg.model.competiciones.Liga
 

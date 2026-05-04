@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.datetime.LocalDate
-import org.dam.tfg.model.competiciones.TiradaCompetitiva
 import org.dam.tfg.enums.Asociacion
 import org.dam.tfg.enums.TipoCircuito
 import org.dam.tfg.enums.UserRole

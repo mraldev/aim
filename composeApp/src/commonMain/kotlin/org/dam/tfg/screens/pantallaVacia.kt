@@ -18,7 +18,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
-import org.dam.tfg.model.Users
 
 //NO LA LLAMEIS - ES PARA COPIAR Y PEGAR A DIFERENTES PÁGINAS DE FORMA RÁPIDA
 class pantallaVacia(): Screen {

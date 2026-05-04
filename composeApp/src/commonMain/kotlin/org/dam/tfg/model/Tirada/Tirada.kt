@@ -1,6 +1,5 @@
 package org.dam.tfg.model.Tirada
 
-import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 import org.dam.tfg.dto.PuntuacionTiradaDTO
 import org.dam.tfg.dto.UsuarioTiradaDTO

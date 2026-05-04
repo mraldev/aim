@@ -18,10 +18,8 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.buttonBar
-import org.dam.tfg.customElements.profileBar
 
 class Home(): Screen {
 

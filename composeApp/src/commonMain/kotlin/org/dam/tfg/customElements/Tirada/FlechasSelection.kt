@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import org.dam.tfg.model.Tirada.PUNTUACIONES_VALIDAS
 
 private val ColorFlechaVerde    = Color(0xFF90EE90)
 private val ColorFlechaRojo     = Color(0xFFFF9999)

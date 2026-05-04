@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import org.dam.tfg.customElements.DialogContent
-import org.dam.tfg.dto.FederadoTiradaDto
 
 @Composable
 fun TiradaDialog(
