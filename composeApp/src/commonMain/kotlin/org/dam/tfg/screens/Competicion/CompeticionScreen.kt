@@ -14,7 +14,7 @@ internal sealed class NavState {
 }
 
 class CompeticionScreen(
-    val userRole: UserRole,
+    val userRole: UserRole?,
     val asociacionesUsuario: String,
     val competiciones: List<Liga>, //! Se debe buscar en la API en buttonBar
 ) : Screen {

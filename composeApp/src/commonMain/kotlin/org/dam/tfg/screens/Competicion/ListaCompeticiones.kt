@@ -23,7 +23,7 @@ import org.dam.tfg.model.competiciones.Liga
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ListaCompeticiones(
-    userRole: UserRole,
+    userRole: UserRole?,
     asociacionesUsuario: Map<Asociacion, Int>, //? el número de federado de las distintas asociaciones
     competiciones: List<Liga>,
     onSelect: (Liga) -> Unit,

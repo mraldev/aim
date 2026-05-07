@@ -40,12 +40,13 @@ import org.dam.tfg.screens.Login
 import org.dam.tfg.screens.Profile
 import org.dam.tfg.screens.TiradaScreen
 import androidx.compose.ui.graphics.Color
+import org.dam.tfg.api.managers.UserManager
 
 @Composable
 fun buttonBar(
     modifier: Modifier = Modifier,
     navigator: Navigator? = null,
-    userRole: UserRole = UserRole.ADMIN, //! Cambiar
+    userRole: UserRole? = UserManager.roles.value,
     userId: String = "",
     competiciones: List<Liga> = emptyList(),
     asociaciones: List<String> = emptyList(),
@@ -167,8 +168,7 @@ fun buttonBar(
             onClick = {
                 nav.pop()
                 nav.push(Home())
-            },
-            containerColor = Color.Transparent
+            }
         ) {
             Icon(Icons.Filled.Home, tint = Color.Black, contentDescription = "Home")
         }
@@ -187,8 +187,7 @@ fun buttonBar(
                         )
                     )
                 }
-            },
-            containerColor = Color.Transparent
+            }
         ) {
             Icon(Icons.Filled.EmojiEvents, tint = Color.Black, contentDescription = "Competición")
         }
@@ -200,13 +199,13 @@ fun buttonBar(
                 } else {
                     showDialog = true
                 }
-            },
-            containerColor = Color.Transparent
+            }
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,
                 contentDescription = "Nueva tirada",
-                tint = Color.Black
+                tint = Color.Black,
+                modifier = Modifier.size(40.dp)
             )
         }
 
@@ -217,8 +216,7 @@ fun buttonBar(
                     nav.pop()
                     nav.push(HistorialScreen())
                 }
-            },
-            containerColor = Color.Transparent
+            }
         ) {
             Icon(Icons.Filled.History, tint = Color.Black, contentDescription = "Historial")
         }
@@ -227,8 +225,7 @@ fun buttonBar(
             onClick = {
                 nav.pop()
                 nav.push(Profile())
-            },
-            containerColor = Color.Transparent
+            }
         ) {
             Icon(Icons.Filled.Person, tint = Color.Black, contentDescription = "Perfil")
         }

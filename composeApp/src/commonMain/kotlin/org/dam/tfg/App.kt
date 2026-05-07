@@ -1,5 +1,6 @@
 package org.dam.tfg
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -18,6 +19,7 @@ fun App() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(AppColors.Eggshell)
                 .windowInsetsPadding(WindowInsets.safeDrawing)
                 .consumeWindowInsets(WindowInsets.safeDrawing)
         ) {

@@ -1,10 +1,16 @@
 package org.dam.tfg.customElements
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.dam.tfg.api.managers.UserManager
 
@@ -18,12 +24,7 @@ fun DialogContent(
     onConfirm: (Int, Int, List<String>) -> Unit,
     onDismiss: () -> Unit
 ) {
-
-    //TODO IMPORTANTE cambiar para que coincida con el nuevo modelo (ahora se pasan el FederadoTiradaDto
-
-    var numDianas by remember {
-        mutableStateOf(numDianasFixed?.toString() ?: "")
-    }
+    var numDianas by remember { mutableStateOf(numDianasFixed?.toString() ?: "") }
     var flechas by remember { mutableStateOf(flechasFixed ?: 1) }
     var expanded by remember { mutableStateOf(false) }
     var nuevoParticipante by remember { mutableStateOf("") }
@@ -32,21 +33,19 @@ fun DialogContent(
             if (participantesFixed != null) {
                 addAll(participantesFixed)
             } else {
-                add(
-                    UserManager.nombre.value ?: UserManager.correo.value ?: "Usuario no registrado"
-                )
+                add(UserManager.nombre.value ?: UserManager.correo.value ?: "Usuario no registrado")
             }
         }
     }
-    //- Estado para duplicados
+
     var participantesDuplicado by remember { mutableStateOf<String?>(null) }
-    //- Metodo para saber si hay un nombre duplicado
+
     fun siguienteNombre(nombre: String): String {
         val count = participantes.count { it == nombre || it.startsWith("$nombre (") }
         return "$nombre (${count + 1})"
     }
 
-    //- Dialogo de duplicado
+    //- Diálogo de duplicado
     participantesDuplicado?.let { nombre ->
         DialogBase(
             data = mapOf(
@@ -64,10 +63,9 @@ fun DialogContent(
         )
     }
 
-    //- Estado para el diálogo de confirmación de borrado
     var participanteAEliminar by remember { mutableStateOf<String?>(null) }
 
-    //- Diálogo de confirmación
+    //- Diálogo de confirmación de borrado
     participanteAEliminar?.let { nombre ->
         DialogBase(
             data = mapOf(
@@ -85,9 +83,11 @@ fun DialogContent(
     }
 
     Column(modifier = Modifier.padding(20.dp)) {
+
         Text(
             text = header,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            color = AppColors.Black                                      //- Color Black para el título del dialog
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -99,7 +99,14 @@ fun DialogContent(
             singleLine = true,
             readOnly = numDianasFixed != null,
             enabled = numDianasFixed == null,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor   = AppColors.Lavender,              //- Color Lavender para el borde al enfocar
+                unfocusedBorderColor = AppColors.Lavender,              //- Color Lavender para el borde sin enfocar
+                focusedLabelColor    = AppColors.Black,                 //- Color Black para la etiqueta al enfocar
+                unfocusedLabelColor  = AppColors.Black,                  //- Color Black para la etiqueta sin enfocar
+                focusedContainerColor = AppColors.Eggshell
+            )
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -115,9 +122,14 @@ fun DialogContent(
                 enabled = flechasFixed == null,
                 label = { Text("Flechas por diana") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor()
+                modifier = Modifier.fillMaxWidth().menuAnchor(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor   = AppColors.Lavender,          //- Color Lavender para el borde al enfocar
+                    unfocusedBorderColor = AppColors.Lavender,          //- Color Lavender para el borde sin enfocar
+                    focusedLabelColor    = AppColors.Black,             //- Color Black para la etiqueta al enfocar
+                    unfocusedLabelColor  = AppColors.Black,              //- Color Black para la etiqueta sin enfocar
+                    focusedContainerColor = AppColors.Eggshell
+                )
             )
             ExposedDropdownMenu(
                 expanded = expanded,
@@ -126,10 +138,7 @@ fun DialogContent(
                 (1..4).forEach { option ->
                     DropdownMenuItem(
                         text = { Text("$option") },
-                        onClick = {
-                            flechas = option
-                            expanded = false
-                        }
+                        onClick = { flechas = option; expanded = false }
                     )
                 }
             }
@@ -137,17 +146,31 @@ fun DialogContent(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Text("Participantes", style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = "Participantes",
+            style = MaterialTheme.typography.titleMedium,
+            color = AppColors.Black                                      //- Color Black para el subtítulo de participantes
+        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically             //- Centrado vertical del botón + respecto al TextField
+        ) {
             OutlinedTextField(
                 value = nuevoParticipante,
                 onValueChange = { nuevoParticipante = it },
                 label = { Text("Nombre o correo") },
                 singleLine = true,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor   = AppColors.Lavender,          //- Color Lavender para el borde al enfocar
+                    unfocusedBorderColor = AppColors.Lavender,          //- Color Lavender para el borde sin enfocar
+                    focusedLabelColor    = AppColors.Black,             //- Color Black para la etiqueta al enfocar
+                    unfocusedLabelColor  = AppColors.Black,              //- Color Black para la etiqueta sin enfocar
+                    focusedContainerColor = AppColors.Eggshell
+                )
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -163,7 +186,12 @@ fun DialogContent(
                             nuevoParticipante = ""
                         }
                     }
-                }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = AppColors.Amethyst,               //- Color Champagne para el fondo del botón +
+                    contentColor   = AppColors.Eggshell                    //- Color Black para el texto del botón +
+                ),
+                border = BorderStroke(2.dp, AppColors.Lavender)        //- Color Lavender para el borde del botón +
             ) {
                 Text("+")
             }
@@ -171,16 +199,22 @@ fun DialogContent(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        //- Lista de participantes con fondo Amethyst y texto Eggshell
         participantes.forEach { nombre ->
-            Text(
-                text = "• $nombre",
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
-                    .clickable {
-                        participanteAEliminar = nombre  // Abre el diálogo en lugar de borrar directamente
-                    }
-            )
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(AppColors.Amethyst)                    //- Color Amethyst para el fondo de cada participante
+                    .clickable { participanteAEliminar = nombre }
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = "• $nombre",
+                    color = AppColors.Eggshell                         //- Color Eggshell para el texto de cada participante
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -189,19 +223,33 @@ fun DialogContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = "Cancelar",
+                    color = AppColors.Black                             //- Color Black para el texto del botón Cancelar
+                )
+            }
+
             Spacer(modifier = Modifier.width(8.dp))
+
             Button(
                 onClick = {
-                    if (numDianas.isNotEmpty()) onConfirm(
-                        numDianas.toInt(),
-                        flechas,
-                        participantes)
+                    if (numDianas.isNotEmpty()) onConfirm(numDianas.toInt(), flechas, participantes)
                 },
-                enabled = numDianas.isNotEmpty() && participantes.isNotEmpty()
+                enabled = numDianas.isNotEmpty() && participantes.isNotEmpty(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = AppColors.Amethyst,               //- Color Champagne para el fondo del botón Aceptar
+                    contentColor   = AppColors.Eggshell                    //- Color Black para el texto del botón Aceptar
+                ),
+                border = BorderStroke(2.dp, AppColors.Lavender)        //- Color Lavender para el borde del botón Aceptar
             ) {
                 Text("Aceptar")
             }
         }
     }
+}
+
+@Composable
+fun RoundedCornerShape(x0: Dp) {
+    TODO("Not yet implemented")
 }

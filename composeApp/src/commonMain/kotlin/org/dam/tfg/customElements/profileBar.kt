@@ -65,7 +65,10 @@ fun profileBar(navigator: Navigator = LocalNavigator.currentOrThrow) {
                         navigator.pop()
                         navigator.push(Settings())
                     }
-                },containerColor = Color.Transparent) {
+                },
+                    containerColor = Color.Transparent,
+                    borderColor = Color.Transparent
+                    ) {
                     Icon(Icons.Filled.Settings, tint = Color.Black, contentDescription = "Ajustes")
                 }
             }

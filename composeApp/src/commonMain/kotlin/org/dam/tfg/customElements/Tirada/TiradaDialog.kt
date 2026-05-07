@@ -25,12 +25,12 @@ fun TiradaDialog(
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
 
-            // Fondo con efecto glass
+            // Fondo con efecto glass — base para todos los dialogs futuros
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.25f))
-                    .blur(20.dp)
+                    .background(Color.Black.copy(alpha = 0.25f)) //- Oscurecido semitransparente sobre el fondo
+                    .blur(200.dp)                                 //- Efecto blur al fondo de la app
             )
 
             Box(
@@ -40,7 +40,7 @@ fun TiradaDialog(
                 Surface(
                     modifier = Modifier.fillMaxWidth(0.85f),
                     shape = RoundedCornerShape(16.dp),
-                    color = Color.White,
+                    color = AppColors.Champagne,                     //- Color Mauve para el fondo del dialog
                     tonalElevation = 4.dp
                 ) {
                     DialogContent(

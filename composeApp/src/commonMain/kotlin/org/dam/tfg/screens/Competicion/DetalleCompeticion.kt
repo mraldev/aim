@@ -17,7 +17,7 @@ import org.dam.tfg.model.competiciones.Liga
 @Composable
 internal fun DetalleCompeticion(
     competicion: Liga,
-    userRole: UserRole,
+    userRole: UserRole?,
     userId: String,
     onBack: () -> Unit,
     onParticipar: () -> Unit,
