@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,12 +56,15 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.crypto.CredentialStore
+import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.exceptions.ExcepcionContrasenyaIncorrecta
 import org.dam.tfg.repository.HealthCheckRepository
 import org.dam.tfg.repository.LoginRepository
 
 class Login : Screen {
 
+    private var showDialogBase = false
 
     @Composable
     override fun Content() {
@@ -87,7 +92,18 @@ class Login : Screen {
         var confirmPasswordError by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
         val focusManager = LocalFocusManager.current
+        var rememberMe by remember { mutableStateOf(false) }
 
+        if (showDialogBase) {
+            DialogBase(
+                data = mapOf(
+                    "header" to "Cuenta registrada",
+                    "content" to "Para continuar, debes confirmar tu correo eléctronico. Te llegará un email en breves momentos.",
+                    "confirmButton" to "Confirmar"
+                ),
+                onConfirm = { navigator.push(Home()) }
+            )
+        }
 
         LaunchedEffect(Unit) {
             if (UserManager.correo.value != null) {
@@ -114,7 +130,7 @@ class Login : Screen {
                     messageKey++
                 } else {
                     confirmPasswordError = false
-                    createAccount(loginRepository, correo, contrasenya, navigator) {
+                    createAccount(loginRepository, correo, contrasenya, rememberMe, navigator) {
                         message = it
                         messageKey++
                     }
@@ -199,7 +215,7 @@ class Login : Screen {
                             if (login) {
                                 scope.launch {
                                     isLoading = true
-                                    attemptLogin(loginRepository, healthRepository, correo, contrasenya, navigator) {
+                                    attemptLogin(loginRepository, healthRepository, correo, contrasenya, rememberMe, navigator) {
                                         message = it
                                         messageKey++
                                     }
@@ -266,6 +282,27 @@ class Login : Screen {
                     }
                 }
 
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 30.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = rememberMe,
+                        onCheckedChange = {
+                            rememberMe = it
+                        }
+                    )
+
+                    Text(
+                        text = "Recuérdame",
+                        modifier = Modifier.clickable {
+                            rememberMe = !rememberMe
+                        }
+                    )
+                }
+
                 Text(
                     text = "Sin cuenta?",
                     modifier = Modifier.clickable {
@@ -280,7 +317,7 @@ class Login : Screen {
                         if (login) {
                             scope.launch {
                                 isLoading = true
-                                attemptLogin(loginRepository, healthRepository, correo, contrasenya, navigator) {
+                                attemptLogin(loginRepository, healthRepository, correo, contrasenya, rememberMe, navigator) {
                                     message = it
                                     messageKey++
                                 }
@@ -321,17 +358,27 @@ class Login : Screen {
         }
     }
 
-    private suspend fun createAccount(repo: LoginRepository, correo: String, contrasenya: String, navigator: Navigator, function: (String) -> Unit) {
+    private suspend fun createAccount(repo: LoginRepository, correo: String, contrasenya: String, rememberMe: Boolean, navigator: Navigator, function: (String) -> Unit) {
         if (!correoValido(correo)) {
             function("Formato de correo incorrecto.")
             return
         }
-        val logged = repo.register(correo, contrasenya)
-        if (logged) navigator.push(Home())
+        val logged = repo.register(correo.trim().lowercase(), contrasenya)
+        if (logged) showDialogBase = true
         else function("Error al crear cuenta.")
+
+        if (rememberMe) CredentialStore.save(correo, contrasenya)
     }
 
-    private suspend fun attemptLogin(loginRepository: LoginRepository, healthRepository: HealthCheckRepository, correo: String, contrasenya: String, navigator: Navigator, function: (String) -> Unit) {
+    suspend fun attemptLogin(
+        loginRepository: LoginRepository,
+        healthRepository: HealthCheckRepository,
+        correo: String,
+        contrasenya: String,
+        rememberMe: Boolean,
+        navigator: Navigator,
+        function: (String) -> Unit
+    ) {
         if (correo.trim().isNotBlank() && contrasenya.trim().isNotBlank()) {
             if (!correoValido(correo)) {
                 function("Formato de correo incorrecto.")
@@ -340,8 +387,12 @@ class Login : Screen {
 
             if (healthRepository.isServerActive()) {
                 try {
-                    if (loginRepository.login(correo, contrasenya)) {
+                    if (loginRepository.login(correo.trim().lowercase(), contrasenya)) {
+                        if (rememberMe) {
+                            CredentialStore.save(correo.trim().lowercase(), contrasenya)
+                        }
                         navigator.push(Home())
+
                     } else {
                         function("Contraseña incorrecta.")
                     }

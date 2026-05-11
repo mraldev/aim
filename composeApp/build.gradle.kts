@@ -1,6 +1,9 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+val cryptographyVersion = "0.4.0"
+val settingsVersion     = "1.2.0"
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
@@ -42,6 +45,8 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             //? Dependencia de api
             implementation(libs.ktor.client.okhttp)
+            //? Cifrado
+            implementation("dev.whyoleg.cryptography:cryptography-provider-jdk:${cryptographyVersion}")
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -64,6 +69,10 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             //? Iconos
             implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
+            //? Cifrado
+            implementation("dev.whyoleg.cryptography:cryptography-core:${cryptographyVersion}")
+            implementation("com.russhwolf:multiplatform-settings:${settingsVersion}")
+            implementation("com.russhwolf:multiplatform-settings-no-arg:${settingsVersion}")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -74,12 +83,18 @@ kotlin {
             //? Dependencias de api
             implementation(libs.ktor.client.cio)
             implementation(libs.kotlinx.serialization.json)
+            //? Cifrado
+            implementation("dev.whyoleg.cryptography:cryptography-provider-jdk:$cryptographyVersion")
         }
         iosMain.dependencies {
             implementation("io.ktor:ktor-client-darwin:2.3.7")
+            //? Cifrado
+            implementation("dev.whyoleg.cryptography:cryptography-provider-apple:${cryptographyVersion}")
         }
         jsMain.dependencies {
             implementation("io.ktor:ktor-client-js:2.3.7")
+            //? Cifrado
+            implementation("dev.whyoleg.cryptography:cryptography-provider-webcrypto:${cryptographyVersion}")
         }
     }
 }

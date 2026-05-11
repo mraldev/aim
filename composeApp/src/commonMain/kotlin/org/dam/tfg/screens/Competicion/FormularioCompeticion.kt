@@ -1,6 +1,7 @@
 package org.dam.tfg.screens.competicion
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
@@ -13,6 +14,16 @@ import org.dam.tfg.enums.Asociacion
 import org.dam.tfg.enums.TipoCircuito
 import org.dam.tfg.model.competiciones.Liga
 import kotlin.uuid.ExperimentalUuidApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.ui.text.input.KeyboardType
+import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.customElements.DialogBase
+import org.dam.tfg.dto.FederadoTiradaDto
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
 @Composable
@@ -21,31 +32,64 @@ internal fun FormularioCompeticion(
     onGuardar: (Liga) -> Unit,
     onCancelar: () -> Unit
 ) {
-    var nombre by remember {
-        mutableStateOf(
-            competicion?.sesionesCompetidas[0]!!.tiradasCompetitivas[0].usuario.correo!!
-            //? se pone !! en sesiones porque no existe la posibilidad de una liga sin sesiones
-            //? se pone !! en correo porque un usuario federado siempre va a tener nombre (recordar cambiar de correo a nombre)
-        )
+    // Al editar intentamos leer la primera tirada como referencia de configuración
+    // Al crear arranca en null
+    val tiradaRef = remember(competicion) {
+        competicion?.sesionesCompetidas
+            ?.firstOrNull()
+            ?.tiradasCompetitivas
+            ?.firstOrNull()
     }
-    var numDianas by remember {
-        mutableStateOf(
-            competicion?.sesionesCompetidas[0]!!.tiradasCompetitivas[0].numDianas.toString()
-        )
-    }
-    var numFlechas by remember {
-        mutableStateOf(
-            competicion?.sesionesCompetidas[0]!!.tiradasCompetitivas[0].numMaxFlechasPorDiana
-        )
-    }
+
+    var nombre by remember { mutableStateOf(tiradaRef?.usuario?.correo.orEmpty()) }
+    var numDianas by remember { mutableStateOf(tiradaRef?.numDianas?.toString().orEmpty()) }
+    var numFlechas by remember { mutableStateOf(tiradaRef?.numMaxFlechasPorDiana ?: 1) }
     var fecha by remember { mutableStateOf(competicion?.fecha) }
-    var asocSelec by remember { mutableStateOf(competicion?.sesionesCompetidas[0]!!.tiradasCompetitivas[0].asociacion) }
-    var circuitoSelec by remember { mutableStateOf(competicion?.sesionesCompetidas[0]!!.tiradasCompetitivas[0].tipoCircuito) }
+    var asocSelec by remember { mutableStateOf<Asociacion?>(tiradaRef?.asociacion) }
+    var circuitoSelec by remember { mutableStateOf<TipoCircuito?>(tiradaRef?.tipoCircuito) }
+
     var asocExpanded by remember { mutableStateOf(false) }
     var circuitoExpanded by remember { mutableStateOf(false) }
     var flExpanded by remember { mutableStateOf(false) }
     var mostrarFecha by remember { mutableStateOf(false) }
+
+    // En creación el formulario arranca ya editable; en edición hay que pulsar el lápiz.
     var editEnabled by remember { mutableStateOf(competicion == null) }
+
+    val titulo = if (competicion == null) {
+        "Nueva competición"
+    } else {
+        tiradaRef?.usuario?.correo ?: "Editar competición"
+    }
+
+    var participanteInput by remember { mutableStateOf("") }
+    val participantes = remember { mutableStateListOf<Int>() }
+
+    var participanteAEliminar by remember { mutableStateOf<Int?>(null) }
+
+    participanteAEliminar?.let { numero ->
+        DialogBase(
+            data = mapOf(
+                "header"        to "Eliminar competidor",
+                "content"       to "¿Desea eliminar el competidor con número de federado: $numero?",
+                "confirmButton" to "Aceptar",
+                "dismissButton" to "Cancelar"
+            ),
+            onConfirm = {
+                participantes.remove(numero)
+                participanteAEliminar = null
+            },
+            onDismiss = { participanteAEliminar = null }
+        )
+    }
+
+    fun anyadirParticipante() {
+        val numero = participanteInput.toIntOrNull()
+        if (numero != null && numero !in participantes) {
+            participantes.add(numero)
+        }
+        participanteInput = ""
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         // Cabecera
@@ -140,49 +184,8 @@ internal fun FormularioCompeticion(
             }
         }
 
-        Spacer(Modifier.height(12.dp))
-
-        // Número de dianas
-        OutlinedTextField(
-            value = numDianas,
-            onValueChange = { if (editEnabled && it.all { c -> c.isDigit() }) numDianas = it },
-            label = { Text("Número de dianas") },
-            singleLine = true,
-            readOnly = !editEnabled,
-            enabled = editEnabled,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        // Flechas por diana
-        ExposedDropdownMenuBox(
-            expanded = if (editEnabled) flExpanded else false,
-            onExpandedChange = { if (editEnabled) flExpanded = !flExpanded }
-        ) {
-            OutlinedTextField(
-                value = numFlechas.toString(),
-                onValueChange = {},
-                readOnly = true,
-                enabled = editEnabled,
-                label = { Text("Flechas por diana") },
-                trailingIcon = {
-                    if (editEnabled) ExposedDropdownMenuDefaults.TrailingIcon(flExpanded)
-                },
-                modifier = Modifier.fillMaxWidth().menuAnchor()
-            )
-            ExposedDropdownMenu(
-                expanded = flExpanded,
-                onDismissRequest = { flExpanded = false }
-            ) {
-                (1..4).forEach { op ->
-                    DropdownMenuItem(
-                        text = { Text("$op") },
-                        onClick = { numFlechas = op; flExpanded = false }
-                    )
-                }
-            }
-        }
+        //TODO cuando se selecciona x o y tipo de circuito se cargan automáticamente el número de flechas y dianas
+        //correspondientes al tipo de circuito en cuestión
 
         Spacer(Modifier.height(12.dp))
 
@@ -195,7 +198,55 @@ internal fun FormularioCompeticion(
             Text(fecha?.toString() ?: "Seleccionar fecha")
         }
 
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = participanteInput,
+            onValueChange = {
+                if (editEnabled) {
+                    participanteInput = it.filter { ch -> ch.isDigit() }
+                }
+            },
+            label = { Text("Número de participante") },
+            singleLine = true,
+            enabled = editEnabled,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { if (editEnabled) anyadirParticipante() }
+            ),
+            trailingIcon = {
+                if (editEnabled) {
+                    IconButton(onClick = { anyadirParticipante() }) {
+                        Icon(Icons.Default.Add, "Añadir participante")
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(participantes, key = { it }) { numero ->
+                ListItem(
+                    headlineContent = { Text(numero.toString()) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            participanteAEliminar = numero
+                        }
+                )
+                HorizontalDivider()
+            }
+        }
 
         // Guardar
         if (editEnabled) {
@@ -203,31 +254,29 @@ internal fun FormularioCompeticion(
                     && numDianas.isNotBlank()
                     && asocSelec != null
                     && circuitoSelec != null
+                    && participantes.isNotEmpty()
+                    && fecha != null
 
             Button(
                 onClick = {
-                    /*
-                    Queda pendiente de hacerse
-
-                    val base = competicion ?: TiradaCompetitivaReal(
-                        usuario = "",
-                        asociacion = asocSelec!!,
-                        tipoCircuito = circuitoSelec!!,
-                        fecha = fecha ?: LocalDate(2024, 1, 1),
-                        numMaxFlechasPorDiana = numFlechas,
-                        numDianas = numDianas.toInt(),
-                        administradorId = 0
+                    val ligaGuardar = Liga(
+                        emptyList(),
+                        participantes.map { competidorId ->
+                            FederadoTiradaDto(
+                                //? Para registrar la liga, nos sirve con no ponerle correo
+                                "",
+                                competidorId
+                            )
+                        },
+                        nombre,
+                        fecha!!,
+                        UserManager.numFederado.value!!
+                        //! Como solo se puede acceder a esta pantalla siendo admin, se pre supone que haya valor en numFederado
                     )
+
                     onGuardar(
-                        base.copy(
-                            usuario = nombre,
-                            asociacion = asocSelec,
-                            tipoCircuito = circuitoSelec,
-                            fecha = fecha ?: LocalDate(2024, 1, 1),
-                            numMaxFlechasPorDiana = numFlechas,
-                            numDianas = numDianas.toInt()
-                        )
-                    )*/
+                        ligaGuardar
+                    )
                 },
                 enabled = canSave,
                 modifier = Modifier.fillMaxWidth()

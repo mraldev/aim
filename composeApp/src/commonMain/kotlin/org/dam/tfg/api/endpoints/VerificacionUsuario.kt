@@ -12,6 +12,7 @@ import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.api.responses.LogInResponse
 import org.dam.tfg.api.responses.RegisterResponse
 import org.dam.tfg.api.responses.ResponseHelper
+import org.dam.tfg.crypto.CredentialStore
 
 class VerificacionUsuario {
 
@@ -58,6 +59,7 @@ class VerificacionUsuario {
             TokenManager.setToken(body.token)
             UserManager.setCorreo(correo)
             UserManager.setContrasenya(contrasenya)
+            UserManager.asignarValoresDesdeLogInResponse(body)
 
             return exito
 
@@ -110,6 +112,7 @@ class VerificacionUsuario {
             TokenManager.setToken(body.token)
             UserManager.setCorreo(correo)
             UserManager.setContrasenya(contrasenya)
+            UserManager.setCorreoVerificado(false)
 
             return exito
 

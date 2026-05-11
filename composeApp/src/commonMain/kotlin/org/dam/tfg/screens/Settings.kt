@@ -31,6 +31,7 @@ import kotlinx.datetime.LocalDate
 import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.SesionManager
 import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.crypto.CredentialStore
 import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
@@ -40,6 +41,7 @@ class Settings : Screen {
         SesionManager.clear()
         UserManager.clear()
         TokenManager.clear()
+        CredentialStore.clear()
     }
 
     @Composable

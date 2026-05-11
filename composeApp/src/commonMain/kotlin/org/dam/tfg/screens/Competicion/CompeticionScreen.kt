@@ -30,7 +30,8 @@ class CompeticionScreen(
 
         when (val state = nav) {
             is NavState.Lista -> ListaCompeticiones(
-                userRole = userRole,
+                //? Si ha llegado hasta aquí, se presupone que hay valor en userRole
+                userRole = userRole!!,
                 asociacionesUsuario = asociacionesUsuario,
                 competiciones = competiciones,
                 onSelect = { nav = NavState.Detalle(it) },
@@ -38,7 +39,8 @@ class CompeticionScreen(
             )
             is NavState.Detalle -> DetalleCompeticion(
                 competicion = state.comp,
-                userRole = userRole,
+                //? Si ha llegado hasta aquí, se presupone que hay valor en userRole
+                userRole = userRole!!,
                 userId = asociacionesUsuario.toString(),
                 onBack = { nav = NavState.Lista },
                 onParticipar = {

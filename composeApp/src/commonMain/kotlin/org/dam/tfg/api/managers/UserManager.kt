@@ -3,6 +3,9 @@ package org.dam.tfg.api.managers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.LocalDate
+import org.dam.tfg.api.authorization.TokenManager
+import org.dam.tfg.api.responses.LogInResponse
+import org.dam.tfg.crypto.CredentialStore
 import org.dam.tfg.enums.Asociacion
 import org.dam.tfg.enums.Genero
 import org.dam.tfg.enums.UserRole
@@ -28,6 +31,9 @@ object UserManager {
     private val _descripcion = MutableStateFlow<String?>(null)
     val descripcion: StateFlow<String?> get() = _descripcion
 
+    private var _correoVerificado = MutableStateFlow<Boolean?>(null)
+    val correoVerificado: StateFlow<Boolean?> get() = _correoVerificado
+
     private val _nombre = MutableStateFlow<String?>(null)
     val nombre: StateFlow<String?> get() = _nombre
 
@@ -47,7 +53,6 @@ object UserManager {
         _correo.value = nuevoCorreo
     }
 
-    //TODO cifrarla al setearla
     fun setContrasenya(nuevaContrasenya: String) {
         _contrasenya.value = nuevaContrasenya
     }
@@ -68,6 +73,10 @@ object UserManager {
         _fecNac.value = nuevaFecha
     }
 
+    fun setCorreoVerificado(verificado: Boolean?) {
+        _correoVerificado.value = verificado
+    }
+
     fun setGenero(genero : Genero?){
         _genero.value = genero
     }
@@ -81,7 +90,9 @@ object UserManager {
     }
 
     fun setDescripcion(nuevaDescripcion: String?) {
-        _descripcion.value = nuevaDescripcion
+        nuevaDescripcion?.let {
+            _descripcion.value = it
+        }
     }
 
     fun setAsociacion(asociacion: Asociacion, numAsociado: Int){
@@ -97,5 +108,15 @@ object UserManager {
         _contrasenya.value = null;
         _fechaAlta.value = null;
         _asociaciones.value = emptyMap<Asociacion, Int>();
+        _correoVerificado.value = null;
+    }
+
+    fun asignarValoresDesdeLogInResponse(body: LogInResponse){
+        TokenManager.setToken(body.token)
+        UserManager.setFechaAlta(body.fechaAlta)
+        UserManager.setRoles(body.rol)
+        UserManager.setDescripcion(body.descripcion)
+        UserManager.setCorreoVerificado(body.correoVerificado)
+        CredentialStore.clear()
     }
 }

@@ -42,7 +42,7 @@ class TiradaEndpoint {
     }
 
     suspend fun getHistorial(): List<SesionHistorial> {
-        if (!TokenManager.isLoggedIn) {
+        if (!TokenManager.isLoggedIn()) {
             throw ExceptionNoRegistrado("Usuario no registrado")
         }
 

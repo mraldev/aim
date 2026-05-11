@@ -123,7 +123,7 @@ internal fun DetalleCompeticion(
                 Spacer(Modifier.height(12.dp))
 
                 /*
-                Cambiar para cancelar solo tiradas concretas, tiene más sentido que echar por tierra todo
+                Cambiar para cancelar solo tiradas concretas, tiene más sentido que echar por tierra tod o
 
                 if (!competicion.cancelada) {
                     OutlinedButton(

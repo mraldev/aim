@@ -15,9 +15,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -40,6 +42,7 @@ import org.dam.tfg.screens.Login
 import org.dam.tfg.screens.Profile
 import org.dam.tfg.screens.TiradaScreen
 import androidx.compose.ui.graphics.Color
+import kotlinx.coroutines.launch
 import org.dam.tfg.api.managers.UserManager
 
 @Composable
@@ -58,6 +61,7 @@ fun buttonBar(
     var showDialogNoRegistradoCompeticion by remember { mutableStateOf(false) }
     var showDialogNoAsociaciones by remember { mutableStateOf(false) }
     var showDialogNoRegistradoHistorial by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     if (showDialog) {
         TiradaDialog(
@@ -175,18 +179,22 @@ fun buttonBar(
 
         AnimatedButton(
             onClick = {
-                if (!TokenManager.isLoggedIn) showDialogNoRegistradoCompeticion = true
-                //else if (UserManager.asociaciones.value.isEmpty()) showDialogNoAsociaciones = true
-                else {
-                    nav.pop()
-                    nav.push(
-                        CompeticionScreen(
-                            userRole = userRole,
-                            asociacionesUsuario = userId,
-                            competiciones = emptyList()
+                scope.launch {
+                    if (!TokenManager.isLoggedIn()) {
+                        showDialogNoRegistradoCompeticion = true
+                    //else if (UserManager.asociaciones.value.isEmpty()) showDialogNoAsociaciones = true
+                    } else {
+                        nav.pop()
+                        nav.push(
+                            CompeticionScreen(
+                                userRole = UserManager.roles.value,
+                                asociacionesUsuario = userId,
+                                competiciones = emptyList()
+                            )
                         )
-                    )
+                    }
                 }
+
             }
         ) {
             Icon(Icons.Filled.EmojiEvents, tint = Color.Black, contentDescription = "Competición")
@@ -211,10 +219,12 @@ fun buttonBar(
 
         AnimatedButton(
             onClick = {
-                if (!TokenManager.isLoggedIn) showDialogNoRegistradoHistorial = true
-                else{
-                    nav.pop()
-                    nav.push(HistorialScreen())
+                scope.launch {
+                    if (!TokenManager.isLoggedIn()) showDialogNoRegistradoHistorial = true
+                    else{
+                        nav.pop()
+                        nav.push(HistorialScreen())
+                    }
                 }
             }
         ) {
