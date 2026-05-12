@@ -35,6 +35,15 @@ import org.dam.tfg.crypto.CredentialStore
 import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
+import org.dam.tfg.customElements.AnimatedButton
+import org.dam.tfg.enums.Asociacion
+import org.dam.tfg.enums.Genero
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+
+
 
 class Settings : Screen {
     private fun limpiarManagers() {
@@ -44,6 +53,7 @@ class Settings : Screen {
         CredentialStore.clear()
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
 
@@ -56,29 +66,33 @@ class Settings : Screen {
 
         val navigator = LocalNavigator.currentOrThrow
 
-        var showEmailDialog by remember { mutableStateOf(false) }
-        var showPasswordDialog by remember { mutableStateOf(false) }
+        var showEmailDialog        by remember { mutableStateOf(false) }
+        var showPasswordDialog     by remember { mutableStateOf(false) }
         var showConfirmationDialog by remember { mutableStateOf(false) }
-        var showFedDialog by remember { mutableStateOf(false) }
-        var showAsociacionDialog by remember { mutableStateOf(false) }
-        var showNameDialog by remember { mutableStateOf(false) }
-        var showFecNacDialog by remember { mutableStateOf(false) }
-        var showSexDialog by remember { mutableStateOf(false) }
+        var showFedDialog          by remember { mutableStateOf(false) }
+        var showAsociacionDialog   by remember { mutableStateOf(false) }
+        var showNameDialog         by remember { mutableStateOf(false) }
+        var showFecNacDialog       by remember { mutableStateOf(false) }
+        var showSexDialog          by remember { mutableStateOf(false) }
+        var asociacionNueva      by remember { mutableStateOf<Asociacion?>(null) }
+        var generoNuevo          by remember { mutableStateOf<Genero?>(null) }
 
-        var contrasenyaNueva by remember { mutableStateOf("") }
+        var expandedGenero       by remember { mutableStateOf(false) }
+        var expandedAsociacion   by remember { mutableStateOf(false) }
+
+        var contrasenyaNueva    by remember { mutableStateOf("") }
         var confirmarContrasenya by remember { mutableStateOf("") }
-        var correoNuevo by remember { mutableStateOf("") }
-        var numFedNuevo by remember { mutableStateOf("") }
-        var nombreNuevo by remember { mutableStateOf("") }
-        var fecNacNuevo by remember { mutableStateOf<LocalDate?>(null) }
-        var generoNuevo by remember { mutableStateOf("") }
+        var correoNuevo          by remember { mutableStateOf("") }
+        var numFedNuevo          by remember { mutableStateOf("") }
+        var nombreNuevo          by remember { mutableStateOf("") }
+        var fecNacNuevo          by remember { mutableStateOf<LocalDate?>(null) }
 
         //- Dialog Confirmación baja cuenta
         if (showConfirmationDialog) {
             DialogBase(
                 data = mapOf(
-                    "header" to "Dar de baja",
-                    "content" to "¿Seguro que quieres dar de baja tu cuenta?",
+                    "header"        to "Dar de baja",
+                    "content"       to "¿Seguro que quieres dar de baja tu cuenta?",
                     "confirmButton" to "Confirmar",
                     "dismissButton" to "Cancelar"
                 ),
@@ -94,8 +108,9 @@ class Settings : Screen {
         if (showEmailDialog) {
             AlertDialog(
                 onDismissRequest = { showEmailDialog = false },
+                containerColor   = AppColors.Champagne,               //- Color Champagne para el fondo del diálogo
                 confirmButton = {
-                    TextButton(
+                    AnimatedButton(
                         onClick = {
                             if (correoNuevo.isBlank() || !regex.matches(correoNuevo)) {
                                 correoNuevo = ""
@@ -104,28 +119,173 @@ class Settings : Screen {
                                 showEmailDialog = false
                             }
                         }
-                    ) {
-                        Text("Confirmar")
-                    }
+                    ) { Text("Confirmar") }
                 },
                 dismissButton = {
-                    TextButton(
+                    AnimatedButton(
                         onClick = { showEmailDialog = false }
-                    ) {
-                        Text("Cancelar")
-                    }
+                    ) { Text("Cancelar") }
                 },
                 title = { Text("Cambiar Email") },
                 text = {
                     OutlinedTextField(
-                        value = correoNuevo,
+                        value         = correoNuevo,
                         onValueChange = { correoNuevo = it },
-                        label = { Text("Nuevo Email") },
-                        singleLine = true,
-                        modifier = Modifier
+                        label         = { Text("Nuevo Email") },
+                        singleLine    = true,
+                        modifier      = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 30.dp)
                     )
+                }
+            )
+        }
+
+        //- Dialog Asignar Nombre
+        if (showNameDialog) {
+            AlertDialog(
+                onDismissRequest = { showNameDialog = false },
+                containerColor   = AppColors.Champagne,                    //- Color Champagne para el fondo del diálogo
+                confirmButton = {
+                    AnimatedButton(
+                        onClick = {
+                            if (nombreNuevo.isNotBlank()) {
+                                UserManager.setName(nombreNuevo)
+                                showNameDialog = false
+                            }
+                        }
+                    ) { Text("Confirmar") }
+                },
+                dismissButton = {
+                    AnimatedButton(
+                        onClick = { showNameDialog = false }
+                    ) { Text("Cancelar") }
+                },
+                title = { Text("Asignar Nombre") },
+                text = {
+                    OutlinedTextField(
+                        value         = nombreNuevo,
+                        onValueChange = { nombreNuevo = it },
+                        label         = { Text("Nombre") },
+                        singleLine    = true,
+                        modifier      = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 30.dp)
+                    )
+                }
+            )
+        }
+
+        //- Dialog Selección de Género
+        if (showSexDialog) {
+            AlertDialog(
+                onDismissRequest = { showSexDialog = false },
+                containerColor   = AppColors.Champagne,                    //- Color Champagne para el fondo del diálogo
+                confirmButton = {
+                    AnimatedButton(
+                        onClick = {
+                            if (generoNuevo != null) {
+                                UserManager.setGenero(generoNuevo)
+                                showSexDialog = false
+                            }
+                        }
+                    ) { Text("Confirmar") }
+                },
+                dismissButton = {
+                    AnimatedButton(
+                        onClick = { showSexDialog = false }
+                    ) { Text("Cancelar") }
+                },
+                title = { Text("Seleccionar Género") },
+                text = {
+                    ExposedDropdownMenuBox(
+                        expanded        = expandedGenero,
+                        onExpandedChange = { expandedGenero = it },
+                        modifier        = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 30.dp)
+                    ) {
+                        OutlinedTextField(
+                            value            = generoNuevo?.name ?: "Selecciona un género",
+                            onValueChange    = {},
+                            readOnly         = true,
+                            trailingIcon     = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedGenero) },
+                            modifier         = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth()
+                        )
+                        ExposedDropdownMenu(
+                            expanded         = expandedGenero,
+                            onDismissRequest = { expandedGenero = false }
+                        ) {
+                            Genero.entries.forEach { genero ->
+                                DropdownMenuItem(
+                                    text    = { Text(genero.name) },
+                                    onClick = {
+                                        generoNuevo    = genero
+                                        expandedGenero = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        //- Dialog Selección de Asociación
+        if (showAsociacionDialog) {
+            AlertDialog(
+                onDismissRequest = { showAsociacionDialog = false },
+                containerColor   = AppColors.Champagne,                    //- Color Champagne para el fondo del diálogo
+                confirmButton = {
+                    AnimatedButton(
+                        onClick = {
+                            if (asociacionNueva != null) {
+                                UserManager.setAsociacion(asociacionNueva!!, 1)
+                                showAsociacionDialog = false
+                            }
+                        }
+                    ) { Text("Confirmar") }
+                },
+                dismissButton = {
+                    AnimatedButton(
+                        onClick = { showAsociacionDialog = false }
+                    ) { Text("Cancelar") }
+                },
+                title = { Text("Seleccionar Asociación") },
+                text = {
+                    ExposedDropdownMenuBox(
+                        expanded         = expandedAsociacion,
+                        onExpandedChange = { expandedAsociacion = it },
+                        modifier         = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 30.dp)
+                    ) {
+                        OutlinedTextField(
+                            value         = asociacionNueva?.label ?: "Selecciona una asociación",
+                            onValueChange = {},
+                            readOnly      = true,
+                            trailingIcon  = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedAsociacion) },
+                            modifier      = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth()
+                        )
+                        ExposedDropdownMenu(
+                            expanded         = expandedAsociacion,
+                            onDismissRequest = { expandedAsociacion = false }
+                        ) {
+                            Asociacion.entries.forEach { asociacion ->
+                                DropdownMenuItem(
+                                    text    = { Text(asociacion.label) },
+                                    onClick = {
+                                        asociacionNueva    = asociacion
+                                        expandedAsociacion = false
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             )
         }
@@ -134,8 +294,9 @@ class Settings : Screen {
         if (showPasswordDialog) {
             AlertDialog(
                 onDismissRequest = { showPasswordDialog = false },
+                containerColor   = AppColors.Champagne,               //- Color Champagne para el fondo del diálogo
                 confirmButton = {
-                    TextButton(
+                    AnimatedButton(
                         onClick = {
                             if (contrasenyaNueva.isBlank() || contrasenyaNueva.length < 8) {
                                 contrasenyaNueva = ""
@@ -143,44 +304,37 @@ class Settings : Screen {
                                 if (contrasenyaNueva.equals(confirmarContrasenya)) {
                                     UserManager.setContrasenya(contrasenyaNueva)
                                     showPasswordDialog = false
-                                } else {
-
                                 }
                             }
                         }
-                    ) {
-                        Text("Confirmar")
-                    }
+                    ) { Text("Confirmar") }
                 },
                 dismissButton = {
-                    TextButton(
+                    AnimatedButton(
                         onClick = { showPasswordDialog = false }
-                    ) {
-                        Text("Cancelar")
-                    }
+                    ) { Text("Cancelar") }
                 },
                 title = { Text("Cambiar Contraseña") },
-
                 text = {
                     Column {
                         Row {
                             OutlinedTextField(
-                                value = contrasenyaNueva,
+                                value         = contrasenyaNueva,
                                 onValueChange = { contrasenyaNueva = it },
-                                label = { Text("Nueva Contraseña") },
-                                singleLine = true,
-                                modifier = Modifier
+                                label         = { Text("Nueva Contraseña") },
+                                singleLine    = true,
+                                modifier      = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 30.dp)
                             )
                         }
                         Row {
                             OutlinedTextField(
-                                value = confirmarContrasenya,
+                                value         = confirmarContrasenya,
                                 onValueChange = { confirmarContrasenya = it },
-                                label = { Text("Confirmar Contraseña") },
-                                singleLine = true,
-                                modifier = Modifier
+                                label         = { Text("Confirmar Contraseña") },
+                                singleLine    = true,
+                                modifier      = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 30.dp)
                             )
@@ -194,8 +348,9 @@ class Settings : Screen {
         if (showFedDialog) {
             AlertDialog(
                 onDismissRequest = { showFedDialog = false },
+                containerColor   = AppColors.Champagne,               //- Color Champagne para el fondo del diálogo
                 confirmButton = {
-                    TextButton(
+                    AnimatedButton(
                         onClick = {
                             if (!numFedNuevo.all { it.isDigit() }) {
                                 numFedNuevo = "Solo se aceptan números."
@@ -204,25 +359,21 @@ class Settings : Screen {
                                 showFedDialog = false
                             }
                         }
-                    ) {
-                        Text("Confirmar")
-                    }
+                    ) { Text("Confirmar") }
                 },
                 dismissButton = {
-                    TextButton(
+                    AnimatedButton(
                         onClick = { showFedDialog = false }
-                    ) {
-                        Text("Cancelar")
-                    }
+                    ) { Text("Cancelar") }
                 },
                 title = { Text("Cambiar número federado") },
                 text = {
                     OutlinedTextField(
-                        value = numFedNuevo,
+                        value         = numFedNuevo,
                         onValueChange = { numFedNuevo = it },
-                        label = { Text("Numero de federado") },
-                        singleLine = true,
-                        modifier = Modifier
+                        label         = { Text("Numero de federado") },
+                        singleLine    = true,
+                        modifier      = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 30.dp)
                     )
@@ -238,159 +389,128 @@ class Settings : Screen {
                     UserManager.setFechaNac(fecNacNuevo)
                     showFecNacDialog = false
                 },
-                onDismiss = {
-                    showFecNacDialog = false
-                }
+                onDismiss = { showFecNacDialog = false }
             )
         }
 
-        //- Codigo UI
-            Box(modifier = Modifier.fillMaxSize()) {
-                Column(
-                    modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                        .padding(18.dp)
-                        .fillMaxSize(),
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    profileBar(navigator)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "AJUSTES DE CUENTA",
-                        style = MaterialTheme.typography.titleLarge
-                    )
+        //- Código UI
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(18.dp)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                profileBar(navigator)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text  = "AJUSTES DE CUENTA",
+                    style = MaterialTheme.typography.titleLarge
+                )
 
-                    Text(text = "Correo actual = " + (UserManager.correo.value ?: ""))
-                    Spacer(modifier = Modifier.height(8.dp))
+                Text(text = "Correo actual = " + (UserManager.correo.value ?: ""))
+                Spacer(modifier = Modifier.height(8.dp))
 
+                Row {
+                    AnimatedButton(
+                        onClick  = { showPasswordDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Cambiar contraseña") }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row {
+                    AnimatedButton(
+                        onClick  = { showEmailDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Cambiar Correo") }
+                }
+
+                Spacer(modifier = Modifier.height(50.dp))
+
+                if (UserManager.numFederado.value != null) {
+                    Row { Text("Núm. Federado: " + UserManager.numFederado.value.toString()) }
+                } else {
                     Row {
-                        Button(
-                            onClick = { showPasswordDialog = true },
+                        AnimatedButton(
+                            onClick  = { showFedDialog = true },
                             modifier = Modifier.fillMaxWidth()
-                        ) { Text("Cambiar contraseña") }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row {
-                        Button(
-                            onClick = { showEmailDialog = true },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text("Cambiar Correo") }
-                    }
-                    Spacer(modifier = Modifier.height(50.dp))
-
-                    if (UserManager.numFederado.value != null) {
-                        Row {
-                            Text("Núm. Federado: " + UserManager.numFederado.value.toString())
-                        }
-                    } else {
-                        Row {
-                            Button(
-                                onClick = {
-                                    showFedDialog = true
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Asignar número federado")
-                            }
-                        }
-                    }
-
-                    if (UserManager.numFederado.value != null) {
-                        Row {
-                            Text("Asociaciones: " + UserManager.asociaciones.value)
-                        }
-                    } else {
-                        Row {
-                            Button(
-                                onClick = {
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Asignar asociciacion")
-                            }
-                        }
-                    }
-                    Row {
-                        Text("Asociaciones: " + UserManager.asociaciones.value)
-                    }
-
-                    if (UserManager.nombre.value != null) {
-                        Row {
-                            Text("Nombre: " + UserManager.nombre.value)
-                        }
-                    } else {
-                        Row {
-                            Button(
-                                onClick = {
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Asignar nombre")
-                            }
-                        }
-                    }
-
-                    if (UserManager.fecNac.value != null) {
-                        Row {
-                            Text("Fecha Nacimiento: " + UserManager.fecNac.value)
-                        }
-                    } else {
-                        Row {
-                            Button(
-                                onClick = {
-                                    showFecNacDialog = true
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Asignar fecha nacimiento")
-                            }
-                        }
-                    }
-
-                    if (UserManager.genero.value != null) {
-                        Row {
-                            Text("Genero: " + UserManager.genero.value)
-                        }
-                    } else {
-                        Row {
-                            Button(
-                                onClick = {
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Asignar genero")
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(50.dp))
-
-                    Row {
-                        Button(
-                            onClick = {
-                                limpiarManagers()
-                                navigator.push(Login())
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Cerrar Sesión")
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row {
-                        Button(
-                            onClick = { showConfirmationDialog = true },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text("Dar la cuenta de baja") }
+                        ) { Text("Asignar número federado") }
                     }
                 }
-                Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
-                    buttonBar(Modifier, navigator)
+
+                if (UserManager.numFederado.value != null) {
+                    Row { Text("Asociaciones: " + UserManager.asociaciones.value) }
+                } else {
+                    Row {
+                        AnimatedButton(
+                            onClick  = { showAsociacionDialog = true },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Asignar asociación") }
+                    }
+                }
+
+                Row { Text("Asociaciones: " + UserManager.asociaciones.value) }
+
+                if (UserManager.nombre.value != null) {
+                    Row { Text("Nombre: " + UserManager.nombre.value) }
+                } else {
+                    Row {
+                        AnimatedButton(
+                            onClick  = { showNameDialog = true },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Asignar nombre") }
+                    }
+                }
+
+                if (UserManager.fecNac.value != null) {
+                    Row { Text("Fecha Nacimiento: " + UserManager.fecNac.value) }
+                } else {
+                    Row {
+                        AnimatedButton(
+                            onClick  = { showFecNacDialog = true },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Asignar fecha nacimiento") }
+                    }
+                }
+
+                if (UserManager.genero.value != null) {
+                    Row { Text("Genero: " + UserManager.genero.value) }
+                } else {
+                    Row {
+                        AnimatedButton(
+                            onClick  = { showSexDialog = true },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Asignar genero") }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(50.dp))
+
+                Row {
+                    AnimatedButton(
+                        onClick  = {
+                            limpiarManagers()
+                            navigator.push(Login())
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Cerrar Sesión") }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row {
+                    AnimatedButton(
+                        onClick  = { showConfirmationDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Dar la cuenta de baja") }
                 }
             }
+            Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
+                buttonBar(Modifier, navigator)
+            }
         }
-
+    }
 }

@@ -40,7 +40,7 @@ fun TiradaDialog(
                 Surface(
                     modifier = Modifier.fillMaxWidth(0.85f),
                     shape = RoundedCornerShape(16.dp),
-                    color = AppColors.Champagne,                     //- Color Mauve para el fondo del dialog
+                    color = AppColors.Champagne,                     //- Color Champange para el fondo del dialog
                     tonalElevation = 4.dp
                 ) {
                     DialogContent(

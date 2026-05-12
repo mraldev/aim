@@ -284,7 +284,6 @@ class Login : Screen {
 
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(horizontal = 30.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -394,7 +393,7 @@ class Login : Screen {
                         navigator.push(Home())
 
                     } else {
-                        function("Contraseña incorrecta.")
+                        function("Usuario o contraseña incorrectos.")
                     }
                 } catch (exception: ExcepcionContrasenyaIncorrecta) {
                     function(exception.message ?: "Error de contraseña")
