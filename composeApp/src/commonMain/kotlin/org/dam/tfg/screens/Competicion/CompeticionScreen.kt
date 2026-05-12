@@ -3,8 +3,10 @@ package org.dam.tfg.screens.competicion
 import androidx.compose.runtime.*
 import org.dam.tfg.enums.UserRole
 import cafe.adriel.voyager.core.screen.Screen
+import kotlinx.coroutines.launch
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.model.competiciones.Liga
+import org.dam.tfg.repository.LigaRepository
 import org.dam.tfg.screens.Competicion.AccionesCompeticion
 
 internal sealed class NavState {
@@ -24,6 +26,8 @@ class CompeticionScreen(
 
         //val userRole = UserManager.roles.value!! //? tiene el !! porque ya se ha validado en button bar que tuviera la sesión iniciada
         val asociacionesUsuario = UserManager.asociaciones.value //? igual que la anterior
+
+        val scope = rememberCoroutineScope()
 
         //TODO IMPORTANTE cambiar todas las referencias del correo a nombre (comprobando que esté federado primero.
         //es importante pero no corre prisa hacerlo
@@ -63,8 +67,10 @@ class CompeticionScreen(
             is NavState.Formulario -> FormularioCompeticion(
                 competicion = state.comp,
                 onGuardar = {
-                    AccionesCompeticion.onGuardarCompeticion?.invoke(it)
-                    nav = NavState.Lista
+                    scope.launch {
+                        LigaRepository().registrar(it)
+                        nav = NavState.Lista
+                    }
                 },
                 onCancelar = { nav = NavState.Lista }
             )

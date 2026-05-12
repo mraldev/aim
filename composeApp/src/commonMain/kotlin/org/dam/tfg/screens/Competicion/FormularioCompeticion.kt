@@ -24,12 +24,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.dto.FederadoTiradaDto
+import org.dam.tfg.model.competiciones.LigaEnviar
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
 @Composable
 internal fun FormularioCompeticion(
     competicion: Liga?,
-    onGuardar: (Liga) -> Unit,
+    onGuardar: (LigaEnviar) -> Unit,
     onCancelar: () -> Unit
 ) {
     // Al editar intentamos leer la primera tirada como referencia de configuración
@@ -41,12 +42,10 @@ internal fun FormularioCompeticion(
             ?.firstOrNull()
     }
 
-    var nombre by remember { mutableStateOf(tiradaRef?.usuario?.correo.orEmpty()) }
-    var numDianas by remember { mutableStateOf(tiradaRef?.numDianas?.toString().orEmpty()) }
-    var numFlechas by remember { mutableStateOf(tiradaRef?.numMaxFlechasPorDiana ?: 1) }
+    var nombre by remember { mutableStateOf(competicion?.nombreLiga) }
     var fecha by remember { mutableStateOf(competicion?.fecha) }
-    var asocSelec by remember { mutableStateOf<Asociacion?>(tiradaRef?.asociacion) }
-    var circuitoSelec by remember { mutableStateOf<TipoCircuito?>(tiradaRef?.tipoCircuito) }
+    var asocSelec by remember { mutableStateOf<Asociacion?>(competicion?.asociacion) }
+    var circuitoSelec by remember { mutableStateOf<TipoCircuito?>(competicion?.tipoCircuito) }
 
     var asocExpanded by remember { mutableStateOf(false) }
     var circuitoExpanded by remember { mutableStateOf(false) }
@@ -113,7 +112,7 @@ internal fun FormularioCompeticion(
 
         // Nombre
         OutlinedTextField(
-            value = nombre,
+            value = nombre ?: "",
             onValueChange = { if (editEnabled) nombre = it },
             label = { Text("Nombre de la competición") },
             singleLine = true,
@@ -250,17 +249,14 @@ internal fun FormularioCompeticion(
 
         // Guardar
         if (editEnabled) {
-            val canSave = nombre.isNotBlank()
-                    && numDianas.isNotBlank()
-                    && asocSelec != null
+            val canSave = asocSelec != null
                     && circuitoSelec != null
                     && participantes.isNotEmpty()
                     && fecha != null
 
             Button(
                 onClick = {
-                    val ligaGuardar = Liga(
-                        emptyList(),
+                    val ligaGuardar = LigaEnviar(
                         participantes.map { competidorId ->
                             FederadoTiradaDto(
                                 //? Para registrar la liga, nos sirve con no ponerle correo
@@ -268,9 +264,11 @@ internal fun FormularioCompeticion(
                                 competidorId
                             )
                         },
-                        nombre,
+                        asocSelec ?: Asociacion.IFAA,
+                        circuitoSelec ?: TipoCircuito.STANDARD,
+                        nombre ?: "prueba",
                         fecha!!,
-                        UserManager.numFederado.value!!
+                        902
                         //! Como solo se puede acceder a esta pantalla siendo admin, se pre supone que haya valor en numFederado
                     )
 
