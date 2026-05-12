@@ -40,7 +40,7 @@ internal fun ListaCompeticiones(
     var soloPropias by remember { mutableStateOf(false) }
     var mostrarFecha by remember { mutableStateOf(false) }
 
-    val listaBase = if (userRole == UserRole.ADMIN || userRole == UserRole.SUPER_ADMIN)
+    val listaBase = if (userRole == UserRole.ADMIN)
         competiciones.filter { asociacionesUsuario.containsValue(it.administradorId) }
     else
         competiciones
@@ -58,7 +58,7 @@ internal fun ListaCompeticiones(
 
     Scaffold(
         floatingActionButton = {
-            if (userRole == UserRole.ADMIN || userRole == UserRole.SUPER_ADMIN) {
+            if (userRole == UserRole.ADMIN) {
                 FloatingActionButton(onClick = onAñadir) {
                     Icon(Icons.Default.Add, contentDescription = "Añadir competición")
                 }

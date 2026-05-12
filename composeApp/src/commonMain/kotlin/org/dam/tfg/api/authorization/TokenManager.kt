@@ -9,6 +9,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import org.dam.tfg.crypto.CredentialStore
+import org.dam.tfg.repository.HealthCheckRepository
 import org.dam.tfg.repository.LoginRepository
 import kotlin.time.Clock
 
@@ -42,9 +43,12 @@ object TokenManager {
         if (!sessionValid) {
             val creds = CredentialStore.load()
             if (creds != null) {
-                val success = LoginRepository().login(creds.correo, creds.contrasenya)
-                if (success) {
-                    return true
+
+                if (HealthCheckRepository().isServerActive()){
+                    val success = LoginRepository().login(creds.correo, creds.contrasenya)
+                    if (success) {
+                        return true
+                    }
                 }
             }
         }

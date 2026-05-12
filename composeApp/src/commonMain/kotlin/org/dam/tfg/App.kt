@@ -12,6 +12,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.dam.tfg.crypto.CredentialStore
+import org.dam.tfg.repository.HealthCheckRepository
 import org.dam.tfg.repository.LoginRepository
 import org.dam.tfg.screens.Home
 
@@ -22,7 +23,8 @@ fun App() {
     LaunchedEffect(Unit) {
         val creds = CredentialStore.load()
         if (creds != null) {
-            LoginRepository().login(creds.correo, creds.contrasenya)
+            if (HealthCheckRepository().isServerActive())
+                LoginRepository().login(creds.correo, creds.contrasenya)
         }
         listoParaMostrar = true
     }
