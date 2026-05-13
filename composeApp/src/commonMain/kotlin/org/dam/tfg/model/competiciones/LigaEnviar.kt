@@ -8,11 +8,11 @@ import org.dam.tfg.enums.TipoCircuito
 
 @Serializable
 data class LigaEnviar (
-    val competidores: List<FederadoTiradaDto>,
+    val participantes: List<FederadoTiradaDto>,
     val asociacion: Asociacion,
     val tipoCircuito: TipoCircuito,
     val nombreLiga: String,
     val fecha: LocalDate,
-    val administradorId: Int
+    val adminId: Int
 ){
 }

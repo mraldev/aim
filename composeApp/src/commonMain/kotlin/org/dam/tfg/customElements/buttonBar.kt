@@ -188,8 +188,7 @@ fun buttonBar(
                         nav.push(
                             CompeticionScreen(
                                 userRole = UserManager.roles.value,
-                                asociacionesUsuario = userId,
-                                competiciones = emptyList()
+                                asociacionesUsuario = userId
                             )
                         )
                     }

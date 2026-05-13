@@ -65,6 +65,10 @@ class VerificacionUsuario {
                     response.body<FederadoResponse>()
                 }
 
+                UserRole.ADMIN -> {
+                    response.body<FederadoResponse>()
+                }
+
                 else -> {
                     response.body<UsuarioResponse>()
                 }

@@ -18,6 +18,7 @@ import org.dam.tfg.enums.Asociacion
 import org.dam.tfg.enums.TipoCircuito
 import org.dam.tfg.enums.UserRole
 import org.dam.tfg.customElements.buttonBar
+import org.dam.tfg.dto.LigaPreview
 import org.dam.tfg.model.competiciones.Liga
 import org.dam.tfg.screens.Historial.DatePicker
 
@@ -26,8 +27,8 @@ import org.dam.tfg.screens.Historial.DatePicker
 internal fun ListaCompeticiones(
     userRole: UserRole?,
     asociacionesUsuario: Map<Asociacion, Int>, //? el número de federado de las distintas asociaciones
-    competiciones: List<Liga>,
-    onSelect: (Liga) -> Unit,
+    competiciones: List<LigaPreview>,
+    onSelect: (LigaPreview) -> Unit,
     onAñadir: () -> Unit
 ) {
     val nav = LocalNavigator.currentOrThrow
@@ -48,12 +49,12 @@ internal fun ListaCompeticiones(
 
     val listaFiltrada = listaBase.filter { comp ->
         (busquedaPorNombre.isBlank() || comp.nombreLiga.contains(busquedaPorNombre, ignoreCase = true)) &&
-                (asocSelec == null || comp.sesionesCompetidas[0].tiradasCompetitivas[0].asociacion == asocSelec) &&
+                (asocSelec == null || comp.asociacion == asocSelec) &&
                 //Se filtra por el índice 0 ya que es el mismo para todos, además siempre va a haber al menos 1
-                (circuitoSelec == null || comp.sesionesCompetidas[0].tiradasCompetitivas[0].tipoCircuito == circuitoSelec) &&
+                (circuitoSelec == null || comp.tipoCircuito == circuitoSelec) &&
                 (fechaSelec == null || comp.fecha == fechaSelec) &&
-                (!soloPropias || asociacionesUsuario.values.any {
-                    it == comp.sesionesCompetidas[0].tiradasCompetitivas[0].usuario.numFederado
+                (!soloPropias || comp.competidores.any { competidor ->
+                    competidor.numFederado in asociacionesUsuario.values
                 })
     }
 
@@ -210,15 +211,14 @@ internal fun ListaCompeticiones(
 }
 
 @Composable
-internal fun CompeticionCard(comp: Liga, onClick: () -> Unit) {
+internal fun CompeticionCard(comp: LigaPreview, onClick: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(modifier = Modifier.padding(16.dp)) {
-            comp.sesionesCompetidas[0].tiradasCompetitivas[0].usuario.correo?.let {
-                Text(it, style = MaterialTheme.typography.titleMedium)
-            }
+            Text(comp.nombreLiga, style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(4.dp))
+
             Text(
-                "${comp.sesionesCompetidas[0].tiradasCompetitivas[0].asociacion.label}  •  ${comp.sesionesCompetidas[0].tiradasCompetitivas[0].tipoCircuito.label}  •  ${comp.fecha}",
+                "${comp.asociacion.label}  •  ${comp.tipoCircuito.label}  •  ${comp.fecha}",
                 style = MaterialTheme.typography.bodySmall
             )
             /*

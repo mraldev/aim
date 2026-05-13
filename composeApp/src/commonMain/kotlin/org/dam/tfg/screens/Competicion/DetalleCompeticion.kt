@@ -16,17 +16,23 @@ import org.dam.tfg.model.competiciones.Liga
 
 @Composable
 internal fun DetalleCompeticion(
-    competicion: Liga,
-    userRole: UserRole?,
-    userId: String,
-    onBack: () -> Unit,
-    onParticipar: () -> Unit,
-    onDejarParticipar: () -> Unit,
-    onEditar: () -> Unit,
-    onCancelarCompeticion: () -> Unit,
-    onEliminarParticipante: (String) -> Unit,
-    onApuntarTirada: (Int, Int, List<String>) -> Unit
-) {
+    competicion: org.dam.tfg.dto.LigaPreview,
+    userRole: org.dam.tfg.enums.UserRole?,
+    userId: kotlin.String,
+    onBack: () -> kotlin.Unit,
+    onParticipar: () -> kotlin.Unit,
+    onDejarParticipar: () -> kotlin.Unit,
+    onEditar: () -> kotlin.Unit,
+    onCancelarCompeticion: () -> kotlin.Unit,
+    onEliminarParticipante: (kotlin.String) -> kotlin.Unit,
+    onApuntarTirada: (kotlin.Int, kotlin.Int, kotlin.collections.List<kotlin.String>) -> kotlin.Unit
+)
+{
+    println("detalles")
+}
+/*
+{
+
     val esParticipante = competicion.sesionesCompetidas.any { sesion ->
         sesion.tiradasCompetitivas.any { tirada ->
             tirada.usuario.correo == userId
@@ -180,7 +186,7 @@ internal fun DetalleCompeticion(
         )
     }
 }
-
+*/
 @Composable
 internal fun InfoRow(label: String, value: String) {
     Row(

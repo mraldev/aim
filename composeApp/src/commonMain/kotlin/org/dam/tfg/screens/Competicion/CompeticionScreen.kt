@@ -5,37 +5,46 @@ import org.dam.tfg.enums.UserRole
 import cafe.adriel.voyager.core.screen.Screen
 import kotlinx.coroutines.launch
 import org.dam.tfg.api.managers.UserManager
-import org.dam.tfg.model.competiciones.Liga
+import org.dam.tfg.dto.LigaPreview
 import org.dam.tfg.repository.LigaRepository
 import org.dam.tfg.screens.Competicion.AccionesCompeticion
 
 internal sealed class NavState {
     object Lista : NavState()
-    data class Detalle(val comp: Liga) : NavState()
-    data class Formulario(val comp: Liga?) : NavState()
+    data class Detalle(val comp: LigaPreview) : NavState()
+    data class Formulario(val comp: LigaPreview?) : NavState()
 }
 
 class CompeticionScreen(
     val userRole: UserRole?,
-    val asociacionesUsuario: String,
-    val competiciones: List<Liga>, //! Se debe buscar en la API en buttonBar
+    val asociacionesUsuario: String
 ) : Screen {
     @Composable
     override fun Content() {
+
+        val ligaRepository = LigaRepository()
+        var competiciones by remember { mutableStateOf<List<LigaPreview>>(emptyList()) }
+
+        LaunchedEffect(Unit) {
+            competiciones = ligaRepository.getCompeticiones()
+        }
+
         var nav by remember { mutableStateOf<NavState>(NavState.Lista) }
 
-        //val userRole = UserManager.roles.value!! //? tiene el !! porque ya se ha validado en button bar que tuviera la sesión iniciada
+        val userRole = UserManager.roles.value!! //? tiene el !! porque ya se ha validado en button bar que tuviera la sesión iniciada
         val asociacionesUsuario = UserManager.asociaciones.value //? igual que la anterior
 
         val scope = rememberCoroutineScope()
+
+        //println(competiciones)
+        //println(competiciones[0].administradorId)
 
         //TODO IMPORTANTE cambiar todas las referencias del correo a nombre (comprobando que esté federado primero.
         //es importante pero no corre prisa hacerlo
 
         when (val state = nav) {
             is NavState.Lista -> ListaCompeticiones(
-                //? Si ha llegado hasta aquí, se presupone que hay valor en userRole
-                userRole = userRole!!,
+                userRole = userRole,
                 asociacionesUsuario = asociacionesUsuario,
                 competiciones = competiciones,
                 onSelect = { nav = NavState.Detalle(it) },
@@ -66,14 +75,20 @@ class CompeticionScreen(
             )
             is NavState.Formulario -> FormularioCompeticion(
                 competicion = state.comp,
-                onGuardar = {
+                onGuardar = { ligaEnviar ->
                     scope.launch {
-                        LigaRepository().registrar(it)
-                        nav = NavState.Lista
+                        try {
+                            LigaRepository().registrar(ligaEnviar)
+                            nav = NavState.Lista
+                        } catch (e: Exception) {
+                            println("ERROR en registrar: ${e::class.simpleName} - ${e.message}")
+                            e.printStackTrace()
+                        }
                     }
                 },
                 onCancelar = { nav = NavState.Lista }
             )
+
         }
     }
 }
