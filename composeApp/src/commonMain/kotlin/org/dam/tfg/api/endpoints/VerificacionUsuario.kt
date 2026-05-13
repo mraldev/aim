@@ -1,6 +1,5 @@
 package org.dam.tfg.api.endpoints
 
-import androidx.compose.ui.semantics.Role
 import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -61,7 +60,7 @@ class VerificacionUsuario {
 
             val check = response.body<LogInCheckRole>()
 
-            val body: LogInResponse = when (check.userRole) {
+            val body: LogInResponse = when (check.rol) {
                 UserRole.FEDERADO -> {
                     response.body<FederadoResponse>()
                 }
