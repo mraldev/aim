@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -62,6 +64,19 @@ class Settings : Screen {
             )
         }
 
+        //- Colores reutilizables para los botones de los dialogs
+        val confirmContainerColor = AppColors.Amethyst
+        val confirmTextColor      = Color.White
+        val confirmBorderColor    = AppColors.Lavender
+        val dismissContainerColor = Color.Transparent
+        val dismissBorderColor    = Color.Transparent
+
+        //- Colores reutilizables para OutlinedTextField/dropdown con borde Lavender
+        val lavenderFieldColors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor   = AppColors.Lavender,
+            unfocusedBorderColor = AppColors.Lavender
+        )
+
         val navigator = LocalNavigator.currentOrThrow
 
         var showEmailDialog        by remember { mutableStateOf(false) }
@@ -78,7 +93,7 @@ class Settings : Screen {
         var expandedGenero       by remember { mutableStateOf(false) }
         var expandedAsociacion   by remember { mutableStateOf(false) }
 
-        var contrasenyaNueva    by remember { mutableStateOf("") }
+        var contrasenyaNueva     by remember { mutableStateOf("") }
         var confirmarContrasenya by remember { mutableStateOf("") }
         var correoNuevo          by remember { mutableStateOf("") }
         var numFedNuevo          by remember { mutableStateOf("") }
@@ -106,22 +121,27 @@ class Settings : Screen {
         if (showEmailDialog) {
             AlertDialog(
                 onDismissRequest = { showEmailDialog = false },
-                containerColor   = AppColors.Champagne,               //- Color Champagne para el fondo del diálogo
+                containerColor   = AppColors.Champagne,
                 confirmButton = {
                     AnimatedButton(
-                        onClick = {
+                        onClick         = {
                             if (correoNuevo.isBlank() || !regex.matches(correoNuevo)) {
                                 correoNuevo = ""
                             } else {
                                 UserManager.setCorreo(correoNuevo)
                                 showEmailDialog = false
                             }
-                        }
+                        },
+                        containerColor  = confirmContainerColor,
+                        textColor       = confirmTextColor,
+                        borderColor     = confirmBorderColor
                     ) { Text("Confirmar") }
                 },
                 dismissButton = {
                     AnimatedButton(
-                        onClick = { showEmailDialog = false }
+                        onClick        = { showEmailDialog = false },
+                        containerColor = dismissContainerColor,
+                        borderColor    = dismissBorderColor
                     ) { Text("Cancelar") }
                 },
                 title = { Text("Cambiar Email") },
@@ -131,6 +151,7 @@ class Settings : Screen {
                         onValueChange = { correoNuevo = it },
                         label         = { Text("Nuevo Email") },
                         singleLine    = true,
+                        colors        = lavenderFieldColors,
                         modifier      = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 30.dp)
@@ -143,20 +164,25 @@ class Settings : Screen {
         if (showNameDialog) {
             AlertDialog(
                 onDismissRequest = { showNameDialog = false },
-                containerColor   = AppColors.Champagne,                    //- Color Champagne para el fondo del diálogo
+                containerColor   = AppColors.Champagne,
                 confirmButton = {
                     AnimatedButton(
-                        onClick = {
+                        onClick         = {
                             if (nombreNuevo.isNotBlank()) {
                                 UserManager.setNombre(nombreNuevo)
                                 showNameDialog = false
                             }
-                        }
+                        },
+                        containerColor  = confirmContainerColor,
+                        textColor       = confirmTextColor,
+                        borderColor     = confirmBorderColor
                     ) { Text("Confirmar") }
                 },
                 dismissButton = {
                     AnimatedButton(
-                        onClick = { showNameDialog = false }
+                        onClick        = { showNameDialog = false },
+                        containerColor = dismissContainerColor,
+                        borderColor    = dismissBorderColor
                     ) { Text("Cancelar") }
                 },
                 title = { Text("Asignar Nombre") },
@@ -166,6 +192,7 @@ class Settings : Screen {
                         onValueChange = { nombreNuevo = it },
                         label         = { Text("Nombre") },
                         singleLine    = true,
+                        colors        = lavenderFieldColors,
                         modifier      = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 30.dp)
@@ -178,37 +205,43 @@ class Settings : Screen {
         if (showSexDialog) {
             AlertDialog(
                 onDismissRequest = { showSexDialog = false },
-                containerColor   = AppColors.Champagne,                    //- Color Champagne para el fondo del diálogo
+                containerColor   = AppColors.Champagne,
                 confirmButton = {
                     AnimatedButton(
-                        onClick = {
+                        onClick         = {
                             if (generoNuevo != null) {
                                 UserManager.setGenero(generoNuevo)
                                 showSexDialog = false
                             }
-                        }
+                        },
+                        containerColor  = confirmContainerColor,
+                        textColor       = confirmTextColor,
+                        borderColor     = confirmBorderColor
                     ) { Text("Confirmar") }
                 },
                 dismissButton = {
                     AnimatedButton(
-                        onClick = { showSexDialog = false }
+                        onClick        = { showSexDialog = false },
+                        containerColor = dismissContainerColor,
+                        borderColor    = dismissBorderColor
                     ) { Text("Cancelar") }
                 },
                 title = { Text("Seleccionar Género") },
                 text = {
                     ExposedDropdownMenuBox(
-                        expanded        = expandedGenero,
+                        expanded         = expandedGenero,
                         onExpandedChange = { expandedGenero = it },
-                        modifier        = Modifier
+                        modifier         = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 30.dp)
                     ) {
                         OutlinedTextField(
-                            value            = generoNuevo?.name ?: "Selecciona un género",
-                            onValueChange    = {},
-                            readOnly         = true,
-                            trailingIcon     = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedGenero) },
-                            modifier         = Modifier
+                            value         = generoNuevo?.name ?: "Selecciona un género",
+                            onValueChange = {},
+                            readOnly      = true,
+                            trailingIcon  = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedGenero) },
+                            colors        = lavenderFieldColors,
+                            modifier      = Modifier
                                 .menuAnchor()
                                 .fillMaxWidth()
                         )
@@ -235,20 +268,25 @@ class Settings : Screen {
         if (showAsociacionDialog) {
             AlertDialog(
                 onDismissRequest = { showAsociacionDialog = false },
-                containerColor   = AppColors.Champagne,                    //- Color Champagne para el fondo del diálogo
+                containerColor   = AppColors.Champagne,
                 confirmButton = {
                     AnimatedButton(
-                        onClick = {
+                        onClick         = {
                             if (asociacionNueva != null) {
                                 UserManager.setAsociacion(asociacionNueva!!, 1)
                                 showAsociacionDialog = false
                             }
-                        }
+                        },
+                        containerColor  = confirmContainerColor,
+                        textColor       = confirmTextColor,
+                        borderColor     = confirmBorderColor
                     ) { Text("Confirmar") }
                 },
                 dismissButton = {
                     AnimatedButton(
-                        onClick = { showAsociacionDialog = false }
+                        onClick        = { showAsociacionDialog = false },
+                        containerColor = dismissContainerColor,
+                        borderColor    = dismissBorderColor
                     ) { Text("Cancelar") }
                 },
                 title = { Text("Seleccionar Asociación") },
@@ -265,6 +303,7 @@ class Settings : Screen {
                             onValueChange = {},
                             readOnly      = true,
                             trailingIcon  = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedAsociacion) },
+                            colors        = lavenderFieldColors,
                             modifier      = Modifier
                                 .menuAnchor()
                                 .fillMaxWidth()
@@ -292,10 +331,10 @@ class Settings : Screen {
         if (showPasswordDialog) {
             AlertDialog(
                 onDismissRequest = { showPasswordDialog = false },
-                containerColor   = AppColors.Champagne,               //- Color Champagne para el fondo del diálogo
+                containerColor   = AppColors.Champagne,
                 confirmButton = {
                     AnimatedButton(
-                        onClick = {
+                        onClick         = {
                             if (contrasenyaNueva.isBlank() || contrasenyaNueva.length < 8) {
                                 contrasenyaNueva = ""
                             } else {
@@ -304,12 +343,17 @@ class Settings : Screen {
                                     showPasswordDialog = false
                                 }
                             }
-                        }
+                        },
+                        containerColor  = confirmContainerColor,
+                        textColor       = confirmTextColor,
+                        borderColor     = confirmBorderColor
                     ) { Text("Confirmar") }
                 },
                 dismissButton = {
                     AnimatedButton(
-                        onClick = { showPasswordDialog = false }
+                        onClick        = { showPasswordDialog = false },
+                        containerColor = dismissContainerColor,
+                        borderColor    = dismissBorderColor
                     ) { Text("Cancelar") }
                 },
                 title = { Text("Cambiar Contraseña") },
@@ -321,6 +365,7 @@ class Settings : Screen {
                                 onValueChange = { contrasenyaNueva = it },
                                 label         = { Text("Nueva Contraseña") },
                                 singleLine    = true,
+                                colors        = lavenderFieldColors,
                                 modifier      = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 30.dp)
@@ -332,6 +377,7 @@ class Settings : Screen {
                                 onValueChange = { confirmarContrasenya = it },
                                 label         = { Text("Confirmar Contraseña") },
                                 singleLine    = true,
+                                colors        = lavenderFieldColors,
                                 modifier      = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 30.dp)
@@ -346,22 +392,27 @@ class Settings : Screen {
         if (showFedDialog) {
             AlertDialog(
                 onDismissRequest = { showFedDialog = false },
-                containerColor   = AppColors.Champagne,               //- Color Champagne para el fondo del diálogo
+                containerColor   = AppColors.Champagne,
                 confirmButton = {
                     AnimatedButton(
-                        onClick = {
+                        onClick         = {
                             if (!numFedNuevo.all { it.isDigit() }) {
                                 numFedNuevo = "Solo se aceptan números."
                             } else {
                                 UserManager.setNumFed(numFedNuevo.toInt())
                                 showFedDialog = false
                             }
-                        }
+                        },
+                        containerColor  = confirmContainerColor,
+                        textColor       = confirmTextColor,
+                        borderColor     = confirmBorderColor
                     ) { Text("Confirmar") }
                 },
                 dismissButton = {
                     AnimatedButton(
-                        onClick = { showFedDialog = false }
+                        onClick        = { showFedDialog = false },
+                        containerColor = dismissContainerColor,
+                        borderColor    = dismissBorderColor
                     ) { Text("Cancelar") }
                 },
                 title = { Text("Cambiar número federado") },
@@ -371,6 +422,7 @@ class Settings : Screen {
                         onValueChange = { numFedNuevo = it },
                         label         = { Text("Numero de federado") },
                         singleLine    = true,
+                        colors        = lavenderFieldColors,
                         modifier      = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 30.dp)
