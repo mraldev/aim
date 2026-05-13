@@ -4,8 +4,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.LocalDate
 import org.dam.tfg.api.authorization.TokenManager
+import org.dam.tfg.api.responses.FederadoResponse
 import org.dam.tfg.api.responses.LogInResponse
-import org.dam.tfg.crypto.CredentialStore
+import org.dam.tfg.api.responses.UsuarioResponse
+import org.dam.tfg.dto.ClubBasicoDto
 import org.dam.tfg.enums.Asociacion
 import org.dam.tfg.enums.Genero
 import org.dam.tfg.enums.UserRole
@@ -37,6 +39,9 @@ object UserManager {
     private val _nombre = MutableStateFlow<String?>(null)
     val nombre: StateFlow<String?> get() = _nombre
 
+    private val _apellidos = MutableStateFlow<String?>(null)
+    val apellidos: StateFlow<String?> get() = _apellidos
+
     private val _numFederado = MutableStateFlow<Int?>(null)
     val numFederado: StateFlow<Int?> get() = _numFederado
 
@@ -48,6 +53,9 @@ object UserManager {
 
     private var _asociaciones = MutableStateFlow<Map<Asociacion, Int>>(emptyMap())
     val asociaciones: StateFlow<Map<Asociacion, Int>> get() = _asociaciones
+
+    private var _clubesBasico = MutableStateFlow< List<ClubBasicoDto>>(emptyList())
+    val clubesBasico: StateFlow<List<ClubBasicoDto>> get() = _clubesBasico
 
     fun setCorreo(nuevoCorreo: String?) {
         _correo.value = nuevoCorreo
@@ -69,7 +77,7 @@ object UserManager {
         _roles.value = nuevoRol
     }
 
-    fun setFechaNac(nuevaFecha: LocalDate?) {
+    fun setFechaNacimiento(nuevaFecha: LocalDate?) {
         _fecNac.value = nuevaFecha
     }
 
@@ -81,8 +89,12 @@ object UserManager {
         _genero.value = genero
     }
 
-    fun setName(name : String?){
+    fun setNombre(name : String?){
         _nombre.value = name
+    }
+
+    fun setApellidos(apellidos : String?){
+        _apellidos.value = apellidos
     }
 
     fun setNumFed(num : Int?){
@@ -101,6 +113,14 @@ object UserManager {
         }
     }
 
+    fun setAsociaciones(asociaciones: Map<Asociacion, Int>){
+        _asociaciones.value = asociaciones
+    }
+
+    fun setClubesBasico(clubesBasico: List<ClubBasicoDto>){
+        _clubesBasico.value = clubesBasico
+    }
+
     fun clear(){
         _correo.value = null;
         _roles.value = null;
@@ -109,14 +129,33 @@ object UserManager {
         _fechaAlta.value = null;
         _asociaciones.value = emptyMap<Asociacion, Int>();
         _correoVerificado.value = null;
+        _genero.value = null;
+        _asociaciones.value = emptyMap<Asociacion, Int>();
+        _clubesBasico.value = emptyList<ClubBasicoDto>()
     }
 
     fun asignarValoresDesdeLogInResponse(body: LogInResponse){
-        TokenManager.setToken(body.token)
-        UserManager.setFechaAlta(body.fechaAlta)
-        UserManager.setRoles(body.rol)
-        UserManager.setDescripcion(body.descripcion)
-        UserManager.setCorreoVerificado(body.correoVerificado)
-        CredentialStore.clear()
+        when (body){
+            is UsuarioResponse -> {
+                TokenManager.setToken(body.token)
+                UserManager.setFechaAlta(body.fechaAlta)
+                UserManager.setRoles(body.rol)
+                UserManager.setDescripcion(body.descripcion)
+                UserManager.setCorreoVerificado(body.correoVerificado)
+            }
+            is FederadoResponse -> {
+                TokenManager.setToken(body.token)
+                UserManager.setFechaAlta(body.fechaAlta)
+                UserManager.setRoles(body.rol)
+                UserManager.setDescripcion(body.descripcion)
+                UserManager.setCorreoVerificado(body.correoVerificado)
+                UserManager.setAsociaciones(body.asociaciones)
+                UserManager.setNombre(body.nombre)
+                UserManager.setApellidos(body.apellidos)
+                UserManager.setFechaNacimiento(body.fechaNacimiento)
+                UserManager.setGenero(body.genero)
+                UserManager.setClubesBasico(body.clubes)
+            }
+        }
     }
 }

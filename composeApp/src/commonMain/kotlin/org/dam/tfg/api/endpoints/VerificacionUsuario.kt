@@ -1,5 +1,6 @@
 package org.dam.tfg.api.endpoints
 
+import androidx.compose.ui.semantics.Role
 import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -9,16 +10,20 @@ import org.dam.tfg.api.ApiClient
 import org.dam.tfg.api.ApiConfig
 import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.api.responses.FederadoResponse
+import org.dam.tfg.api.responses.LogInCheckRole
 import org.dam.tfg.api.responses.LogInResponse
+import org.dam.tfg.api.responses.UsuarioResponse
 import org.dam.tfg.api.responses.RegisterResponse
 import org.dam.tfg.api.responses.ResponseHelper
-import org.dam.tfg.crypto.CredentialStore
+import org.dam.tfg.enums.UserRole
 
 class VerificacionUsuario {
 
     /**
-     * Función de LogIn, simple. Deja almacenado en memoria (y en futuras actualizaciones, cifrado con persistencia)
-     * el correo y la contraseña
+     * Función de LogIn. Deja almacenado en memoria (y en futuras actualizaciones, cifrado con persistencia)
+     * el correo y la contraseña. Hace LogIn automáticamente en usuario federado admin o superadmin depende del correo
+     * que se le haya pasado 
      *
      * @param correo correo del usuario
      * @param contrasenya contraseña del usuario. El día de mañana se pasará directamente encriptada,
@@ -54,11 +59,22 @@ class VerificacionUsuario {
 
             val exito = ResponseHelper.validarResponse(response)
 
-            val body = response.body<LogInResponse>()
+            val check = response.body<LogInCheckRole>()
+
+            val body: LogInResponse = when (check.userRole) {
+                UserRole.FEDERADO -> {
+                    response.body<FederadoResponse>()
+                }
+
+                else -> {
+                    response.body<UsuarioResponse>()
+                }
+            }
 
             TokenManager.setToken(body.token)
             UserManager.setCorreo(correo)
             UserManager.setContrasenya(contrasenya)
+
             UserManager.asignarValoresDesdeLogInResponse(body)
 
             return exito
