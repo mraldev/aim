@@ -25,6 +25,7 @@ import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.dto.FederadoTiradaDto
 import org.dam.tfg.model.competiciones.LigaEnviar
+import org.dam.tfg.screens.Historial.DatePicker
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
 @Composable
@@ -283,9 +284,14 @@ internal fun FormularioCompeticion(
     }
 
     if (mostrarFecha) {
-        CompeticionDatePicker(
-            onDateSelected = { fecha = it; mostrarFecha = false },
-            onDismiss = { mostrarFecha = false }
+        DatePicker(
+            onDateSelected = { date ->
+                fecha = date
+                mostrarFecha = false
+            },
+            onDismiss = {
+                mostrarFecha = false
+            }
         )
     }
 }

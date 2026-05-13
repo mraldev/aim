@@ -19,6 +19,7 @@ import org.dam.tfg.enums.TipoCircuito
 import org.dam.tfg.enums.UserRole
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.model.competiciones.Liga
+import org.dam.tfg.screens.Historial.DatePicker
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -201,7 +202,7 @@ internal fun ListaCompeticiones(
     }
 
     if (mostrarFecha) {
-        CompeticionDatePicker(
+        DatePicker(
             onDateSelected = { fechaSelec = it; mostrarFecha = false },
             onDismiss = { mostrarFecha = false }
         )
