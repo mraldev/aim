@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.dam.tfg.api.managers.SesionManager
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.buttonBar
 
@@ -40,6 +41,26 @@ class Home(): Screen {
                     .fillMaxSize()
             ) {
                 Spacer(modifier = Modifier.height(32.dp))
+                if (SesionManager.datosLiga.value != null) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(AppColors.Champagne)
+                            .border(
+                                border = BorderStroke(2.dp, AppColors.Lavender),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .padding(16.dp)
+                    ) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Actualmente estás participando en una competicion, finalizala para participar en otras competiciones",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(22.dp))
+                }
 
                 Column(
                     modifier = Modifier

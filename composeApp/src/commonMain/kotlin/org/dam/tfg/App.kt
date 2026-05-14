@@ -1,3 +1,5 @@
+import aim.composeapp.generated.resources.LogoTodo_sinFondo
+import aim.composeapp.generated.resources.Res
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -8,13 +10,15 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import cafe.adriel.voyager.navigator.LocalNavigator
+import androidx.compose.ui.layout.ContentScale
 import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import org.dam.tfg.crypto.CredentialStore
 import org.dam.tfg.repository.HealthCheckRepository
 import org.dam.tfg.repository.LoginRepository
 import org.dam.tfg.screens.Home
+import org.jetbrains.compose.resources.painterResource
+import androidx.compose.foundation.Image
+import androidx.compose.ui.draw.alpha
 
 @Composable
 fun App() {
@@ -39,6 +43,12 @@ fun App() {
                 .windowInsetsPadding(WindowInsets.safeDrawing)
                 .consumeWindowInsets(WindowInsets.safeDrawing)
         ) {
+            Image(
+                painter = painterResource(Res.drawable.LogoTodo_sinFondo),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize().alpha(0.3f),
+                contentScale = ContentScale.Fit
+            )
             Navigator(Home())
         }
     }

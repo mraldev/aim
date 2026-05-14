@@ -49,7 +49,7 @@ fun profileBar(navigator: Navigator = LocalNavigator.currentOrThrow) {
         Column {
                 UserManager.correo.value?.let {
                     Text(
-                        text = UserManager.correo.value.toString().split('@')[0],
+                        text = UserManager.nombre.value ?: UserManager.correo.value.toString().split("@")[0],
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
