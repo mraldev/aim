@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,8 +25,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +43,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalFocusManager
@@ -57,6 +59,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.crypto.CredentialStore
+import org.dam.tfg.customElements.AnimatedButton
 import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.exceptions.ExcepcionContrasenyaIncorrecta
 import org.dam.tfg.repository.HealthCheckRepository
@@ -120,6 +123,7 @@ class Login : Screen {
                 showMessage = false
             }
         }
+
         //? Centralizado el intento de registro con validación
         fun launchRegister() {
             scope.launch {
@@ -284,21 +288,24 @@ class Login : Screen {
 
                 Row(
                     modifier = Modifier
-                        .padding(horizontal = 30.dp),
+                        .padding(horizontal = 30.dp)
+                        .clip(RoundedCornerShape(40.dp))
+                        .background(AppColors.Eggshell)
+                        .padding(horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
                         checked = rememberMe,
-                        onCheckedChange = {
-                            rememberMe = it
-                        }
+                        onCheckedChange = { rememberMe = it },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = AppColors.Lavender,
+                            uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            checkmarkColor = AppColors.Black
+                        )
                     )
-
                     Text(
                         text = "Recuérdame",
-                        modifier = Modifier.clickable {
-                            rememberMe = !rememberMe
-                        }
+                        modifier = Modifier.clickable { rememberMe = !rememberMe }
                     )
                 }
 
@@ -311,7 +318,8 @@ class Login : Screen {
                         confirmPasswordError = false
                     }
                 )
-                Button(
+
+                AnimatedButton(
                     onClick = {
                         if (login) {
                             scope.launch {
@@ -337,6 +345,7 @@ class Login : Screen {
                         Text(text = texto)
                     }
                 }
+
                 LaunchedEffect(Unit) {
                     status = healthRepository.getHealthStatus()
                 }
@@ -391,7 +400,6 @@ class Login : Screen {
                             CredentialStore.save(correo.trim().lowercase(), contrasenya)
                         }
                         navigator.push(Home())
-
                     } else {
                         function("Usuario o contraseña incorrectos.")
                     }
