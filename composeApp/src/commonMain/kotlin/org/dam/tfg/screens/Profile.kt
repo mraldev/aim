@@ -43,8 +43,8 @@ class Profile(): Screen {
         var loggedIn by remember { mutableStateOf<Boolean?>(null) }
 
         LaunchedEffect(Unit) {
-//            loggedIn = TokenManager.isLoggedIn()
-            loggedIn = true
+            loggedIn = TokenManager.isLoggedIn()
+//            loggedIn = true //- DEV
         }
 
         if (showEditBioDialog) {
