@@ -121,6 +121,12 @@ object UserManager {
         _clubesBasico.value = clubesBasico
     }
 
+    fun removeAsociacion(asociacion: Asociacion) {
+        _asociaciones.value = _asociaciones.value.toMutableMap().apply {
+            remove(asociacion)
+        }
+    }
+
     fun clear(){
         _correo.value = null;
         _roles.value = null;

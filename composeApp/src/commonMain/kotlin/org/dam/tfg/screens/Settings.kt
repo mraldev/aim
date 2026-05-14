@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -32,18 +36,12 @@ import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.SesionManager
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.crypto.CredentialStore
+import org.dam.tfg.customElements.AnimatedButton
 import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
-import org.dam.tfg.customElements.AnimatedButton
 import org.dam.tfg.enums.Asociacion
 import org.dam.tfg.enums.Genero
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-
-
 
 class Settings : Screen {
     private fun limpiarManagers() {
@@ -87,7 +85,9 @@ class Settings : Screen {
         var showNameDialog         by remember { mutableStateOf(false) }
         var showFecNacDialog       by remember { mutableStateOf(false) }
         var showSexDialog          by remember { mutableStateOf(false) }
+
         var asociacionNueva      by remember { mutableStateOf<Asociacion?>(null) }
+        var asociacionAEliminar  by remember { mutableStateOf<Asociacion?>(null) }
         var generoNuevo          by remember { mutableStateOf<Genero?>(null) }
 
         var expandedGenero       by remember { mutableStateOf(false) }
@@ -117,6 +117,23 @@ class Settings : Screen {
             )
         }
 
+        //- Dialog Confirmar baja de asociación
+        asociacionAEliminar?.let { asoc ->
+            DialogBase(
+                data = mapOf(
+                    "header"        to "Dejar asociación",
+                    "content"       to "¿Seguro que quieres dejar de pertenecer a ${asoc.label}?",
+                    "confirmButton" to "Confirmar",
+                    "dismissButton" to "Cancelar"
+                ),
+                onConfirm = {
+                    UserManager.removeAsociacion(asoc)
+                    asociacionAEliminar = null
+                },
+                onDismiss = { asociacionAEliminar = null }
+            )
+        }
+
         //- Dialog Cambiar Email
         if (showEmailDialog) {
             AlertDialog(
@@ -124,7 +141,7 @@ class Settings : Screen {
                 containerColor   = AppColors.Champagne,
                 confirmButton = {
                     AnimatedButton(
-                        onClick         = {
+                        onClick = {
                             if (correoNuevo.isBlank() || !regex.matches(correoNuevo)) {
                                 correoNuevo = ""
                             } else {
@@ -132,9 +149,9 @@ class Settings : Screen {
                                 showEmailDialog = false
                             }
                         },
-                        containerColor  = confirmContainerColor,
-                        textColor       = confirmTextColor,
-                        borderColor     = confirmBorderColor
+                        containerColor = confirmContainerColor,
+                        textColor      = confirmTextColor,
+                        borderColor    = confirmBorderColor
                     ) { Text("Confirmar") }
                 },
                 dismissButton = {
@@ -167,15 +184,15 @@ class Settings : Screen {
                 containerColor   = AppColors.Champagne,
                 confirmButton = {
                     AnimatedButton(
-                        onClick         = {
+                        onClick = {
                             if (nombreNuevo.isNotBlank()) {
                                 UserManager.setNombre(nombreNuevo)
                                 showNameDialog = false
                             }
                         },
-                        containerColor  = confirmContainerColor,
-                        textColor       = confirmTextColor,
-                        borderColor     = confirmBorderColor
+                        containerColor = confirmContainerColor,
+                        textColor      = confirmTextColor,
+                        borderColor    = confirmBorderColor
                     ) { Text("Confirmar") }
                 },
                 dismissButton = {
@@ -208,15 +225,15 @@ class Settings : Screen {
                 containerColor   = AppColors.Champagne,
                 confirmButton = {
                     AnimatedButton(
-                        onClick         = {
+                        onClick = {
                             if (generoNuevo != null) {
                                 UserManager.setGenero(generoNuevo)
                                 showSexDialog = false
                             }
                         },
-                        containerColor  = confirmContainerColor,
-                        textColor       = confirmTextColor,
-                        borderColor     = confirmBorderColor
+                        containerColor = confirmContainerColor,
+                        textColor      = confirmTextColor,
+                        borderColor    = confirmBorderColor
                     ) { Text("Confirmar") }
                 },
                 dismissButton = {
@@ -271,15 +288,15 @@ class Settings : Screen {
                 containerColor   = AppColors.Champagne,
                 confirmButton = {
                     AnimatedButton(
-                        onClick         = {
+                        onClick = {
                             if (asociacionNueva != null) {
                                 UserManager.setAsociacion(asociacionNueva!!, 1)
                                 showAsociacionDialog = false
                             }
                         },
-                        containerColor  = confirmContainerColor,
-                        textColor       = confirmTextColor,
-                        borderColor     = confirmBorderColor
+                        containerColor = confirmContainerColor,
+                        textColor      = confirmTextColor,
+                        borderColor    = confirmBorderColor
                     ) { Text("Confirmar") }
                 },
                 dismissButton = {
@@ -291,35 +308,64 @@ class Settings : Screen {
                 },
                 title = { Text("Seleccionar Asociación") },
                 text = {
-                    ExposedDropdownMenuBox(
-                        expanded         = expandedAsociacion,
-                        onExpandedChange = { expandedAsociacion = it },
-                        modifier         = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 30.dp)
-                    ) {
-                        OutlinedTextField(
-                            value         = asociacionNueva?.label ?: "Selecciona una asociación",
-                            onValueChange = {},
-                            readOnly      = true,
-                            trailingIcon  = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedAsociacion) },
-                            colors        = lavenderFieldColors,
-                            modifier      = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth()
-                        )
-                        ExposedDropdownMenu(
+                    Column(modifier = Modifier.fillMaxWidth()) {
+
+                        //- Spinner para añadir nueva asociación
+                        ExposedDropdownMenuBox(
                             expanded         = expandedAsociacion,
-                            onDismissRequest = { expandedAsociacion = false }
+                            onExpandedChange = { expandedAsociacion = it },
+                            modifier         = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 30.dp)
                         ) {
-                            Asociacion.entries.forEach { asociacion ->
-                                DropdownMenuItem(
-                                    text    = { Text(asociacion.label) },
-                                    onClick = {
-                                        asociacionNueva    = asociacion
-                                        expandedAsociacion = false
-                                    }
-                                )
+                            OutlinedTextField(
+                                value         = asociacionNueva?.label ?: "Selecciona una asociación",
+                                onValueChange = {},
+                                readOnly      = true,
+                                trailingIcon  = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedAsociacion) },
+                                colors        = lavenderFieldColors,
+                                modifier      = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth()
+                            )
+                            ExposedDropdownMenu(
+                                expanded         = expandedAsociacion,
+                                onDismissRequest = { expandedAsociacion = false }
+                            ) {
+                                Asociacion.entries.forEach { asociacion ->
+                                    DropdownMenuItem(
+                                        text    = { Text(asociacion.label) },
+                                        onClick = {
+                                            asociacionNueva    = asociacion
+                                            expandedAsociacion = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        //- Lista de asociaciones actuales
+                        val asociacionesActuales = UserManager.asociaciones.value
+                        if (!asociacionesActuales.isNullOrEmpty()) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text     = "Tus asociaciones:",
+                                style    = MaterialTheme.typography.labelMedium,
+                                modifier = Modifier.padding(horizontal = 30.dp)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            asociacionesActuales.forEach { entry ->
+                                AnimatedButton(
+                                    onClick        = { asociacionAEliminar = entry.key },
+                                    textColor = AppColors.Eggshell,
+                                    containerColor = AppColors.Amethyst,
+                                    borderColor    = AppColors.Lavender,
+                                    modifier       = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 30.dp, vertical = 2.dp)
+                                ) {
+                                    Text("✕  ${entry.key.label}")
+                                }
                             }
                         }
                     }
@@ -334,19 +380,19 @@ class Settings : Screen {
                 containerColor   = AppColors.Champagne,
                 confirmButton = {
                     AnimatedButton(
-                        onClick         = {
+                        onClick = {
                             if (contrasenyaNueva.isBlank() || contrasenyaNueva.length < 8) {
                                 contrasenyaNueva = ""
                             } else {
-                                if (contrasenyaNueva.equals(confirmarContrasenya)) {
+                                if (contrasenyaNueva == confirmarContrasenya) {
                                     UserManager.setContrasenya(contrasenyaNueva)
                                     showPasswordDialog = false
                                 }
                             }
                         },
-                        containerColor  = confirmContainerColor,
-                        textColor       = confirmTextColor,
-                        borderColor     = confirmBorderColor
+                        containerColor = confirmContainerColor,
+                        textColor      = confirmTextColor,
+                        borderColor    = confirmBorderColor
                     ) { Text("Confirmar") }
                 },
                 dismissButton = {
@@ -395,7 +441,7 @@ class Settings : Screen {
                 containerColor   = AppColors.Champagne,
                 confirmButton = {
                     AnimatedButton(
-                        onClick         = {
+                        onClick = {
                             if (!numFedNuevo.all { it.isDigit() }) {
                                 numFedNuevo = "Solo se aceptan números."
                             } else {
@@ -403,9 +449,9 @@ class Settings : Screen {
                                 showFedDialog = false
                             }
                         },
-                        containerColor  = confirmContainerColor,
-                        textColor       = confirmTextColor,
-                        borderColor     = confirmBorderColor
+                        containerColor = confirmContainerColor,
+                        textColor      = confirmTextColor,
+                        borderColor    = confirmBorderColor
                     ) { Text("Confirmar") }
                 },
                 dismissButton = {
@@ -454,14 +500,25 @@ class Settings : Screen {
             ) {
                 profileBar(navigator)
                 Spacer(modifier = Modifier.height(16.dp))
+
                 Text(
                     text  = "AJUSTES DE CUENTA",
                     style = MaterialTheme.typography.titleLarge
                 )
 
-                Text(text = "Correo actual = " + (UserManager.correo.value ?: ""))
+                //- Nombre o email como subtítulo
+                Column {
+                    UserManager.correo.value?.let { correo ->
+                        Text(
+                            text  = UserManager.nombre.value ?: correo.split("@")[0],
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
 
+                //- Cuenta
                 Row {
                     AnimatedButton(
                         onClick  = { showPasswordDialog = true },
@@ -480,68 +537,56 @@ class Settings : Screen {
 
                 Spacer(modifier = Modifier.height(50.dp))
 
-                if (UserManager.numFederado.value != null) {
-                    Row { Text("Núm. Federado: " + UserManager.numFederado.value.toString()) }
-                } else {
-                    Row {
-                        AnimatedButton(
-                            onClick  = { showFedDialog = true },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text("Asignar número federado") }
-                    }
+                //- Datos del perfil (botones siempre visibles)
+                Row {
+                    AnimatedButton(
+                        onClick  = { showFedDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Asignar número federado") }
                 }
 
-                if (UserManager.numFederado.value != null) {
-                    Row { Text("Asociaciones: " + UserManager.asociaciones.value) }
-                } else {
-                    Row {
-                        AnimatedButton(
-                            onClick  = { showAsociacionDialog = true },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text("Asignar asociación") }
-                    }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row {
+                    AnimatedButton(
+                        onClick  = { showAsociacionDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Asignar asociación") }
                 }
 
-                Row { Text("Asociaciones: " + UserManager.asociaciones.value) }
+                Spacer(modifier = Modifier.height(8.dp))
 
-                if (UserManager.nombre.value != null) {
-                    Row { Text("Nombre: " + UserManager.nombre.value) }
-                } else {
-                    Row {
-                        AnimatedButton(
-                            onClick  = { showNameDialog = true },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text("Asignar nombre") }
-                    }
+                Row {
+                    AnimatedButton(
+                        onClick  = { showNameDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Asignar nombre") }
                 }
 
-                if (UserManager.fecNac.value != null) {
-                    Row { Text("Fecha Nacimiento: " + UserManager.fecNac.value) }
-                } else {
-                    Row {
-                        AnimatedButton(
-                            onClick  = { showFecNacDialog = true },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text("Asignar fecha nacimiento") }
-                    }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row {
+                    AnimatedButton(
+                        onClick  = { showFecNacDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Asignar fecha nacimiento") }
                 }
 
-                if (UserManager.genero.value != null) {
-                    Row { Text("Genero: " + UserManager.genero.value) }
-                } else {
-                    Row {
-                        AnimatedButton(
-                            onClick  = { showSexDialog = true },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text("Asignar genero") }
-                    }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row {
+                    AnimatedButton(
+                        onClick  = { showSexDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Asignar genero") }
                 }
 
                 Spacer(modifier = Modifier.height(50.dp))
 
+                //- Sesión
                 Row {
                     AnimatedButton(
-                        onClick  = {
+                        onClick = {
                             limpiarManagers()
                             navigator.push(Login())
                         },
@@ -558,6 +603,7 @@ class Settings : Screen {
                     ) { Text("Dar la cuenta de baja") }
                 }
             }
+
             Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
                 buttonBar(Modifier, navigator)
             }
