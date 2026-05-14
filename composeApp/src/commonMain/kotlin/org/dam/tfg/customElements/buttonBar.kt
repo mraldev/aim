@@ -79,9 +79,9 @@ fun buttonBar(
                     )
                 }
 
-                val tirada = SesionEnviar(tiradas)
+                val sesion = SesionEnviar(tiradas)
 
-                SesionManager.setSesion(tirada)
+                SesionManager.setSesion(sesion)
                 nav.pop()
                 nav.push(TiradaScreen())
             }

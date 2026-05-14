@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 //?            "confirmButton" to "Confirmar",
 //?            "dismissButton" to "Cancelar"
 //?        ),
-//?        onConfirm = { codigo a ejecutar }
+//?        onConfirm = { codigo a ejecutar },
 //?        onDismiss = { showDialog = false }
 //?    )
 

@@ -30,7 +30,7 @@ class TiradaScreen : Screen {
     override fun Content() {
         //? Recoge el StateFlow reactivamente
         val sesionState by SesionManager.sesionEnviar.collectAsState()
-        val s = sesionState ?: return  //? Guard: si no hay sesión activa no renderiza nada
+        val sesionActual = sesionState ?: return  //? Guard: si no hay sesión activa no renderiza nada
 
         val repository = TiradaRepository()
         val onFinalizar: (puntuaciones: List<List<List<Int?>>>) -> Unit = {}
@@ -38,9 +38,9 @@ class TiradaScreen : Screen {
         val scope = rememberCoroutineScope()
 
         val puntuaciones = remember {
-            List(s.tiradas.size) {
-                List(s.tiradas[0].numDianas) {
-                    List(s.tiradas[0].numMaxFlechasPorDiana)
+            List(sesionActual.tiradas.size) {
+                List(sesionActual.tiradas[0].numDianas) {
+                    List(sesionActual.tiradas[0].numMaxFlechasPorDiana)
                     { null as Int? }.toMutableStateList()
                 }.toMutableStateList()
             }
@@ -49,8 +49,8 @@ class TiradaScreen : Screen {
         var currentTirada by remember { mutableIntStateOf(0) }
         var currentDiana  by remember { mutableIntStateOf(0) }
 
-        val totalTiradas = s.tiradas.size
-        val totalDianas  = s.tiradas[0].numDianas
+        val totalTiradas = sesionActual.tiradas.size
+        val totalDianas  = sesionActual.tiradas[0].numDianas
 
         val statsDianaActual: StatsDiana by remember {
             derivedStateOf {
@@ -67,21 +67,37 @@ class TiradaScreen : Screen {
                     puntuaciones    = puntuaciones.getOrNull(currentTirada)
                         ?.map { it.toList() } ?: emptyList(),
                     numDianas       = totalDianas,
-                    flechasPorDiana = s.tiradas[0].numMaxFlechasPorDiana
+                    flechasPorDiana = sesionActual.tiradas[0].numMaxFlechasPorDiana
                 )
             }
+        }
+
+        fun guardarTirada(snapshot: List<List<List<Int?>>>) {
+            val sesionActualizada = sesionActual.copy(
+                tiradas = sesionActual.tiradas.mapIndexed { index, tirada ->
+                    tirada.copy(
+                        puntuaciones = snapshot[index].map { flechas ->
+                            PuntuacionTiradaDTO(
+                                valores = flechas.toMutableList()
+                            )
+                        }.toMutableList()
+                    )
+                }.toMutableList()
+            )
+
+            SesionManager.setSesion(sesionActualizada)
         }
 
         suspend fun finalizarTirada(snapshot: List<List<List<Int?>>>) {
             val completa = snapshot.all { itSesion ->
                 itSesion.all { diana ->
-                    diana.size == s.tiradas[0].numMaxFlechasPorDiana
+                    diana.size == sesionActual.tiradas[0].numMaxFlechasPorDiana
                             && diana.all { it != null }
                 }
             }
 
-            val sesionActualizada = s.copy(
-                tiradas = s.tiradas.mapIndexed { index, tirada ->
+            val sesionActualizada = sesionActual.copy(
+                tiradas = sesionActual.tiradas.mapIndexed { index, tirada ->
                     tirada.copy(
                         puntuaciones = snapshot[index].map { flechas ->
                             PuntuacionTiradaDTO(valores = flechas.toMutableList())
@@ -95,7 +111,7 @@ class TiradaScreen : Screen {
                 SesionManager.clear()
             } else {
                 //? Guarda en caché si la tirada está incompleta
-                SesionManager.setSesion(sesionActualizada)
+                guardarTirada(snapshot)
             }
             onFinalizar(snapshot)
             navigator.pop()
@@ -106,7 +122,7 @@ class TiradaScreen : Screen {
         if (showConfirmDialog) {
             val completa = puntuaciones.all { itSesion ->
                 itSesion.all { diana ->
-                    diana.size == s.tiradas[0].numMaxFlechasPorDiana && diana.all { it != null }
+                    diana.size == sesionActual.tiradas[0].numMaxFlechasPorDiana && diana.all { it != null }
                 }
             }
 
@@ -134,8 +150,8 @@ class TiradaScreen : Screen {
             )
         }
 
-        LaunchedEffect(s) {
-            s.tiradas.forEachIndexed { tiradaIdx, tirada ->
+        LaunchedEffect(sesionActual) {
+            sesionActual.tiradas.forEachIndexed { tiradaIdx, tirada ->
                 tirada.puntuaciones.forEachIndexed { dianaIdx, dto ->
                     dto.valores.forEachIndexed { flechaIdx, valor ->
                         if (tiradaIdx < puntuaciones.size &&
@@ -152,7 +168,7 @@ class TiradaScreen : Screen {
         Scaffold(
             topBar = {
                 TiradaTopBar(
-                    s.tiradas[currentTirada].usuario.correo!!,
+                    sesionActual.tiradas[currentTirada].usuario.correo!!,
                     onFinalizar = { showConfirmDialog = true }
                 )
             }
@@ -174,7 +190,7 @@ class TiradaScreen : Screen {
 
                 FlechasSection(
                     modifier            = Modifier.weight(0.35f),
-                    numFlechas          = s.tiradas[0].numMaxFlechasPorDiana,
+                    numFlechas          = sesionActual.tiradas[0].numMaxFlechasPorDiana,
                     currentDiana        = currentDiana,
                     currentTirada       = currentTirada,
                     puntuaciones        = puntuaciones[currentTirada].getOrNull(currentDiana) ?: emptyList(),
@@ -219,6 +235,9 @@ class TiradaScreen : Screen {
                             currentTirada = 0
                             currentDiana++
                         }
+
+                        //? Se guarda la tirada siempre después de cada paso por si el usuario saliese de la pantalla
+                        guardarTirada(puntuaciones.map { it.toList() })
                     },
                     onFinalizar = { showConfirmDialog = true },
                     modifier    = Modifier

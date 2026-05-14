@@ -14,13 +14,26 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.datetime.LocalDate
+import org.dam.tfg.api.managers.SesionManager
+import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.enums.Asociacion
 import org.dam.tfg.enums.TipoCircuito
 import org.dam.tfg.enums.UserRole
 import org.dam.tfg.customElements.buttonBar
+import org.dam.tfg.dto.DatosCompeticionDto
 import org.dam.tfg.dto.LigaPreview
+import org.dam.tfg.dto.UsuarioTiradaDTO
+import org.dam.tfg.enums.Estilo
+import org.dam.tfg.enums.Genero
+import org.dam.tfg.enums.Posicion
+import org.dam.tfg.enums.RangoDeEdad
+import org.dam.tfg.helpers.HelperCargadorDeTipoDeTirada
+import org.dam.tfg.model.Tirada.SesionEnviar
+import org.dam.tfg.model.Tirada.Tirada
 import org.dam.tfg.model.competiciones.Liga
 import org.dam.tfg.screens.Historial.DatePicker
+import org.dam.tfg.screens.TiradaScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +54,8 @@ internal fun ListaCompeticiones(
     var fechaSelec by remember { mutableStateOf<LocalDate?>(null) }
     var soloPropias by remember { mutableStateOf(false) }
     var mostrarFecha by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+    var competicion by remember { mutableStateOf<LigaPreview?>(null) }
 
     val listaBase = if (userRole == UserRole.ADMIN)
         competiciones.filter { asociacionesUsuario.containsValue(it.administradorId) }
@@ -56,6 +71,52 @@ internal fun ListaCompeticiones(
                 (!soloPropias || comp.competidores.any { competidor ->
                     competidor.numFederado in asociacionesUsuario.values
                 })
+    }
+
+    if (showDialog) {
+        DialogBase(
+            data = mapOf(
+                "header" to "Competir",
+                "content" to "Al confirmar este mensaje, estarás participando en la competición ${competicion!!.nombreLiga}.",
+                "confirmButton" to "Confirmar",
+                "dismissButton" to "Cancelar"
+            ),
+            onConfirm = {
+                SesionManager.setDatosLiga(
+                    DatosCompeticionDto(
+                        competicion!!.nombreLiga,
+                        1,
+                        Posicion.A,
+                        1,
+                        Estilo.BOWHUNTER_COMPOUND,
+                        RangoDeEdad.ADULTO,
+                        Genero.MASCULINO
+                    )
+                )
+
+                val infoTipoCircuito = HelperCargadorDeTipoDeTirada.cargarDatos(
+                    competicion!!.tipoCircuito
+                )
+
+                val tiradas = listOf<Tirada>(
+                    Tirada(
+                        //? como ya es costumbre, se asegura (!!) porque para acceder aquí hay que estar logeado
+                        usuario = UsuarioTiradaDTO(UserManager.correo.value!!),
+                        numDianas = infoTipoCircuito.numDianas,
+                        numMaxFlechasPorDiana = infoTipoCircuito.numFlechasPorDiana,
+                        puntuaciones = mutableListOf(),
+                        tipoCircuito = competicion!!.tipoCircuito
+                    )
+                )
+
+                val sesion = SesionEnviar(tiradas)
+
+                SesionManager.setSesion(sesion)
+                nav.pop()
+                nav.push(TiradaScreen())
+            },
+            onDismiss = { showDialog = false }
+        )
     }
 
     Scaffold(
@@ -188,7 +249,13 @@ internal fun ListaCompeticiones(
 
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(listaFiltrada) { comp ->
-                    CompeticionCard(comp = comp, onClick = { onSelect(comp) })
+                    CompeticionCard(comp = comp, onClick = {
+                        //onSelect(comp)
+
+                        competicion = comp
+
+                        showDialog = true
+                    })
                 }
                 if (listaFiltrada.isEmpty()) {
                     item {
