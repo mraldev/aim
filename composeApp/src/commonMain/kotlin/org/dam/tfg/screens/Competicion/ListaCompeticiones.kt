@@ -34,6 +34,7 @@ import org.dam.tfg.model.Tirada.Tirada
 import org.dam.tfg.model.competiciones.Liga
 import org.dam.tfg.screens.Historial.DatePicker
 import org.dam.tfg.screens.TiradaScreen
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,6 +121,7 @@ internal fun ListaCompeticiones(
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         floatingActionButton = {
             if (userRole == UserRole.ADMIN) {
                 FloatingActionButton(onClick = onAñadir) {

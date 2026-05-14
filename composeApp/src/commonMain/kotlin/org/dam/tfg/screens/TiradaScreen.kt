@@ -22,6 +22,7 @@ import org.dam.tfg.model.Tirada.StatsTotal
 import org.dam.tfg.model.Tirada.calcularStatsDiana
 import org.dam.tfg.model.Tirada.calcularStatsTotal
 import org.dam.tfg.repository.TiradaRepository
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 class TiradaScreen : Screen {
@@ -166,6 +167,7 @@ class TiradaScreen : Screen {
         }
 
         Scaffold(
+            containerColor = Color.Transparent,
             topBar = {
                 TiradaTopBar(
                     sesionActual.tiradas[currentTirada].usuario.correo!!,

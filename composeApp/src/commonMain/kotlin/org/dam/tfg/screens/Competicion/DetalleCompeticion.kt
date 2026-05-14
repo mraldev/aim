@@ -211,7 +211,6 @@ internal fun InfoRow(label: String, value: String) {
         Text(
             label,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(value, style = MaterialTheme.typography.bodyMedium)
     }

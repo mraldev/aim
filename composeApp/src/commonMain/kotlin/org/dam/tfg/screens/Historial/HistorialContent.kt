@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.model.Tirada.SesionHistorial
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,6 +43,7 @@ fun HistorialContent(sesiones: List<SesionHistorial>) {
         listaFiltrada.sortedWith(compareBy { it.fecha.toEpochDays() })
 
     Scaffold(
+        containerColor = Color.Transparent,
         bottomBar = { buttonBar() }
     ) { padding ->
 
@@ -117,7 +119,6 @@ fun HistorialContent(sesiones: List<SesionHistorial>) {
                         Text(
                             "Tus sesiones aparecerán aquí una vez las registres.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
