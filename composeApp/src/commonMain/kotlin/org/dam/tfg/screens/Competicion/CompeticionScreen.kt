@@ -26,7 +26,7 @@ class CompeticionScreen(
         var competiciones by remember { mutableStateOf<List<LigaPreview>>(emptyList()) }
 
         LaunchedEffect(Unit) {
-            competiciones = ligaRepository.getCompeticiones()
+            competiciones = ligaRepository.getCompeticionesByCorreo()
         }
 
         var nav by remember { mutableStateOf<NavState>(NavState.Lista) }

@@ -106,7 +106,8 @@ internal fun ListaCompeticiones(
                         numDianas = infoTipoCircuito.numDianas,
                         numMaxFlechasPorDiana = infoTipoCircuito.numFlechasPorDiana,
                         puntuaciones = mutableListOf(),
-                        tipoCircuito = competicion!!.tipoCircuito
+                        tipoCircuito = competicion!!.tipoCircuito,
+                        null
                     )
                 )
 

@@ -44,6 +44,8 @@ import org.dam.tfg.screens.TiradaScreen
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.launch
 import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.screens.superadmin.CompeticionesScreenSuperAdmin
+import org.dam.tfg.screens.superadmin.UsuariosScreenSuperAdmin
 
 @Composable
 fun buttonBar(
@@ -75,7 +77,8 @@ fun buttonBar(
                         numDianas = numDianas,
                         numMaxFlechasPorDiana = flechas,
                         puntuaciones = mutableListOf(),
-                        tipoCircuito = TipoCircuito.CUSTOM
+                        tipoCircuito = TipoCircuito.CUSTOM,
+                        null
                     )
                 }
 
@@ -182,7 +185,12 @@ fun buttonBar(
                 scope.launch {
                     if (!TokenManager.isLoggedIn()) {
                         showDialogNoRegistradoCompeticion = true
-                    //else if (UserManager.asociaciones.value.isEmpty()) showDialogNoAsociaciones = true
+                    } else if (UserManager.asociaciones.value.isEmpty()) showDialogNoAsociaciones = true
+                    else if (UserManager.roles.value == UserRole.SUPER_ADMIN){
+                        nav.pop()
+                        nav.push(
+                            CompeticionesScreenSuperAdmin()
+                        )
                     } else {
                         nav.pop()
                         nav.push(
@@ -193,7 +201,6 @@ fun buttonBar(
                         )
                     }
                 }
-
             }
         ) {
             Icon(Icons.Filled.EmojiEvents, tint = Color.Black, contentDescription = "Competición")
@@ -220,7 +227,12 @@ fun buttonBar(
             onClick = {
                 scope.launch {
                     if (!TokenManager.isLoggedIn()) showDialogNoRegistradoHistorial = true
-                    else{
+                    else if (UserManager.roles.value == UserRole.SUPER_ADMIN){
+                        nav.pop()
+                        nav.push(
+                            UsuariosScreenSuperAdmin()
+                        )
+                    } else{
                         nav.pop()
                         nav.push(HistorialScreen())
                     }

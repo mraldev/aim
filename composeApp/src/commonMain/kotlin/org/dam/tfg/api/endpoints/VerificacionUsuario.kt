@@ -1,7 +1,10 @@
 package org.dam.tfg.api.endpoints
 
 import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -15,6 +18,7 @@ import org.dam.tfg.api.responses.LogInResponse
 import org.dam.tfg.api.responses.UsuarioResponse
 import org.dam.tfg.api.responses.RegisterResponse
 import org.dam.tfg.api.responses.ResponseHelper
+import org.dam.tfg.dto.UsuarioDtoMostrarBasico
 import org.dam.tfg.enums.UserRole
 
 class VerificacionUsuario {
@@ -138,6 +142,52 @@ class VerificacionUsuario {
         } catch (e: Exception) {
             println("Login error: ${e.message}")
             return false
+        }
+    }
+
+    suspend fun getTodos(): List<UsuarioDtoMostrarBasico> {
+        try {
+            val response = ApiClient.client.get(
+                "${ApiConfig.BASE_URL}/usuarios/"
+            ){
+                contentType(ContentType.Application.Json)
+
+                header("Authorization", "Bearer ${TokenManager.token.value}")
+            }
+
+            val exito = ResponseHelper.validarResponse(response)
+
+            val lista = response.body<List<UsuarioDtoMostrarBasico>>()
+
+            return lista
+
+        } catch (e: Exception) {
+            println("Login error: ${e.message}")
+            return emptyList()
+        }
+    }
+
+    suspend fun nuevoRol(correo: String, nuevoRole: UserRole): UsuarioDtoMostrarBasico? {
+        try {
+            val response = ApiClient.client.put (
+                "${ApiConfig.BASE_URL}/usuarios/actualizar/rol"
+            ){
+                contentType(ContentType.Application.Json)
+
+                header("Authorization", "Bearer ${TokenManager.token.value}")
+                header("correo", correo)
+                header("nuevoRol", nuevoRole)
+            }
+
+            val exito = ResponseHelper.validarResponse(response)
+
+            val lista = response.body<UsuarioDtoMostrarBasico>()
+
+            return lista
+
+        } catch (e: Exception) {
+            println("Login error: ${e.message}")
+            return null
         }
     }
 }

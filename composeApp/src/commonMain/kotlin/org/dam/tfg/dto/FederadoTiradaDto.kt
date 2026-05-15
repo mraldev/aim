@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FederadoTiradaDto(
-    val correo: String?,
+    val correo: String? = null,
     val numFederado: Int
 ) {
 }

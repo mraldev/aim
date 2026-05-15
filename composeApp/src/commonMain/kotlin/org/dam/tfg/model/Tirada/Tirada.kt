@@ -1,5 +1,6 @@
 package org.dam.tfg.model.Tirada
 
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 import org.dam.tfg.dto.PuntuacionTiradaDTO
 import org.dam.tfg.dto.UsuarioTiradaDTO
@@ -25,7 +26,8 @@ data class Tirada (
     val numDianas: Int,
     val numMaxFlechasPorDiana: Int,
     val puntuaciones: MutableList<PuntuacionTiradaDTO>,
-    val tipoCircuito: TipoCircuito
+    val tipoCircuito: TipoCircuito,
+    val fechaInvalidacion: LocalDate? = null
 ) {
     //- Cuando la tirada termina creo el objeto usuariotiradadto y que dentro tenga el valor de usermanager la propiedad del correo y mando la tirada a la bbdd mendiante los endpoints como body
 

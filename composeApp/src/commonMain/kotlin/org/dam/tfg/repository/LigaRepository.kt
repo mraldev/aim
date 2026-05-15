@@ -1,6 +1,7 @@
 package org.dam.tfg.repository
 
 import org.dam.tfg.api.controller.ApiLigaController
+import org.dam.tfg.dto.LigaCompletoDto
 import org.dam.tfg.dto.LigaPreview
 import org.dam.tfg.model.competiciones.LigaEnviar
 
@@ -10,7 +11,15 @@ class LigaRepository(private val api: ApiLigaController = ApiLigaController()) {
         return api.registrarLiga(ligaEnviar)
     }
 
-    suspend fun getCompeticiones(): List<LigaPreview> {
+    suspend fun getCompeticionesByCorreo(): List<LigaPreview> {
+        return api.obtenerLigasByCorreo()
+    }
+
+    suspend fun getCompeticiones(): List<LigaCompletoDto> {
         return api.obtenerLigas()
+    }
+
+    suspend fun invalidar(clave: String, correo: String): List<LigaCompletoDto> {
+        return api.invalidar(clave, correo)
     }
 }
