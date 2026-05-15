@@ -362,7 +362,6 @@ class Login : Screen {
                 LaunchedEffect(Unit) {
                     status = healthRepository.getHealthStatus()
                 }
-                Text("Server status: $status")
                 AnimatedVisibility(
                     visible = showMessage,
                     enter = fadeIn(animationSpec = tween(durationMillis = 400, easing = androidx.compose.animation.core.EaseInOut)),
