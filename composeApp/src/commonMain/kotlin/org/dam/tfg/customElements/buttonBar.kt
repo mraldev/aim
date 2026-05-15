@@ -9,13 +9,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Leaderboard
+import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,7 +28,6 @@ import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.SesionManager
 import org.dam.tfg.customElements.Tirada.TiradaDialog
 import org.dam.tfg.dto.UsuarioTiradaDTO
-import org.dam.tfg.enums.TipoCircuito
 import org.dam.tfg.model.Tirada.SesionEnviar
 import org.dam.tfg.model.Tirada.Tirada
 import org.dam.tfg.enums.UserRole
@@ -198,7 +195,12 @@ fun buttonBar(
                 }
             }
         ) {
-            Icon(Icons.Filled.EmojiEvents, tint = Color.Black, contentDescription = "Competición")
+            val isSuperAdmin = UserManager.roles.value == UserRole.SUPER_ADMIN
+            Icon(
+                imageVector = if (isSuperAdmin) Icons.Filled.ManageAccounts else Icons.Filled.History,
+                tint = Color.Black,
+                contentDescription = if (isSuperAdmin) "Gestionar usuarios" else "Historial"
+            )
         }
 
         AnimatedButton(
@@ -234,7 +236,12 @@ fun buttonBar(
                 }
             }
         ) {
-            Icon(Icons.Filled.History, tint = Color.Black, contentDescription = "Historial")
+            val isSuperAdmin = UserManager.roles.value == UserRole.SUPER_ADMIN
+            Icon(
+                imageVector = if (isSuperAdmin) Icons.Filled.Leaderboard else Icons.Filled.EmojiEvents,
+                tint = Color.Black,
+                contentDescription = if (isSuperAdmin) "Competición" else "Ranking"
+            )
         }
 
         AnimatedButton(
