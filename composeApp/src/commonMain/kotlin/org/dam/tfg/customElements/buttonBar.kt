@@ -180,13 +180,13 @@ fun buttonBar(
                 scope.launch {
                     if (!TokenManager.isLoggedIn()) {
                         showDialogNoRegistradoCompeticion = true
-                    } else if (UserManager.asociaciones.value.isEmpty()) showDialogNoAsociaciones = true
-                    else if (UserManager.roles.value == UserRole.SUPER_ADMIN){
+                    } else if (UserManager.roles.value == UserRole.SUPER_ADMIN){
                         nav.pop()
                         nav.push(
                             CompeticionesScreenSuperAdmin()
                         )
-                    } else {
+                    } else if (UserManager.asociaciones.value.isEmpty()) showDialogNoAsociaciones = true
+                     else {
                         nav.pop()
                         nav.push(
                             CompeticionScreen(

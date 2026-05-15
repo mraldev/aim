@@ -19,6 +19,14 @@ import org.dam.tfg.screens.Home
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.foundation.Image
 import androidx.compose.ui.draw.alpha
+import kotlinx.serialization.builtins.ListSerializer
+import org.dam.tfg.api.endpoints.TiradaEndpoint
+import org.dam.tfg.api.managers.SesionManager
+import org.dam.tfg.crypto.ObjectStore
+import org.dam.tfg.dto.DatosCompeticionDto
+import org.dam.tfg.helpers.HelperSerializadorTiradasPorFaltaDeConexion.pairSerializer
+import org.dam.tfg.model.Tirada.SesionEnviar
+import org.dam.tfg.repository.TiradaRepository
 
 @Composable
 fun App() {
@@ -29,6 +37,46 @@ fun App() {
         if (creds != null) {
             if (HealthCheckRepository().isServerActive())
                 LoginRepository().login(creds.correo, creds.contrasenya)
+        }
+
+        val sesionesPendientes: List<SesionEnviar>? =
+            ObjectStore.load(
+                "sesiones_pendientes",
+                ListSerializer(SesionEnviar.serializer())
+            )
+
+        val ligasPendientes: List<Pair<SesionEnviar, DatosCompeticionDto>>? =
+            ObjectStore.load(
+                key = "ligas_pendientes",
+                serializer = ListSerializer(
+                    pairSerializer<SesionEnviar, DatosCompeticionDto>()
+                )
+            )
+
+        sesionesPendientes?.let {
+            it.forEach { tirada ->
+                TiradaRepository().registrar(tirada)
+            }
+
+            ObjectStore.remove("sesiones_pendientes")
+        }
+
+        ligasPendientes?.let {
+            it.forEach { tirada ->
+                TiradaEndpoint().enviarRegistroCompetitivo(tirada.first, tirada.second)
+            }
+
+            ObjectStore.remove("ligas_pendientes")
+        }
+
+        val ultimaSesion: SesionEnviar? = ObjectStore.load("ultima_sesion", SesionEnviar.serializer())
+        val ultimaLiga: DatosCompeticionDto? = ObjectStore.load("ultima_liga", DatosCompeticionDto.serializer())
+
+        ultimaSesion?.let { ultimaSesion ->
+            ultimaLiga?.let { ultimaLiga ->
+                SesionManager.setDatosLiga(ultimaLiga)
+            }
+            SesionManager.setSesion(ultimaSesion)
         }
         listoParaMostrar = true
     }
