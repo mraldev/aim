@@ -138,30 +138,25 @@ fun buttonBar(
 
     if (showContinueDialog) {
         val saved = SesionManager.sesionEnviar.value
-        AlertDialog(
-            onDismissRequest = { showContinueDialog = false },
-            title = { Text("Tirada guardada") },
-            text = {
-                Text(
-                    "Tienes una tirada en progreso. ¿Quieres continuar?"
-                )
+        DialogBase(
+            data = mapOf(
+                "header"        to "Tirada guardada",
+                "content"       to "Tienes una tirada en progreso. ¿Quieres continuar?",
+                "confirmButton" to "Sí",
+                "dismissButton" to "No"
+            ),
+            onConfirm = {
+                showContinueDialog = false
+                saved?.let {
+                    SesionManager.setSesion(it)
+                    nav.pop()
+                    nav.push(TiradaScreen())
+                }
             },
-            confirmButton = {
-                TextButton(onClick = {
-                    showContinueDialog = false
-                    saved?.let {
-                        SesionManager.setSesion(it)
-                        nav.pop()
-                        nav.push(TiradaScreen())
-                    }
-                }) { Text("Sí") }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    SesionManager.clear()
-                    showContinueDialog = false
-                    showDialog = true
-                }) { Text("No") }
+            onDismiss = {
+                SesionManager.clear()
+                showContinueDialog = false
+                showDialog = true
             }
         )
     }

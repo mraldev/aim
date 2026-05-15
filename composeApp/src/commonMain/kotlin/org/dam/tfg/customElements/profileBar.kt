@@ -39,12 +39,6 @@ import org.dam.tfg.screens.Settings
 fun profileBar(navigator: Navigator = LocalNavigator.currentOrThrow) {
 
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape)
-                .background(Color.Gray)
-        )
         Spacer(modifier = Modifier.width(16.dp))
         Column {
                 UserManager.correo.value?.let {
