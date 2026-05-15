@@ -34,7 +34,7 @@ import org.dam.tfg.repository.LoginRepository
 // Roles asignables (todos excepto SUPER_ADMIN)
 // ---------------------------------------------------------------------------
 
-private val ROLES_ASIGNABLES = UserRole.entries.filter { it != UserRole.SUPER_ADMIN }
+private val ROLES_ASIGNABLES = UserRole.entries
 
 // ---------------------------------------------------------------------------
 // Screen
