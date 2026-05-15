@@ -25,7 +25,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "ComposeApp"
+            baseName = "AIM"
             isStatic = true
         }
     }
@@ -107,8 +107,17 @@ android {
         applicationId = "org.dam.tfg"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 2
-        versionName = "1.2"
+        versionCode = 3
+        versionName = "1.3"
+    }
+    androidComponents {
+        onVariants { variant ->
+            variant.outputs.forEach { output ->
+                val name = "AIM.apk"
+                (output as com.android.build.api.variant.impl.VariantOutputImpl)
+                    .outputFileName = name
+            }
+        }
     }
     packaging {
         resources {
@@ -136,8 +145,18 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "org.dam.tfg"
-            packageVersion = "1.2.0"
+
+            packageName = "AIM"
+            packageVersion = "1.3.0"
+
+            description = "Aplicación de gestión para tiro con arco"
+            vendor = "AnIvMa"
+
+            windows {
+                menuGroup = "AIM"
+                shortcut = true
+            }
+
         }
     }
 }
