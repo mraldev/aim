@@ -271,14 +271,14 @@ internal fun FormularioCompeticion(
                                     competidorId
                                 )
                             },
-                            asocActual ?: Asociacion.IFAA,
+                            asocActual,
                             circuitoActual,
                             nombre ?: "prueba",
                             fechaActual,
-                            adminId = 903
+                            UserManager.asociaciones.value.getValue(asocActual)
                             //! Como solo se puede acceder a esta pantalla siendo admin, se pre supone que haya valor en numFederado
-                            //? !! porque estamos SEGUROS de que aqui hay numFederado
                         )
+
                         onGuardar(
                             ligaGuardar
                         )
