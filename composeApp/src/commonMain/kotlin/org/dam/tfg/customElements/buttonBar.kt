@@ -68,7 +68,7 @@ fun buttonBar(
     if (showDialog) {
         TiradaDialog(
             onDismiss = { showDialog = false },
-            onConfirm = { numDianas, flechas, participantes ->
+            onConfirm = { numDianas, flechas, participantes, tipoCircuito ->
                 showDialog = false
 
                 val tiradas = participantes.map { participante ->
@@ -77,7 +77,7 @@ fun buttonBar(
                         numDianas = numDianas,
                         numMaxFlechasPorDiana = flechas,
                         puntuaciones = mutableListOf(),
-                        tipoCircuito = TipoCircuito.CUSTOM,
+                        tipoCircuito = tipoCircuito,
                         null
                     )
                 }
