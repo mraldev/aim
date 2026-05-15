@@ -37,6 +37,7 @@ import org.dam.tfg.model.competiciones.Liga
 import org.dam.tfg.screens.Historial.DatePicker
 import org.dam.tfg.screens.TiradaScreen
 import androidx.compose.ui.graphics.Color
+import org.dam.tfg.repository.LigaRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +49,13 @@ internal fun ListaCompeticiones(
     onAñadir: () -> Unit
 ) {
     val nav = LocalNavigator.currentOrThrow
+
+    val ligaRepository = LigaRepository()
+    var competiciones by remember { mutableStateOf<List<LigaPreview>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        competiciones = ligaRepository.getCompeticionesByCorreo()
+    }
 
     var busquedaPorNombre by remember { mutableStateOf("") }
     var asocExpanded by remember { mutableStateOf(false) }
