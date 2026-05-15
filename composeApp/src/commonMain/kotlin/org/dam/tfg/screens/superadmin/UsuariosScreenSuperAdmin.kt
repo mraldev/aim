@@ -31,7 +31,7 @@ import org.dam.tfg.enums.UserRole
 import org.dam.tfg.repository.LoginRepository
 
 // ---------------------------------------------------------------------------
-// Roles asignables (todos excepto SUPER_ADMIN)
+// Roles asignables
 // ---------------------------------------------------------------------------
 
 private val ROLES_ASIGNABLES = UserRole.entries

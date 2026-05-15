@@ -8,6 +8,7 @@ import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import kotlinx.datetime.LocalDate
 import org.dam.tfg.api.ApiClient
 import org.dam.tfg.api.ApiConfig
 import org.dam.tfg.api.authorization.TokenManager
@@ -290,6 +291,73 @@ class VerificacionUsuario {
                 header("Authorization", "Bearer ${TokenManager.token.value}")
                 header("correo", UserManager.correo.value)
                 header("genero", genero)
+            }
+
+            val exito = ResponseHelper.validarResponse(response)
+
+            return exito
+
+        } catch (e: Exception) {
+            println("Login error: ${e.message}")
+            return false
+        }
+    }
+
+    suspend fun putAsociacion(asociacion: Asociacion, numAsociado: Int): Boolean {
+        try {
+            val response = ApiClient.client.put (
+                "${ApiConfig.BASE_URL}/agregar/asociacion"
+            ){
+                contentType(ContentType.Application.Json)
+
+                header("Authorization", "Bearer ${TokenManager.token.value}")
+                header("correo", UserManager.correo.value)
+                header("asociacion", asociacion)
+                header("numAsociado", numAsociado)
+            }
+
+            val exito = ResponseHelper.validarResponse(response)
+
+            return exito
+
+        } catch (e: Exception) {
+            println("Login error: ${e.message}")
+            return false
+        }
+    }
+
+    suspend fun putContrasenya(contrasenya: String): Boolean {
+        try {
+            val response = ApiClient.client.put (
+                "${ApiConfig.BASE_URL}/actualizar/contrasenya"
+            ){
+                contentType(ContentType.Application.Json)
+
+                header("Authorization", "Bearer ${TokenManager.token.value}")
+                header("correo", UserManager.correo.value)
+                header("contrasenya", contrasenya)
+            }
+
+            val exito = ResponseHelper.validarResponse(response)
+
+            return exito
+
+        } catch (e: Exception) {
+            println("Login error: ${e.message}")
+            return false
+        }
+    }
+
+    suspend fun putFechaNac(fechaNacimiento: LocalDate): Boolean {
+        try {
+            val response = ApiClient.client.put (
+                "${ApiConfig.BASE_URL}/actualizar/nacimiento"
+            ){
+                contentType(ContentType.Application.Json)
+
+                header("Authorization", "Bearer ${TokenManager.token.value}")
+                header("correo", UserManager.correo.value)
+                header("fechaNacimiento", fechaNacimiento)
             }
 
             val exito = ResponseHelper.validarResponse(response)

@@ -1,5 +1,6 @@
 package org.dam.tfg.api.controller
 
+import kotlinx.datetime.LocalDate
 import org.dam.tfg.api.endpoints.VerificacionUsuario
 import org.dam.tfg.api.responses.UsuarioResponse
 import org.dam.tfg.dto.UsuarioDtoMostrarBasico
@@ -45,4 +46,17 @@ class ApiAuthController {
     suspend fun putGenero(genero: Genero): Boolean {
         return login.putGenero(genero)
     }
+
+    suspend fun putAsociacion(asociacion: Asociacion, numAsociado: Int): Boolean {
+        return login.putAsociacion(asociacion, numAsociado)
+    }
+
+    suspend fun putContrasenya(contrasenya: String): Boolean {
+        return login.putContrasenya(contrasenya)
+    }
+
+    suspend fun putFechaNac(fechaNacimiento: LocalDate): Boolean {
+        return login.putFechaNac(fechaNacimiento)
+    }
+
 }

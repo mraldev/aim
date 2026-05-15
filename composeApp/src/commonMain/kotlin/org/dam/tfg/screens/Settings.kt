@@ -86,7 +86,6 @@ class Settings : Screen {
         var showEmailDialog        by remember { mutableStateOf(false) }
         var showPasswordDialog     by remember { mutableStateOf(false) }
         var showConfirmationDialog by remember { mutableStateOf(false) }
-        var showFedDialog          by remember { mutableStateOf(false) }
         var showAsociacionDialog   by remember { mutableStateOf(false) }
         var showNameDialog         by remember { mutableStateOf(false) }
         var showFecNacDialog       by remember { mutableStateOf(false) }
@@ -122,6 +121,7 @@ class Settings : Screen {
                     navigator.push(Home())
                     scope.launch {
                         usuarioRepository.baja()
+                        UserManager.clear()
                     }
                 },
                 onDismiss = { showConfirmationDialog = false }
@@ -323,9 +323,19 @@ class Settings : Screen {
                     AnimatedButton(
                         onClick = {
                             if (asociacionNueva != null) {
-                                UserManager.setAsociacion(asociacionNueva!!, 1)
-                                showAsociacionDialog = false
+                                if (!numFedNuevo.all { it.isDigit() }) {
+                                    numFedNuevo = "Solo se aceptan números."
+                                } else {
+                                    UserManager.setAsociacion(asociacionNueva!!, numFedNuevo.toIntOrNull() ?: 0)
+
+                                    scope.launch {
+                                        usuarioRepository.putAsociacion(asociacionNueva!!, numFedNuevo.toInt())
+                                    }
+
+                                    showAsociacionDialog = false
+                                }
                             }
+
                         },
                         containerColor = confirmContainerColor,
                         textColor      = confirmTextColor,
@@ -377,6 +387,18 @@ class Settings : Screen {
                             }
                         }
 
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value         = numFedNuevo,
+                            onValueChange = { numFedNuevo = it },
+                            label         = { Text("Número de asociado") },
+                            singleLine    = true,
+                            colors        = lavenderFieldColors,
+                            modifier      = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 30.dp)
+                        )
+
                         //- Lista de asociaciones actuales
                         val asociacionesActuales = UserManager.asociaciones.value
                         if (!asociacionesActuales.isNullOrEmpty()) {
@@ -419,6 +441,12 @@ class Settings : Screen {
                             } else {
                                 if (contrasenyaNueva == confirmarContrasenya) {
                                     UserManager.setContrasenya(contrasenyaNueva)
+
+                                    scope.launch {
+                                        usuarioRepository.putContrasenya(contrasenyaNueva)
+                                        CredentialStore.save(UserManager.correo.value!!, contrasenyaNueva)
+                                    }
+
                                     showPasswordDialog = false
                                 }
                             }
@@ -467,55 +495,17 @@ class Settings : Screen {
             )
         }
 
-        //- Dialog Número federado
-        if (showFedDialog) {
-            AlertDialog(
-                onDismissRequest = { showFedDialog = false },
-                containerColor   = AppColors.Champagne,
-                confirmButton = {
-                    AnimatedButton(
-                        onClick = {
-                            if (!numFedNuevo.all { it.isDigit() }) {
-                                numFedNuevo = "Solo se aceptan números."
-                            } else {
-                                UserManager.setNumFed(numFedNuevo.toInt())
-                                showFedDialog = false
-                            }
-                        },
-                        containerColor = confirmContainerColor,
-                        textColor      = confirmTextColor,
-                        borderColor    = confirmBorderColor
-                    ) { Text("Confirmar") }
-                },
-                dismissButton = {
-                    AnimatedButton(
-                        onClick        = { showFedDialog = false },
-                        containerColor = dismissContainerColor,
-                        borderColor    = dismissBorderColor
-                    ) { Text("Cancelar") }
-                },
-                title = { Text("Cambiar número federado") },
-                text = {
-                    OutlinedTextField(
-                        value         = numFedNuevo,
-                        onValueChange = { numFedNuevo = it },
-                        label         = { Text("Numero de federado") },
-                        singleLine    = true,
-                        colors        = lavenderFieldColors,
-                        modifier      = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 30.dp)
-                    )
-                }
-            )
-        }
-
         //- Dialog Fecha nacimiento
         if (showFecNacDialog) {
             org.dam.tfg.screens.Historial.DatePicker(
                 onDateSelected = { date ->
                     fecNacNuevo = date
                     UserManager.setFechaNacimiento(fecNacNuevo)
+
+                    scope.launch {
+                        usuarioRepository.putFechaNac(fecNacNuevo!!)
+                    }
+
                     showFecNacDialog = false
                 },
                 onDismiss = { showFecNacDialog = false }
@@ -571,15 +561,6 @@ class Settings : Screen {
                 Spacer(modifier = Modifier.height(50.dp))
 
                 //- Datos del perfil (botones siempre visibles)
-                Row {
-                    AnimatedButton(
-                        onClick  = { showFedDialog = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) { Text("Asignar número federado") }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
                 Row {
                     AnimatedButton(
                         onClick  = { showAsociacionDialog = true },
