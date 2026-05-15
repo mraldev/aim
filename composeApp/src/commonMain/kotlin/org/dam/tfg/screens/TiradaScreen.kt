@@ -110,12 +110,14 @@ class TiradaScreen : Screen {
             if (completa) {
                 repository.registrar(sesionActualizada)
                 SesionManager.clear()
+                onFinalizar(snapshot)
+                navigator.pop()
             } else {
                 //? Guarda en caché si la tirada está incompleta
                 guardarTirada(snapshot)
+                onFinalizar(snapshot)
+                navigator.pop()
             }
-            onFinalizar(snapshot)
-            navigator.pop()
         }
 
         var showConfirmDialog by remember { mutableStateOf(false) }
