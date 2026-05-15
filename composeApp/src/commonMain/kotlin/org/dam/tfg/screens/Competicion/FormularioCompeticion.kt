@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.text.input.KeyboardType
 import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.customElements.AnimatedButton
 import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.dto.FederadoTiradaDto
 import org.dam.tfg.dto.LigaPreview
@@ -47,19 +48,23 @@ internal fun FormularioCompeticion(
     var flExpanded by remember { mutableStateOf(false) }
     var mostrarFecha by remember { mutableStateOf(false) }
 
-    // En creación el formulario arranca ya editable; en edición hay que pulsar el lápiz.
     var editEnabled by remember { mutableStateOf(competicion == null) }
 
-    val titulo = if (competicion == null) {
-        "Nueva competición"
-    } else {
-        "Editar competición"
-    }
+    val titulo = if (competicion == null) "Nueva competición" else "Editar competición"
 
     var participanteInput by remember { mutableStateOf("") }
     val participantes = remember { mutableStateListOf<Int>() }
-
     var participanteAEliminar by remember { mutableStateOf<Int?>(null) }
+
+    //- Colores reutilizables para todos los campos
+    val fieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor      = AppColors.Lavender,
+        unfocusedBorderColor    = AppColors.Lavender,
+        disabledBorderColor     = AppColors.Lavender,
+        focusedContainerColor   = AppColors.Champagne,
+        unfocusedContainerColor = AppColors.Champagne,
+        disabledContainerColor  = AppColors.Champagne
+    )
 
     participanteAEliminar?.let { numero ->
         DialogBase(
@@ -91,11 +96,10 @@ internal fun FormularioCompeticion(
             .imePadding()
     ) {
         Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState())
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             // Cabecera
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -124,6 +128,7 @@ internal fun FormularioCompeticion(
                 singleLine = true,
                 readOnly = !editEnabled,
                 enabled = editEnabled,
+                colors = fieldColors,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -143,6 +148,7 @@ internal fun FormularioCompeticion(
                     trailingIcon = {
                         if (editEnabled) ExposedDropdownMenuDefaults.TrailingIcon(asocExpanded)
                     },
+                    colors = fieldColors,
                     modifier = Modifier.fillMaxWidth().menuAnchor()
                 )
                 ExposedDropdownMenu(
@@ -174,6 +180,7 @@ internal fun FormularioCompeticion(
                     trailingIcon = {
                         if (editEnabled) ExposedDropdownMenuDefaults.TrailingIcon(circuitoExpanded)
                     },
+                    colors = fieldColors,
                     modifier = Modifier.fillMaxWidth().menuAnchor()
                 )
                 ExposedDropdownMenu(
@@ -192,9 +199,8 @@ internal fun FormularioCompeticion(
             Spacer(Modifier.height(12.dp))
 
             // Fecha
-            OutlinedButton(
+            AnimatedButton(
                 onClick = { if (editEnabled) mostrarFecha = true },
-                enabled = editEnabled,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(fecha?.toString() ?: "Seleccionar fecha")
@@ -202,6 +208,7 @@ internal fun FormularioCompeticion(
 
             Spacer(Modifier.height(12.dp))
 
+            // Participante
             OutlinedTextField(
                 value = participanteInput,
                 onValueChange = {
@@ -226,6 +233,7 @@ internal fun FormularioCompeticion(
                         }
                     }
                 },
+                colors = fieldColors,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -242,9 +250,7 @@ internal fun FormularioCompeticion(
                         headlineContent = { Text(numero.toString()) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                participanteAEliminar = numero
-                            }
+                            .clickable { participanteAEliminar = numero }
                     )
                     HorizontalDivider()
                 }
@@ -265,11 +271,7 @@ internal fun FormularioCompeticion(
 
                         val ligaGuardar = LigaEnviar(
                             participantes.map { competidorId ->
-                                FederadoTiradaDto(
-                                    //? Para registrar la liga, nos sirve con no ponerle correo
-                                    "",
-                                    competidorId
-                                )
+                                FederadoTiradaDto("", competidorId)
                             },
                             asocActual,
                             circuitoActual,
@@ -278,10 +280,7 @@ internal fun FormularioCompeticion(
                             UserManager.asociaciones.value.getValue(asocActual)
                             //! Como solo se puede acceder a esta pantalla siendo admin, se pre supone que haya valor en numFederado
                         )
-
-                        onGuardar(
-                            ligaGuardar
-                        )
+                        onGuardar(ligaGuardar)
                     },
                     enabled = canSave,
                     modifier = Modifier.fillMaxWidth()
@@ -296,9 +295,7 @@ internal fun FormularioCompeticion(
                 fecha = date
                 mostrarFecha = false
             },
-            onDismiss = {
-                mostrarFecha = false
-            }
+            onDismiss = { mostrarFecha = false }
         )
     }
 }

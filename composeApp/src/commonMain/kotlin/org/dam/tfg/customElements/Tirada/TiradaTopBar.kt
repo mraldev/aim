@@ -2,12 +2,15 @@ package org.dam.tfg.customElements.Tirada
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -67,24 +70,30 @@ fun DianaListSection(
     onDianaSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(currentDiana) {
+        listState.animateScrollToItem(index = currentDiana)
+    }
+
+    LazyColumn(
+        state = listState,
         modifier = modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 6.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        repeat(numDianas) { index ->
+        items(numDianas) { index ->
             val puntuacion = puntuacionesPorDiana
                 .getOrNull(index)
                 ?.filterNotNull()
                 ?.sum() ?: 0
 
             DianaRow(
-                numero      = index + 1,
-                puntuacion  = puntuacion,
-                isSelected  = index == currentDiana,
-                onClick     = { onDianaSelected(index) }
+                numero     = index + 1,
+                puntuacion = puntuacion,
+                isSelected = index == currentDiana,
+                onClick    = { onDianaSelected(index) }
             )
         }
     }

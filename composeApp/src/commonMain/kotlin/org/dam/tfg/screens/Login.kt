@@ -32,6 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -186,6 +187,12 @@ class Login : Screen {
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next
                     ),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor   = AppColors.Lavender,
+                        unfocusedBorderColor = AppColors.Lavender,
+                        focusedContainerColor   = AppColors.Eggshell,
+                        unfocusedContainerColor = AppColors.Eggshell
+                    ),
                     keyboardActions = KeyboardActions(
                         onDone = {
                             focusManager.moveFocus(FocusDirection.Down)
@@ -206,6 +213,12 @@ class Login : Screen {
                             confirmPasswordError = it.trim() != confirmarContrasenya
                         }
                     },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor   = AppColors.Lavender,
+                        unfocusedBorderColor = AppColors.Lavender,
+                        focusedContainerColor   = AppColors.Eggshell,
+                        unfocusedContainerColor = AppColors.Eggshell
+                    ),
                     label = { Text(password) },
                     shape = RoundedCornerShape(40.dp),
                     isError = passwordError,

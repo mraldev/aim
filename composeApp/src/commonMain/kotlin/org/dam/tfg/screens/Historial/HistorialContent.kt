@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
+import org.dam.tfg.customElements.AnimatedButton
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.model.Tirada.SesionHistorial
 import androidx.compose.ui.graphics.Color
@@ -25,6 +26,13 @@ fun HistorialContent(sesiones: List<SesionHistorial>) {
     var puntajeMin by remember { mutableStateOf("") }
     var mostrarFecha by remember { mutableStateOf(false) }
     var ordenReciente by remember { mutableStateOf(true) }
+
+    val fieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor      = AppColors.Lavender,
+        unfocusedBorderColor    = AppColors.Lavender,
+        focusedContainerColor   = AppColors.Champagne,
+        unfocusedContainerColor = AppColors.Champagne
+    )
 
     val listaFiltrada = sesiones.filter { sesion ->
         (busqCompeticion.isBlank() ||
@@ -67,7 +75,7 @@ fun HistorialContent(sesiones: List<SesionHistorial>) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedButton(
+                AnimatedButton(
                     onClick = { mostrarFecha = true },
                     modifier = Modifier.weight(1f)
                 ) {
@@ -86,6 +94,7 @@ fun HistorialContent(sesiones: List<SesionHistorial>) {
                     onValueChange = { if (it.all { c -> c.isDigit() }) puntajeMin = it },
                     label = { Text("Punt. mínima") },
                     singleLine = true,
+                    colors = fieldColors,
                     modifier = Modifier.weight(1f)
                 )
             }

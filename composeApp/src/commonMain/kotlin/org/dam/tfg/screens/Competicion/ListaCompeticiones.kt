@@ -1,7 +1,6 @@
 package org.dam.tfg.screens.competicion
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,17 +32,17 @@ import org.dam.tfg.enums.RangoDeEdad
 import org.dam.tfg.helpers.HelperCargadorDeTipoDeTirada
 import org.dam.tfg.model.Tirada.SesionEnviar
 import org.dam.tfg.model.Tirada.Tirada
-import org.dam.tfg.model.competiciones.Liga
 import org.dam.tfg.screens.Historial.DatePicker
 import org.dam.tfg.screens.TiradaScreen
 import androidx.compose.ui.graphics.Color
+import org.dam.tfg.customElements.AnimatedButton
 import org.dam.tfg.repository.LigaRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ListaCompeticiones(
     userRole: UserRole?,
-    asociacionesUsuario: Map<Asociacion, Int>, //? el número de federado de las distintas asociaciones
+    asociacionesUsuario: Map<Asociacion, Int>,
     competiciones: List<LigaPreview>,
     onSelect: (LigaPreview) -> Unit,
     onAñadir: () -> Unit
@@ -68,6 +67,16 @@ internal fun ListaCompeticiones(
     var showDialog by remember { mutableStateOf(false) }
     var competicion by remember { mutableStateOf<LigaPreview?>(null) }
 
+    //- Colores reutilizables para todos los campos
+    val fieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor      = AppColors.Lavender,
+        unfocusedBorderColor    = AppColors.Lavender,
+        disabledBorderColor     = AppColors.Lavender,
+        focusedContainerColor   = AppColors.Champagne,
+        unfocusedContainerColor = AppColors.Champagne,
+        disabledContainerColor  = AppColors.Champagne
+    )
+
     val listaBase = if (userRole == UserRole.ADMIN)
         competiciones.filter { asociacionesUsuario.containsValue(it.administradorId) }
     else
@@ -76,7 +85,6 @@ internal fun ListaCompeticiones(
     val listaFiltrada = listaBase.filter { comp ->
         (busquedaPorNombre.isBlank() || comp.nombreLiga.contains(busquedaPorNombre, ignoreCase = true)) &&
                 (asocSelec == null || comp.asociacion == asocSelec) &&
-                //Se filtra por el índice 0 ya que es el mismo para todos, además siempre va a haber al menos 1
                 (circuitoSelec == null || comp.tipoCircuito == circuitoSelec) &&
                 (fechaSelec == null || comp.fecha == fechaSelec) &&
                 (!soloPropias || comp.competidores.any { competidor ->
@@ -87,8 +95,8 @@ internal fun ListaCompeticiones(
     if (showDialog) {
         DialogBase(
             data = mapOf(
-                "header" to "Competir",
-                "content" to "Al confirmar este mensaje, estarás participando en la competición ${competicion!!.nombreLiga}.",
+                "header"        to "Competir",
+                "content"       to "Al confirmar este mensaje, estarás participando en la competición ${competicion!!.nombreLiga}.",
                 "confirmButton" to "Confirmar",
                 "dismissButton" to "Cancelar"
             ),
@@ -111,7 +119,6 @@ internal fun ListaCompeticiones(
 
                 val tiradas = listOf<Tirada>(
                     Tirada(
-                        //? como ya es costumbre, se asegura (!!) porque para acceder aquí hay que estar logeado
                         usuario = UsuarioTiradaDTO(UserManager.correo.value!!),
                         numDianas = infoTipoCircuito.numDianas,
                         numMaxFlechasPorDiana = infoTipoCircuito.numFlechasPorDiana,
@@ -122,7 +129,6 @@ internal fun ListaCompeticiones(
                 )
 
                 val sesion = SesionEnviar(tiradas)
-
                 SesionManager.setSesion(sesion)
                 nav.pop()
                 nav.push(TiradaScreen())
@@ -150,12 +156,14 @@ internal fun ListaCompeticiones(
         ) {
             Spacer(Modifier.height(12.dp))
 
+            // Búsqueda
             OutlinedTextField(
                 value = busquedaPorNombre,
                 onValueChange = { busquedaPorNombre = it },
                 label = { Text("Buscar competición") },
                 leadingIcon = { Icon(Icons.Default.Search, null) },
                 singleLine = true,
+                colors = fieldColors,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -176,6 +184,7 @@ internal fun ListaCompeticiones(
                         onValueChange = {},
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(asocExpanded) },
+                        colors = fieldColors,
                         modifier = Modifier.fillMaxWidth().menuAnchor()
                     )
                     ExposedDropdownMenu(
@@ -205,6 +214,7 @@ internal fun ListaCompeticiones(
                         onValueChange = {},
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(circuitoExpanded) },
+                        colors = fieldColors,
                         modifier = Modifier.fillMaxWidth().menuAnchor()
                     )
                     ExposedDropdownMenu(
@@ -233,7 +243,7 @@ internal fun ListaCompeticiones(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedButton(
+                AnimatedButton(
                     onClick = { mostrarFecha = true },
                     modifier = Modifier.weight(1f)
                 ) {
@@ -263,10 +273,7 @@ internal fun ListaCompeticiones(
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(listaFiltrada) { comp ->
                     CompeticionCard(comp = comp, onClick = {
-                        //onSelect(comp)
-
                         competicion = comp
-
                         showDialog = true
                     })
                 }
@@ -307,7 +314,6 @@ internal fun CompeticionCard(comp: LigaPreview, onClick: () -> Unit) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(comp.nombreLiga, style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(4.dp))
-
             Text(
                 "${comp.asociacion.label}  •  ${comp.tipoCircuito.label}  •  ${comp.fecha}",
                 style = MaterialTheme.typography.bodySmall
