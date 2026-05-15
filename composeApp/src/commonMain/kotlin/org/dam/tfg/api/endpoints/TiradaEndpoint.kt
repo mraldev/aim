@@ -51,31 +51,25 @@ class TiradaEndpoint {
     }
 
     private suspend fun enviarRegistroNormal(sesionEnviar: SesionEnviar): Boolean{
-        val healthRepository = HealthCheckRepository()
+        try {
+            val response = ApiClient.client.post(
+                "${ApiConfig.BASE_URL}/tiradas/registrar"
+            ) {
+                contentType(ContentType.Application.Json)
 
-        if (healthRepository.isServerActive()){
-            try {
-                val response = ApiClient.client.post(
-                    "${ApiConfig.BASE_URL}/tiradas/registrar"
-                ) {
-                    contentType(ContentType.Application.Json)
+                header("Authorization", "Bearer ${TokenManager.token.value}")
 
-                    header("Authorization", "Bearer ${TokenManager.token.value}")
-
-                    setBody(
-                        sesionEnviar
-                    )
-                }
-
-                val exito = ResponseHelper.validarResponse(response)
-
-                return exito
-
-            } catch (e: Exception) {
-                println("Tirada error: ${e.message}")
-                return false
+                setBody(
+                    sesionEnviar
+                )
             }
-        } else{
+
+            val exito = ResponseHelper.validarResponse(response)
+
+            return exito
+
+        } catch (e: Exception) {
+            println("Tirada error: ${e.message}")
             val sesionesPendientes: MutableList<SesionEnviar>? =
                 ObjectStore.load(
                     "sesiones_pendientes",
@@ -96,54 +90,48 @@ class TiradaEndpoint {
     }
 
     suspend fun enviarRegistroCompetitivo(sesionEnviar: SesionEnviar, datosCompeticion: DatosCompeticionDto): Boolean{
-        val healthRepository = HealthCheckRepository()
 
-        if(healthRepository.isServerActive()){
-            val competirEnviar = CompetirEnviar(
-                sesionEnviar.tiradas[0].usuario,
-                sesionEnviar.tiradas[0].numDianas,
-                sesionEnviar.tiradas[0].numMaxFlechasPorDiana,
-                sesionEnviar.tiradas[0].puntuaciones,
-                sesionEnviar.tiradas[0].tipoCircuito,
-                datosCompeticion.nombreLigaAsociada,
-                datosCompeticion.dorsal,
-                datosCompeticion.posicion,
-                datosCompeticion.patrulla,
-                datosCompeticion.estilo,
-                datosCompeticion.rangoEdad,
-                datosCompeticion.genero
-            )
+        val competirEnviar = CompetirEnviar(
+            sesionEnviar.tiradas[0].usuario,
+            sesionEnviar.tiradas[0].numDianas,
+            sesionEnviar.tiradas[0].numMaxFlechasPorDiana,
+            sesionEnviar.tiradas[0].puntuaciones,
+            sesionEnviar.tiradas[0].tipoCircuito,
+            datosCompeticion.nombreLigaAsociada,
+            datosCompeticion.dorsal,
+            datosCompeticion.posicion,
+            datosCompeticion.patrulla,
+            datosCompeticion.estilo,
+            datosCompeticion.rangoEdad,
+            datosCompeticion.genero
+        )
 
-            try {
-                val response = ApiClient.client.put(
-                    "${ApiConfig.BASE_URL}/ligas/competir"
-                ) {
-                    contentType(ContentType.Application.Json)
+        try {
+            val response = ApiClient.client.put(
+                "${ApiConfig.BASE_URL}/ligas/competir"
+            ) {
+                contentType(ContentType.Application.Json)
 
-                    header("Authorization", "Bearer ${TokenManager.token.value}")
+                header("Authorization", "Bearer ${TokenManager.token.value}")
 
-                    setBody(
-                        competirEnviar
-                    )
-                }
-
-                val exito = ResponseHelper.validarResponse(response)
-
-                return exito
-
-            } catch (e: Exception) {
-                println("Tirada error: ${e.message}")
-                return false
+                setBody(
+                    competirEnviar
+                )
             }
-        } else{
+
+            val exito = ResponseHelper.validarResponse(response)
+
+            return exito
+
+        } catch (e: Exception) {
 
             val listaPendientes: MutableList<Pair<SesionEnviar, DatosCompeticionDto>>? =
                 ObjectStore.load(
                     key = "ligas_pendientes",
                     serializer = ListSerializer(
                         pairSerializer<SesionEnviar, DatosCompeticionDto>()
-                )
-            )?.toMutableList()
+                    )
+                )?.toMutableList()
 
             val listaGuardar = mutableListOf<Pair<SesionEnviar, DatosCompeticionDto>>()
             listaPendientes?.let { listaGuardar.addAll(it) }

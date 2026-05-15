@@ -22,12 +22,20 @@ import androidx.compose.ui.unit.dp
 //?        onDismiss = { showDialog = false }
 //?    )
 
+//! Si necesitas un composable personalizado en el cuerpo (ej: TextField), usa customContent:
+//?    DialogBase(
+//?        data = mapOf(...),
+//?        customContent = { OutlinedTextField(...) },
+//?        onConfirm = { ... },
+//?        onDismiss = { showDialog = false }
+//?    )
 
 @Composable
 fun DialogBase(
     data: Map<String, String>,
     onConfirm: () -> Unit,
-    onDismiss: (() -> Unit)? = null, //? Esto hace que sea nulable, si no se rellena solo habrá opción de aceptar
+    onDismiss: (() -> Unit)? = null,                   //? Nulable, si no se rellena solo habrá opción de aceptar
+    customContent: (@Composable () -> Unit)? = null,   //? Slot opcional para contenido personalizado en el cuerpo
 
     dialogContainerColor : Color = AppColors.Champagne,        //- Color Champagne para el fondo del diálogo
 
@@ -47,9 +55,11 @@ fun DialogBase(
         title = data["header"]?.let {
             { Text(text = it, color = dialogTextColor) }       //- Color de texto del título
         },
-        text = data["content"]?.let {
-            { Text(text = it, color = dialogTextColor) }       //- Color de texto del contenido
-        },
+        //- Si hay customContent se usa como cuerpo, si no se usa el texto de data["content"]
+        text = customContent
+            ?: data["content"]?.let {
+                { Text(text = it, color = dialogTextColor) }   //- Color de texto del contenido
+            },
         confirmButton = {
             OutlinedButton(
                 onClick = onConfirm,

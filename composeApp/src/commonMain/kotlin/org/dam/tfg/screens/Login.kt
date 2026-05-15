@@ -278,6 +278,12 @@ class Login : Screen {
                             },
                             label = { Text("Confirmar contraseña") },
                             shape = RoundedCornerShape(40.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor   = AppColors.Lavender,
+                                unfocusedBorderColor = AppColors.Lavender,
+                                focusedContainerColor   = AppColors.Eggshell,
+                                unfocusedContainerColor = AppColors.Eggshell
+                            ),
                             isError = confirmPasswordError,
                             visualTransformation = PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(
