@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.text.input.KeyboardType
+import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.dto.FederadoTiradaDto
 import org.dam.tfg.dto.LigaPreview
@@ -274,10 +275,10 @@ internal fun FormularioCompeticion(
                             circuitoActual,
                             nombre ?: "prueba",
                             fechaActual,
-                            902
+                            adminId = 903
                             //! Como solo se puede acceder a esta pantalla siendo admin, se pre supone que haya valor en numFederado
+                            //? !! porque estamos SEGUROS de que aqui hay numFederado
                         )
-
                         onGuardar(
                             ligaGuardar
                         )
