@@ -57,7 +57,7 @@ class VerificacionUsuario {
 
                 setBody(
                     mapOf(
-                        "correo" to correo,
+                        "correo" to correo.trim().lowercase(),
                         "contrasenya" to contrasenya
                     )
                 )
@@ -82,7 +82,7 @@ class VerificacionUsuario {
             }
 
             TokenManager.setToken(body.token)
-            UserManager.setCorreo(correo)
+            UserManager.setCorreo(correo.trim().lowercase())
             UserManager.setContrasenya(contrasenya)
 
             UserManager.asignarValoresDesdeLogInResponse(body)
@@ -125,7 +125,7 @@ class VerificacionUsuario {
 
                 setBody(
                     mapOf(
-                        "correo" to correo,
+                        "correo" to correo.trim().lowercase(),
                         "contrasenya" to contrasenya
                     )
                 )
@@ -136,7 +136,7 @@ class VerificacionUsuario {
             val body = response.body<RegisterResponse>()
 
             TokenManager.setToken(body.token)
-            UserManager.setCorreo(correo)
+            UserManager.setCorreo(correo.trim().lowercase())
             UserManager.setContrasenya(contrasenya)
             UserManager.setCorreoVerificado(false)
 
