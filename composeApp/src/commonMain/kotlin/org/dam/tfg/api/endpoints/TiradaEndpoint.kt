@@ -14,11 +14,16 @@ import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.SesionManager
 import org.dam.tfg.api.managers.UserManager
 import org.dam.tfg.api.responses.ResponseHelper
+import org.dam.tfg.crypto.ObjectStore
 import org.dam.tfg.dto.CompetirEnviar
 import org.dam.tfg.dto.DatosCompeticionDto
 import org.dam.tfg.exceptions.ExceptionNoRegistrado
 import org.dam.tfg.model.Tirada.SesionEnviar
 import org.dam.tfg.model.Tirada.SesionHistorial
+import org.dam.tfg.repository.HealthCheckRepository
+import kotlinx.serialization.builtins.ListSerializer
+import org.dam.tfg.helpers.HelperSerializadorTiradasPorFaltaDeConexion.pairSerializer
+
 
 class TiradaEndpoint {
     suspend fun registrar(sesionEnviar: SesionEnviar): Boolean {
@@ -46,64 +51,112 @@ class TiradaEndpoint {
     }
 
     private suspend fun enviarRegistroNormal(sesionEnviar: SesionEnviar): Boolean{
-        try {
-            val response = ApiClient.client.post(
-                "${ApiConfig.BASE_URL}/tiradas/registrar"
-            ) {
-                contentType(ContentType.Application.Json)
+        val healthRepository = HealthCheckRepository()
 
-                header("Authorization", "Bearer ${TokenManager.token.value}")
+        if (healthRepository.isServerActive()){
+            try {
+                val response = ApiClient.client.post(
+                    "${ApiConfig.BASE_URL}/tiradas/registrar"
+                ) {
+                    contentType(ContentType.Application.Json)
 
-                setBody(
-                    sesionEnviar
-                )
+                    header("Authorization", "Bearer ${TokenManager.token.value}")
+
+                    setBody(
+                        sesionEnviar
+                    )
+                }
+
+                val exito = ResponseHelper.validarResponse(response)
+
+                return exito
+
+            } catch (e: Exception) {
+                println("Tirada error: ${e.message}")
+                return false
             }
+        } else{
+            val sesionesPendientes: MutableList<SesionEnviar>? =
+                ObjectStore.load(
+                    "sesiones_pendientes",
+                    ListSerializer(SesionEnviar.serializer())
+                )?.toMutableList()
 
-            val exito = ResponseHelper.validarResponse(response)
+            val listaGuardar = mutableListOf<SesionEnviar>()
+            sesionesPendientes?.let { listaGuardar.addAll(it) }
+            listaGuardar.add(sesionEnviar)
 
-            return exito
-
-        } catch (e: Exception) {
-            println("Tirada error: ${e.message}")
+            ObjectStore.save(
+                "sesiones_pendientes",
+                listaGuardar,
+                ListSerializer(SesionEnviar.serializer())
+            )
             return false
         }
     }
 
-    private suspend fun enviarRegistroCompetitivo(sesionEnviar: SesionEnviar, datosCompeticion: DatosCompeticionDto): Boolean{
-        val competirEnviar = CompetirEnviar(
-            sesionEnviar.tiradas[0].usuario,
-            sesionEnviar.tiradas[0].numDianas,
-            sesionEnviar.tiradas[0].numMaxFlechasPorDiana,
-            sesionEnviar.tiradas[0].puntuaciones,
-            sesionEnviar.tiradas[0].tipoCircuito,
-            datosCompeticion.nombreLigaAsociada,
-            datosCompeticion.dorsal,
-            datosCompeticion.posicion,
-            datosCompeticion.patrulla,
-            datosCompeticion.estilo,
-            datosCompeticion.rangoEdad,
-            datosCompeticion.genero
-        )
+    suspend fun enviarRegistroCompetitivo(sesionEnviar: SesionEnviar, datosCompeticion: DatosCompeticionDto): Boolean{
+        val healthRepository = HealthCheckRepository()
 
-        try {
-            val response = ApiClient.client.put(
-                "${ApiConfig.BASE_URL}/ligas/competir"
-            ) {
-                contentType(ContentType.Application.Json)
+        if(healthRepository.isServerActive()){
+            val competirEnviar = CompetirEnviar(
+                sesionEnviar.tiradas[0].usuario,
+                sesionEnviar.tiradas[0].numDianas,
+                sesionEnviar.tiradas[0].numMaxFlechasPorDiana,
+                sesionEnviar.tiradas[0].puntuaciones,
+                sesionEnviar.tiradas[0].tipoCircuito,
+                datosCompeticion.nombreLigaAsociada,
+                datosCompeticion.dorsal,
+                datosCompeticion.posicion,
+                datosCompeticion.patrulla,
+                datosCompeticion.estilo,
+                datosCompeticion.rangoEdad,
+                datosCompeticion.genero
+            )
 
-                header("Authorization", "Bearer ${TokenManager.token.value}")
+            try {
+                val response = ApiClient.client.put(
+                    "${ApiConfig.BASE_URL}/ligas/competir"
+                ) {
+                    contentType(ContentType.Application.Json)
 
-                setBody(
-                    competirEnviar
-                )
+                    header("Authorization", "Bearer ${TokenManager.token.value}")
+
+                    setBody(
+                        competirEnviar
+                    )
+                }
+
+                val exito = ResponseHelper.validarResponse(response)
+
+                return exito
+
+            } catch (e: Exception) {
+                println("Tirada error: ${e.message}")
+                return false
             }
+        } else{
 
-            val exito = ResponseHelper.validarResponse(response)
+            val listaPendientes: MutableList<Pair<SesionEnviar, DatosCompeticionDto>>? =
+                ObjectStore.load(
+                    key = "ligas_pendientes",
+                    serializer = ListSerializer(
+                        pairSerializer<SesionEnviar, DatosCompeticionDto>()
+                )
+            )?.toMutableList()
 
-            return exito
+            val listaGuardar = mutableListOf<Pair<SesionEnviar, DatosCompeticionDto>>()
+            listaPendientes?.let { listaGuardar.addAll(it) }
+            listaGuardar.add(Pair(sesionEnviar, datosCompeticion))
 
-        } catch (e: Exception) {
-            println("Tirada error: ${e.message}")
+            ObjectStore.save(
+                "ligas_pendientes",
+                listaGuardar,
+                ListSerializer(
+                    pairSerializer<SesionEnviar, DatosCompeticionDto>()
+                )
+            )
+
             return false
         }
     }
