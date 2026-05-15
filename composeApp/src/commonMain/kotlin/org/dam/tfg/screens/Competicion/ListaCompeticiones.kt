@@ -1,5 +1,7 @@
 package org.dam.tfg.screens.competicion
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -281,7 +283,18 @@ internal fun ListaCompeticiones(
 
 @Composable
 internal fun CompeticionCard(comp: LigaPreview, onClick: () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = AppColors.Champagne
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = AppColors.Amethyst
+        )
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(comp.nombreLiga, style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(4.dp))
