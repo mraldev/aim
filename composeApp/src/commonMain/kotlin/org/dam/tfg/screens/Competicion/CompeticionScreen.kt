@@ -1,6 +1,7 @@
 package org.dam.tfg.screens.competicion
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
@@ -10,6 +11,7 @@ import org.dam.tfg.enums.UserRole
 import cafe.adriel.voyager.core.screen.Screen
 import kotlinx.coroutines.launch
 import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.dto.LigaPreview
 import org.dam.tfg.repository.LigaRepository
 import org.dam.tfg.screens.Competicion.AccionesCompeticion
@@ -63,6 +65,9 @@ class CompeticionScreen(
                         modifier = Modifier
                             .align(Alignment.Center)
                     )
+                    Row(modifier = Modifier.align(Alignment.BottomCenter)) {
+                        buttonBar(Modifier)
+                    }
                 }
                 else -> {
                     when (val state = nav) {
