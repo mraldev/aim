@@ -1,6 +1,5 @@
 package org.dam.tfg.screens
 
-
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,9 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,6 +29,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
 
@@ -47,51 +47,47 @@ class Profile(): Screen {
 //            loggedIn = true //- DEV
         }
 
+        //- Diálogo para editar la biografía, usa customContent para alojar el TextField
         if (showEditBioDialog) {
-            AlertDialog(
-                onDismissRequest = { showEditBioDialog = false },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            UserManager.setDescripcion(bioNueva)
-                            showEditBioDialog = false
-                        }
-                    ) {
-                        Text("Confirmar")
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { showEditBioDialog = false }
-                    ) {
-                        Text("Cancelar")
-                    }
-                },
-                title = { Text("Cambiar Biografia") },
-                text = {
+            DialogBase(
+                data = mapOf(
+                    "header"        to "Cambiar Biografia",
+                    "confirmButton" to "Confirmar",
+                    "dismissButton" to "Cancelar"
+                ),
+                customContent = {
                     OutlinedTextField(
                         value = bioNueva,
                         onValueChange = { bioNueva = it },
                         label = { Text("Biografia") },
                         singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(         //- Borde en Lavender para mantener consistencia con el resto de inputs
+                            focusedBorderColor   = AppColors.Lavender,
+                            unfocusedBorderColor = AppColors.Lavender,
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 30.dp)
                     )
-                }
+                },
+                onConfirm = {
+                    UserManager.setDescripcion(bioNueva)
+                    showEditBioDialog = false
+                },
+                onDismiss = { showEditBioDialog = false }
             )
         }
 
         when (loggedIn) {
             null -> {
-                // estado de carga
+                //- Estado de carga mientras se comprueba la sesión
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("Comprobando sesión...")
                 }
             }
 
             true -> {
-                // usuario logueado
+                //- Usuario logueado, se muestra el perfil
                 Box(modifier = Modifier.fillMaxSize()) {
                     Column(
                         modifier = Modifier
@@ -122,6 +118,7 @@ class Profile(): Screen {
             }
 
             false -> {
+                //- Sesión no válida, redirige al login
                 LaunchedEffect(Unit) {
                     navigator.pop()
                     navigator.push(Login())

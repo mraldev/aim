@@ -25,6 +25,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
+import org.dam.tfg.customElements.DialogBase
 import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
 import org.dam.tfg.dto.LigaCompletoDto
@@ -406,6 +407,7 @@ private fun TiradaCard(
     invalidada: Boolean,
     onInvalidar: () -> Unit
 ) {
+    var showDialog by remember { mutableStateOf(false) }
     val bgColor = if (invalidada)
         MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.4f)
     else
@@ -421,7 +423,8 @@ private fun TiradaCard(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Info del usuario e icono
+
+            // Icono usuario
             Box(
                 modifier = Modifier
                     .size(36.dp)
@@ -439,6 +442,7 @@ private fun TiradaCard(
 
             Spacer(modifier = Modifier.width(10.dp))
 
+            // Info tirada
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = tirada.usuario.correo ?: "Usuario desconocido",
@@ -473,6 +477,7 @@ private fun TiradaCard(
 
             Spacer(modifier = Modifier.width(8.dp))
 
+            // Estado / acción
             if (invalidada) {
                 Text(
                     text = "Invalidada",
@@ -482,20 +487,38 @@ private fun TiradaCard(
                 )
             } else {
                 OutlinedButton(
-                    onClick = onInvalidar,
+                    onClick = { showDialog = true },
                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
                     modifier = Modifier.height(30.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
-                    ),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(
-                        // Mantiene el border pero en color error
                     )
                 ) {
                     Text("Invalidar", fontSize = 11.sp)
                 }
             }
         }
+    }
+
+    // ---------------------------------------------------------------------
+    // Dialog de confirmación
+    // ---------------------------------------------------------------------
+    if (showDialog) {
+        DialogBase(
+            data = mapOf(
+                "header" to "Invalidar tirada",
+                "content" to "¿Seguro que quieres invalidar esta tirada?",
+                "confirmButton" to "Invalidar",
+                "dismissButton" to "Cancelar"
+            ),
+            onConfirm = {
+                onInvalidar()
+                showDialog = false
+            },
+            onDismiss = {
+                showDialog = false
+            }
+        )
     }
 }
 

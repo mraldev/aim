@@ -529,15 +529,6 @@ class Settings : Screen {
                     style = MaterialTheme.typography.titleLarge
                 )
 
-                //- Nombre o email como subtítulo
-                Column {
-                    UserManager.correo.value?.let { correo ->
-                        Text(
-                            text  = UserManager.nombre.value ?: correo.split("@")[0],
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
