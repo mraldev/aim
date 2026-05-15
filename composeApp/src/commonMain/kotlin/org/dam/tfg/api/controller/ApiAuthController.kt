@@ -3,6 +3,8 @@ package org.dam.tfg.api.controller
 import org.dam.tfg.api.endpoints.VerificacionUsuario
 import org.dam.tfg.api.responses.UsuarioResponse
 import org.dam.tfg.dto.UsuarioDtoMostrarBasico
+import org.dam.tfg.enums.Asociacion
+import org.dam.tfg.enums.Genero
 import org.dam.tfg.enums.UserRole
 
 class ApiAuthController {
@@ -22,5 +24,25 @@ class ApiAuthController {
 
     suspend fun nuevoRol(correo: String, nuevoRole: UserRole): UsuarioDtoMostrarBasico? {
         return login.nuevoRol(correo, nuevoRole)
+    }
+
+    suspend fun baja(): Boolean {
+        return login.baja()
+    }
+
+    suspend fun eliminarAsociacion(asociacion: Asociacion): Boolean {
+        return login.eliminarAsociacion(asociacion)
+    }
+
+    suspend fun nuevoCorreo(nuevoCorreo: String): Boolean {
+        return login.nuevoCorreo(nuevoCorreo)
+    }
+
+    suspend fun putNombre(nombre: String): Boolean {
+        return login.putNombre(nombre)
+    }
+
+    suspend fun putGenero(genero: Genero): Boolean {
+        return login.putGenero(genero)
     }
 }
