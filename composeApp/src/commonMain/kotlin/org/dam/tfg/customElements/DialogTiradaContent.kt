@@ -13,6 +13,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.dam.tfg.api.managers.UserManager
+import org.dam.tfg.enums.TipoCircuito
+import org.dam.tfg.helpers.HelperCargadorDeTipoDeTirada
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,13 +23,15 @@ fun DialogContent(
     numDianasFixed: Int? = null,
     flechasFixed: Int? = null,
     participantesFixed: List<String>? = null,
-    onConfirm: (Int, Int, List<String>) -> Unit,
+    onConfirm: (Int, Int, List<String>, TipoCircuito) -> Unit,
     onDismiss: () -> Unit
 ) {
     var numDianas by remember { mutableStateOf(numDianasFixed?.toString() ?: "") }
     var flechas by remember { mutableStateOf(flechasFixed ?: 1) }
     var expanded by remember { mutableStateOf(false) }
     var nuevoParticipante by remember { mutableStateOf("") }
+    var tipoCircuito by remember { mutableStateOf(TipoCircuito.CUSTOM) }
+    var expandedCircuito by remember { mutableStateOf(false)}
     val participantes = remember(participantesFixed) {
         mutableStateListOf<String>().apply {
             if (participantesFixed != null) {
@@ -43,6 +47,13 @@ fun DialogContent(
     fun siguienteNombre(nombre: String): String {
         val count = participantes.count { it == nombre || it.startsWith("$nombre (") }
         return "$nombre (${count + 1})"
+    }
+
+    fun onTipoCircuitoSelected(tipo: TipoCircuito) {
+        val datos = HelperCargadorDeTipoDeTirada.cargarDatos(tipo)
+
+        flechas = datos.numFlechasPorDiana
+        numDianas = datos.numDianas.toString()
     }
 
     //- Diálogo de duplicado
@@ -98,7 +109,7 @@ fun DialogContent(
             label = { Text("Dianas") },
             singleLine = true,
             readOnly = numDianasFixed != null,
-            enabled = numDianasFixed == null,
+            enabled = numDianasFixed == null && tipoCircuito == TipoCircuito.CUSTOM,
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor   = AppColors.Lavender,              //- Color Lavender para el borde al enfocar
@@ -119,7 +130,7 @@ fun DialogContent(
                 value = flechas.toString(),
                 onValueChange = {},
                 readOnly = true,
-                enabled = flechasFixed == null,
+                enabled = flechasFixed == null && tipoCircuito == TipoCircuito.CUSTOM,
                 label = { Text("Flechas por diana") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                 modifier = Modifier.fillMaxWidth().menuAnchor(),
@@ -132,7 +143,7 @@ fun DialogContent(
                 )
             )
             ExposedDropdownMenu(
-                expanded = expanded,
+                expanded = expanded && tipoCircuito == TipoCircuito.CUSTOM,
                 onDismissRequest = { expanded = false }
             ) {
                 (1..4).forEach { option ->
@@ -143,6 +154,45 @@ fun DialogContent(
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        ExposedDropdownMenuBox(
+            expanded = expandedCircuito,
+            onExpandedChange = { expandedCircuito = !expandedCircuito }
+        ) {
+            OutlinedTextField(
+                value = tipoCircuito.name,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Tipo de circuito") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expandedCircuito) },
+                modifier = Modifier.fillMaxWidth().menuAnchor(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor    = AppColors.Lavender,
+                    unfocusedBorderColor  = AppColors.Lavender,
+                    focusedLabelColor     = AppColors.Black,
+                    unfocusedLabelColor   = AppColors.Black,
+                    focusedContainerColor = AppColors.Eggshell
+                )
+            )
+            ExposedDropdownMenu(
+                expanded = expandedCircuito,
+                onDismissRequest = { expandedCircuito = false }
+            ) {
+                TipoCircuito.entries.forEach { tipo ->
+                    DropdownMenuItem(
+                        text = { Text(tipo.name) },
+                        onClick = {
+                            tipoCircuito = tipo
+                            expandedCircuito = false
+                            if (tipo != TipoCircuito.CUSTOM) onTipoCircuitoSelected(tipo)
+                        }
+                    )
+                }
+            }
+        }
+
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -234,7 +284,7 @@ fun DialogContent(
 
             Button(
                 onClick = {
-                    if (numDianas.isNotEmpty()) onConfirm(numDianas.toInt(), flechas, participantes)
+                    if (numDianas.isNotEmpty()) onConfirm(numDianas.toInt(), flechas, participantes, tipoCircuito)
                 },
                 enabled = numDianas.isNotEmpty() && participantes.isNotEmpty(),
                 colors = ButtonDefaults.buttonColors(

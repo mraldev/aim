@@ -13,11 +13,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import org.dam.tfg.customElements.DialogContent
+import org.dam.tfg.enums.TipoCircuito
 
 @Composable
 fun TiradaDialog(
     onDismiss: () -> Unit,
-    onConfirm: (Int, Int, List<String>) -> Unit
+    onConfirm: (Int, Int, List<String>, TipoCircuito) -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismiss,
