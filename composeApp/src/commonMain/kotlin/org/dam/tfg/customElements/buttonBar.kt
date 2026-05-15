@@ -197,7 +197,7 @@ fun buttonBar(
         ) {
             val isSuperAdmin = UserManager.roles.value == UserRole.SUPER_ADMIN
             Icon(
-                imageVector = if (isSuperAdmin) Icons.Filled.ManageAccounts else Icons.Filled.History,
+                imageVector = if (isSuperAdmin) Icons.Filled.ManageAccounts else Icons.Filled.EmojiEvents,
                 tint = Color.Black,
                 contentDescription = if (isSuperAdmin) "Gestionar usuarios" else "Historial"
             )
@@ -238,7 +238,7 @@ fun buttonBar(
         ) {
             val isSuperAdmin = UserManager.roles.value == UserRole.SUPER_ADMIN
             Icon(
-                imageVector = if (isSuperAdmin) Icons.Filled.Leaderboard else Icons.Filled.EmojiEvents,
+                imageVector = if (isSuperAdmin) Icons.Filled.Leaderboard else Icons.Filled.History,
                 tint = Color.Black,
                 contentDescription = if (isSuperAdmin) "Competición" else "Ranking"
             )
