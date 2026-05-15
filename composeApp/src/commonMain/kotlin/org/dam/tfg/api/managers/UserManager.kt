@@ -7,6 +7,8 @@ import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.responses.FederadoResponse
 import org.dam.tfg.api.responses.LogInResponse
 import org.dam.tfg.api.responses.UsuarioResponse
+import org.dam.tfg.crypto.CredentialStore
+import org.dam.tfg.crypto.CryptoManager
 import org.dam.tfg.dto.ClubBasicoDto
 import org.dam.tfg.enums.Asociacion
 import org.dam.tfg.enums.Genero

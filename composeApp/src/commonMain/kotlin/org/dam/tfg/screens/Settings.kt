@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.dam.tfg.api.authorization.TokenManager
 import org.dam.tfg.api.managers.SesionManager
@@ -42,6 +44,8 @@ import org.dam.tfg.customElements.buttonBar
 import org.dam.tfg.customElements.profileBar
 import org.dam.tfg.enums.Asociacion
 import org.dam.tfg.enums.Genero
+import org.dam.tfg.repository.LigaRepository
+import org.dam.tfg.repository.LoginRepository
 
 class Settings : Screen {
     private fun limpiarManagers() {
@@ -54,6 +58,8 @@ class Settings : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
+
+        val usuarioRepository = LoginRepository()
 
         val regex = remember {
             Regex(
@@ -100,6 +106,8 @@ class Settings : Screen {
         var nombreNuevo          by remember { mutableStateOf("") }
         var fecNacNuevo          by remember { mutableStateOf<LocalDate?>(null) }
 
+        val scope = rememberCoroutineScope()
+
         //- Dialog Confirmación baja cuenta
         if (showConfirmationDialog) {
             DialogBase(
@@ -112,6 +120,9 @@ class Settings : Screen {
                 onConfirm = {
                     limpiarManagers()
                     navigator.push(Home())
+                    scope.launch {
+                        usuarioRepository.baja()
+                    }
                 },
                 onDismiss = { showConfirmationDialog = false }
             )
@@ -128,6 +139,12 @@ class Settings : Screen {
                 ),
                 onConfirm = {
                     UserManager.removeAsociacion(asoc)
+                    scope.launch {
+                        usuarioRepository.eliminarAsociacion(asoc)
+                        UserManager.setAsociaciones(
+                            UserManager.asociaciones.value.filterKeys { it != asoc }
+                        )
+                    }
                     asociacionAEliminar = null
                 },
                 onDismiss = { asociacionAEliminar = null }
@@ -146,6 +163,12 @@ class Settings : Screen {
                                 correoNuevo = ""
                             } else {
                                 UserManager.setCorreo(correoNuevo)
+
+                                scope.launch {
+                                    usuarioRepository.nuevoCorreo(correoNuevo)
+                                    CredentialStore.save(correoNuevo, UserManager.contrasenya.value!!)
+                                }
+
                                 showEmailDialog = false
                             }
                         },
@@ -187,6 +210,11 @@ class Settings : Screen {
                         onClick = {
                             if (nombreNuevo.isNotBlank()) {
                                 UserManager.setNombre(nombreNuevo)
+
+                                scope.launch {
+                                    usuarioRepository.putNombre(nombreNuevo)
+                                }
+
                                 showNameDialog = false
                             }
                         },
@@ -228,6 +256,11 @@ class Settings : Screen {
                         onClick = {
                             if (generoNuevo != null) {
                                 UserManager.setGenero(generoNuevo)
+
+                                scope.launch {
+                                    usuarioRepository.putGenero(generoNuevo!!)
+                                }
+
                                 showSexDialog = false
                             }
                         },

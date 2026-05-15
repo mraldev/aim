@@ -3,6 +3,8 @@ package org.dam.tfg.repository
 import org.dam.tfg.api.controller.ApiAuthController
 import org.dam.tfg.api.responses.UsuarioResponse
 import org.dam.tfg.dto.UsuarioDtoMostrarBasico
+import org.dam.tfg.enums.Asociacion
+import org.dam.tfg.enums.Genero
 import org.dam.tfg.enums.UserRole
 
 class LoginRepository (
@@ -23,5 +25,25 @@ class LoginRepository (
 
         suspend fun cambiarRol(correo: String, nuevoRole: UserRole): UsuarioDtoMostrarBasico? {
             return api.nuevoRol(correo, nuevoRole)
+        }
+
+        suspend fun baja(): Boolean {
+            return api.baja()
+        }
+
+        suspend fun eliminarAsociacion(asociacion: Asociacion): Boolean {
+            return api.eliminarAsociacion(asociacion)
+        }
+
+        suspend fun nuevoCorreo(nuevoCorreo: String): Boolean {
+            return api.nuevoCorreo(nuevoCorreo)
+        }
+
+        suspend fun putNombre(nombre: String): Boolean {
+            return api.putNombre(nombre)
+        }
+
+        suspend fun putGenero(genero: Genero): Boolean {
+            return api.putGenero(genero)
         }
     }

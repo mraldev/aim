@@ -19,6 +19,8 @@ import org.dam.tfg.api.responses.UsuarioResponse
 import org.dam.tfg.api.responses.RegisterResponse
 import org.dam.tfg.api.responses.ResponseHelper
 import org.dam.tfg.dto.UsuarioDtoMostrarBasico
+import org.dam.tfg.enums.Asociacion
+import org.dam.tfg.enums.Genero
 import org.dam.tfg.enums.UserRole
 
 class VerificacionUsuario {
@@ -188,6 +190,115 @@ class VerificacionUsuario {
         } catch (e: Exception) {
             println("Login error: ${e.message}")
             return null
+        }
+    }
+
+    suspend fun baja(): Boolean {
+        try {
+            val response = ApiClient.client.put (
+                "${ApiConfig.BASE_URL}/usuarios/baja"
+            ){
+                contentType(ContentType.Application.Json)
+
+                header("Authorization", "Bearer ${TokenManager.token.value}")
+                header("correo", UserManager.correo.value)
+            }
+
+            val exito = ResponseHelper.validarResponse(response)
+
+            return exito
+
+        } catch (e: Exception) {
+            println("Login error: ${e.message}")
+            return false
+        }
+    }
+
+    suspend fun eliminarAsociacion(asociacion: Asociacion): Boolean {
+        try {
+            val response = ApiClient.client.put (
+                "${ApiConfig.BASE_URL}/eliminar/asociacion"
+            ){
+                contentType(ContentType.Application.Json)
+
+                header("Authorization", "Bearer ${TokenManager.token.value}")
+                header("correo", UserManager.correo.value)
+                header("asociacion", asociacion)
+            }
+
+            val exito = ResponseHelper.validarResponse(response)
+
+            return exito
+
+        } catch (e: Exception) {
+            println("Login error: ${e.message}")
+            return false
+        }
+    }
+
+    suspend fun nuevoCorreo(nuevoCorreo: String): Boolean {
+        try {
+            val response = ApiClient.client.put (
+                "${ApiConfig.BASE_URL}/actualizar/correo"
+            ){
+                contentType(ContentType.Application.Json)
+
+                header("Authorization", "Bearer ${TokenManager.token.value}")
+                header("correo", UserManager.correo.value)
+                header("nuevoCorreo", nuevoCorreo)
+            }
+
+            val exito = ResponseHelper.validarResponse(response)
+
+            return exito
+
+        } catch (e: Exception) {
+            println("Login error: ${e.message}")
+            return false
+        }
+    }
+
+    suspend fun putNombre(nombre: String): Boolean {
+        try {
+            val response = ApiClient.client.put (
+                "${ApiConfig.BASE_URL}/actualizar/nombre"
+            ){
+                contentType(ContentType.Application.Json)
+
+                header("Authorization", "Bearer ${TokenManager.token.value}")
+                header("correo", UserManager.correo.value)
+                header("nombre", nombre)
+            }
+
+            val exito = ResponseHelper.validarResponse(response)
+
+            return exito
+
+        } catch (e: Exception) {
+            println("Login error: ${e.message}")
+            return false
+        }
+    }
+
+    suspend fun putGenero(genero: Genero): Boolean {
+        try {
+            val response = ApiClient.client.put (
+                "${ApiConfig.BASE_URL}/actualizar/genero"
+            ){
+                contentType(ContentType.Application.Json)
+
+                header("Authorization", "Bearer ${TokenManager.token.value}")
+                header("correo", UserManager.correo.value)
+                header("genero", genero)
+            }
+
+            val exito = ResponseHelper.validarResponse(response)
+
+            return exito
+
+        } catch (e: Exception) {
+            println("Login error: ${e.message}")
+            return false
         }
     }
 }
