@@ -68,7 +68,6 @@ class UsuariosScreenSuperAdmin : Screen {
                     .padding(bottom = 80.dp)
                     .fillMaxSize()
             ) {
-                profileBar(navigator)
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
