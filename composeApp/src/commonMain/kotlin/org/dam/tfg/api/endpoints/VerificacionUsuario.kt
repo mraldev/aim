@@ -218,7 +218,7 @@ class VerificacionUsuario {
     suspend fun eliminarAsociacion(asociacion: Asociacion): Boolean {
         try {
             val response = ApiClient.client.put (
-                "${ApiConfig.BASE_URL}/eliminar/asociacion"
+                "${ApiConfig.BASE_URL}/usuarios/eliminar/asociacion"
             ){
                 contentType(ContentType.Application.Json)
 
@@ -240,7 +240,7 @@ class VerificacionUsuario {
     suspend fun nuevoCorreo(nuevoCorreo: String): Boolean {
         try {
             val response = ApiClient.client.put (
-                "${ApiConfig.BASE_URL}/actualizar/correo"
+                "${ApiConfig.BASE_URL}/usuarios/actualizar/correo"
             ){
                 contentType(ContentType.Application.Json)
 
@@ -262,7 +262,7 @@ class VerificacionUsuario {
     suspend fun putNombre(nombre: String): Boolean {
         try {
             val response = ApiClient.client.put (
-                "${ApiConfig.BASE_URL}/actualizar/nombre"
+                "${ApiConfig.BASE_URL}/usuarios/actualizar/nombre"
             ){
                 contentType(ContentType.Application.Json)
 
@@ -284,7 +284,7 @@ class VerificacionUsuario {
     suspend fun putGenero(genero: Genero): Boolean {
         try {
             val response = ApiClient.client.put (
-                "${ApiConfig.BASE_URL}/actualizar/genero"
+                "${ApiConfig.BASE_URL}/usuarios/actualizar/genero"
             ){
                 contentType(ContentType.Application.Json)
 
@@ -306,7 +306,7 @@ class VerificacionUsuario {
     suspend fun putAsociacion(asociacion: Asociacion, numAsociado: Int): Boolean {
         try {
             val response = ApiClient.client.put (
-                "${ApiConfig.BASE_URL}/agregar/asociacion"
+                "${ApiConfig.BASE_URL}/usuarios/agregar/asociacion"
             ){
                 contentType(ContentType.Application.Json)
 
@@ -329,7 +329,7 @@ class VerificacionUsuario {
     suspend fun putContrasenya(contrasenya: String): Boolean {
         try {
             val response = ApiClient.client.put (
-                "${ApiConfig.BASE_URL}/actualizar/contrasenya"
+                "${ApiConfig.BASE_URL}/usuarios/actualizar/contrasenya"
             ){
                 contentType(ContentType.Application.Json)
 
@@ -351,7 +351,7 @@ class VerificacionUsuario {
     suspend fun putFechaNac(fechaNacimiento: LocalDate): Boolean {
         try {
             val response = ApiClient.client.put (
-                "${ApiConfig.BASE_URL}/actualizar/nacimiento"
+                "${ApiConfig.BASE_URL}/usuarios/actualizar/nacimiento"
             ){
                 contentType(ContentType.Application.Json)
 
