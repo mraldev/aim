@@ -34,7 +34,7 @@ import org.dam.tfg.model.Tirada.Tirada
 import org.dam.tfg.repository.LigaRepository
 
 // ---------------------------------------------------------------------------
-// Screen
+// Screen EN DESUSO
 // ---------------------------------------------------------------------------
 
 class CompeticionesScreenSuperAdmin : Screen {

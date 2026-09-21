@@ -139,13 +139,6 @@ internal fun ListaCompeticiones(
 
     Scaffold(
         containerColor = Color.Transparent,
-        floatingActionButton = {
-            if (userRole == UserRole.ADMIN) {
-                FloatingActionButton(onClick = onAñadir) {
-                    Icon(Icons.Default.Add, contentDescription = "Añadir competición")
-                }
-            }
-        },
         bottomBar = { buttonBar() }
     ) { padding ->
         Column(

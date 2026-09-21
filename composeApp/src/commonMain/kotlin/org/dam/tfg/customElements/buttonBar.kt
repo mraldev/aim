@@ -9,8 +9,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Leaderboard
-import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -41,8 +39,6 @@ import org.dam.tfg.screens.TiradaScreen
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.launch
 import org.dam.tfg.api.managers.UserManager
-import org.dam.tfg.screens.superadmin.CompeticionesScreenSuperAdmin
-import org.dam.tfg.screens.superadmin.UsuariosScreenSuperAdmin
 
 @Composable
 fun buttonBar(
@@ -177,11 +173,6 @@ fun buttonBar(
                 scope.launch {
                     if (!TokenManager.isLoggedIn()) {
                         showDialogNoRegistradoCompeticion = true
-                    } else if (UserManager.roles.value == UserRole.SUPER_ADMIN){
-                        nav.pop()
-                        nav.push(
-                            CompeticionesScreenSuperAdmin()
-                        )
                     } else if (UserManager.asociaciones.value.isEmpty()) showDialogNoAsociaciones = true
                      else {
                         nav.pop()
@@ -195,11 +186,10 @@ fun buttonBar(
                 }
             }
         ) {
-            val isSuperAdmin = UserManager.roles.value == UserRole.SUPER_ADMIN
             Icon(
-                imageVector = if (isSuperAdmin) Icons.Filled.ManageAccounts else Icons.Filled.EmojiEvents,
+                imageVector = Icons.Filled.EmojiEvents,
                 tint = Color.Black,
-                contentDescription = if (isSuperAdmin) "Gestionar usuarios" else "Historial"
+                contentDescription = "Historial"
             )
         }
 
@@ -224,23 +214,17 @@ fun buttonBar(
             onClick = {
                 scope.launch {
                     if (!TokenManager.isLoggedIn()) showDialogNoRegistradoHistorial = true
-                    else if (UserManager.roles.value == UserRole.SUPER_ADMIN){
-                        nav.pop()
-                        nav.push(
-                            UsuariosScreenSuperAdmin()
-                        )
-                    } else{
+                    else{
                         nav.pop()
                         nav.push(HistorialScreen())
                     }
                 }
             }
         ) {
-            val isSuperAdmin = UserManager.roles.value == UserRole.SUPER_ADMIN
             Icon(
-                imageVector = if (isSuperAdmin) Icons.Filled.Leaderboard else Icons.Filled.History,
+                imageVector = Icons.Filled.History,
                 tint = Color.Black,
-                contentDescription = if (isSuperAdmin) "Competición" else "Ranking"
+                contentDescription = "Ranking"
             )
         }
 

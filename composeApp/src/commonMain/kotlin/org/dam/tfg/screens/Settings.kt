@@ -551,7 +551,7 @@ class Settings : Screen {
 
                 Spacer(modifier = Modifier.height(50.dp))
 
-                //- Datos del perfil (botones siempre visibles)
+                /*- Datos del perfil (botones siempre visibles)
                 Row {
                     AnimatedButton(
                         onClick  = { showAsociacionDialog = true },
@@ -587,7 +587,7 @@ class Settings : Screen {
                 }
 
                 Spacer(modifier = Modifier.height(50.dp))
-
+*/
                 //- Sesión
                 Row {
                     AnimatedButton(

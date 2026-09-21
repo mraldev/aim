@@ -37,7 +37,7 @@ import org.dam.tfg.repository.LoginRepository
 private val ROLES_ASIGNABLES = UserRole.entries
 
 // ---------------------------------------------------------------------------
-// Screen
+// Screen EN DESUSO
 // ---------------------------------------------------------------------------
 
 class UsuariosScreenSuperAdmin : Screen {
@@ -384,10 +384,6 @@ private fun EmptyStateUsuarios() {
 @Composable
 private fun rolColors(rol: UserRole): Pair<androidx.compose.ui.graphics.Color, androidx.compose.ui.graphics.Color> =
     when (rol) {
-        UserRole.SUPER_ADMIN -> Pair(
-            MaterialTheme.colorScheme.errorContainer,
-            MaterialTheme.colorScheme.onErrorContainer
-        )
         UserRole.ADMIN -> Pair(
             MaterialTheme.colorScheme.primaryContainer,
             MaterialTheme.colorScheme.onPrimaryContainer
@@ -401,7 +397,6 @@ private fun rolColors(rol: UserRole): Pair<androidx.compose.ui.graphics.Color, a
 
 private fun rolEmoji(rol: UserRole): String =
     when (rol) {
-        UserRole.SUPER_ADMIN -> "👑"
         UserRole.ADMIN       -> "🛡️"
         // Añade aquí el resto de valores de UserRole según necesites
         else                 -> "👤"

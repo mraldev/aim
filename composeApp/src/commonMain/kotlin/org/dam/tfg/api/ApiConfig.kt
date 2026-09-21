@@ -10,3 +10,10 @@ object ApiConfig {
 //    const val BASE_URL = apiProd
 
 }
+
+
+/*
+ ! Eliminar
+ !!! ASIGNAR ASOCIACION, NOMBRE, FECHANACIMIENTO, GENERO vvv REEMPLAZO??
+ ? SOLICITAR Federacion ( Eliges la federacion y los administradores de dicha federacion te pueden dar de alta mediante la web como ferderado)
+*/
